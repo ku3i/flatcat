@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="framework" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option platforms="Unix;" />
+				<Option output="bin/Release/framework" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Debug">
+				<Option output="bin/Debug/framework" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wswitch-default" />
+			<Add option="-Weffc++" />
+			<Add option="-pedantic" />
+			<Add option="-Wall" />
+			<Add option="-std=c++11" />
+			<Add option="`sdl2-config --cflags`" />
+			<Add option="`pkg-config --cflags gtk+-2.0 gmodule-2.0`" />
+			<Add directory="../simloidTCP/src" />
+			<Add directory="../framework/src" />
+		</Compiler>
+		<Linker>
+			<Add option="`sdl2-config --libs`" />
+			<Add option="`pkg-config --libs gtk+-2.0 gmodule-2.0`" />
+			<Add library="SDL2" />
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="glut" />
+		</Linker>
+		<Unit filename="src/common/application_interface.h" />
+		<Unit filename="src/common/basic.cpp" />
+		<Unit filename="src/common/basic.h" />
+		<Unit filename="src/common/callbacks.cpp" />
+		<Unit filename="src/common/callbacks.h" />
+		<Unit filename="src/common/config.cpp" />
+		<Unit filename="src/common/config.h" />
+		<Unit filename="src/common/datareader.h" />
+		<Unit filename="src/common/event_manager.cpp" />
+		<Unit filename="src/common/event_manager.h" />
+		<Unit filename="src/common/file_io.h" />
+		<Unit filename="src/common/globalflag.h" />
+		<Unit filename="src/common/graph.cpp" />
+		<Unit filename="src/common/graph.h" />
+		<Unit filename="src/common/gui.cpp" />
+		<Unit filename="src/common/gui.h" />
+		<Unit filename="src/common/integrator.h" />
+		<Unit filename="src/common/lock.h" />
+		<Unit filename="src/common/log_messages.cpp" />
+		<Unit filename="src/common/log_messages.h" />
+		<Unit filename="src/common/logfile.cpp" />
+		<Unit filename="src/common/logfile.h" />
+		<Unit filename="src/common/misc.cpp" />
+		<Unit filename="src/common/misc.h" />
+		<Unit filename="src/common/modules.cpp" />
+		<Unit filename="src/common/modules.h" />
+		<Unit filename="src/common/noncopyable.h" />
+		<Unit filename="src/common/robot_conf.cpp" />
+		<Unit filename="src/common/robot_conf.h" />
+		<Unit filename="src/common/settings.cpp" />
+		<Unit filename="src/common/settings.h" />
+		<Unit filename="src/common/setup.cpp" />
+		<Unit filename="src/common/setup.h" />
+		<Unit filename="src/common/socket_client.cpp" />
+		<Unit filename="src/common/socket_client.h" />
+		<Unit filename="src/common/static_vector.h" />
+		<Unit filename="src/common/stopwatch.h" />
+		<Unit filename="src/common/vector.cpp" />
+		<Unit filename="src/common/vector.h" />
+		<Unit filename="src/common/vector2.h" />
+		<Unit filename="src/common/vector_n.h" />
+		<Unit filename="src/common/visuals.h" />
+		<Unit filename="src/control/behavior_state_machine.h" />
+		<Unit filename="src/control/controlparameter.cpp" />
+		<Unit filename="src/control/controlparameter.h" />
+		<Unit filename="src/control/csl.h" />
+		<Unit filename="src/control/jointcontrol.cpp" />
+		<Unit filename="src/control/jointcontrol.h" />
+		<Unit filename="src/control/jointcontrol_graphics.h" />
+		<Unit filename="src/control/jointcontroller.cpp" />
+		<Unit filename="src/control/jointcontroller.h" />
+		<Unit filename="src/control/pidcontrol.h" />
+		<Unit filename="src/control/positioncontrol.h" />
+		<Unit filename="src/control/spaces.h" />
+		<Unit filename="src/control/statemachine.h" />
+		<Unit filename="src/draw/axes.cpp" />
+		<Unit filename="src/draw/axes.h" />
+		<Unit filename="src/draw/axes3D.cpp" />
+		<Unit filename="src/draw/axes3D.h" />
+		<Unit filename="src/draw/color_table.h" />
+		<Unit filename="src/draw/display.cpp" />
+		<Unit filename="src/draw/display.h" />
+		<Unit filename="src/draw/draw.cpp" />
+		<Unit filename="src/draw/draw.h" />
+		<Unit filename="src/draw/graphics.h" />
+		<Unit filename="src/draw/network2D.cpp" />
+		<Unit filename="src/draw/network2D.h" />
+		<Unit filename="src/draw/network3D.cpp" />
+		<Unit filename="src/draw/network3D.h" />
+		<Unit filename="src/draw/plot1D.cpp" />
+		<Unit filename="src/draw/plot1D.h" />
+		<Unit filename="src/draw/plot2D.cpp" />
+		<Unit filename="src/draw/plot2D.h" />
+		<Unit filename="src/draw/plot3D.cpp" />
+		<Unit filename="src/draw/plot3D.h" />
+		<Unit filename="src/evolution/evaluation_interface.h" />
+		<Unit filename="src/evolution/evolution.cpp" />
+		<Unit filename="src/evolution/evolution.h" />
+		<Unit filename="src/evolution/evolution_strategy.h" />
+		<Unit filename="src/evolution/fitness.cpp" />
+		<Unit filename="src/evolution/fitness.h" />
+		<Unit filename="src/evolution/generation_based_strategy.cpp" />
+		<Unit filename="src/evolution/generation_based_strategy.h" />
+		<Unit filename="src/evolution/individual.cpp" />
+		<Unit filename="src/evolution/individual.h" />
+		<Unit filename="src/evolution/micro_evolution.h" />
+		<Unit filename="src/evolution/pool_strategy.cpp" />
+		<Unit filename="src/evolution/pool_strategy.h" />
+		<Unit filename="src/evolution/population.cpp" />
+		<Unit filename="src/evolution/population.h" />
+		<Unit filename="src/evolution/setting.cpp" />
+		<Unit filename="src/evolution/setting.h" />
+		<Unit filename="src/learning/action_module.h" />
+		<Unit filename="src/learning/action_selection.cpp" />
+		<Unit filename="src/learning/action_selection.h" />
+		<Unit filename="src/learning/boltzmann_softmax.h" />
+		<Unit filename="src/learning/competitive_motor_layer.h" />
+		<Unit filename="src/learning/competitive_motor_layer_graphics.h" />
+		<Unit filename="src/learning/delayline.cpp" />
+		<Unit filename="src/learning/delayline.h" />
+		<Unit filename="src/learning/eigenzeit.h" />
+		<Unit filename="src/learning/eligibility.h" />
+		<Unit filename="src/learning/epsilon_greedy.h" />
+		<Unit filename="src/learning/expert.h" />
+		<Unit filename="src/learning/forcefield.h" />
+		<Unit filename="src/learning/gmes.h" />
+		<Unit filename="src/learning/gmes_constants.h" />
+		<Unit filename="src/learning/gmes_graphics.h" />
+		<Unit filename="src/learning/payload.h" />
+		<Unit filename="src/learning/payload_graphics.h" />
+		<Unit filename="src/learning/predictor.h" />
+		<Unit filename="src/learning/predictor_graphics.h" />
+		<Unit filename="src/learning/q_function.h" />
+		<Unit filename="src/learning/reinforcement_learning.h" />
+		<Unit filename="src/learning/reward.h" />
+		<Unit filename="src/learning/rl.cpp" />
+		<Unit filename="src/learning/rl.h" />
+		<Unit filename="src/learning/sarsa.h" />
+		<Unit filename="src/learning/sarsa_constants.h" />
+		<Unit filename="src/learning/sarsa_graphics.h" />
+		<Unit filename="src/learning/sensorspace.h" />
+		<Unit filename="src/robots/accel.h" />
+		<Unit filename="src/robots/joint.h" />
+		<Unit filename="src/robots/pole.cpp" />
+		<Unit filename="src/robots/pole.h" />
+		<Unit filename="src/robots/robot.h" />
+		<Unit filename="src/robots/simloid.cpp" />
+		<Unit filename="src/robots/simloid.h" />
+		<Unit filename="src/robots/simloid_graphics.h" />
+		<Unit filename="src/robots/spinalcord_watch.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
