@@ -9,7 +9,7 @@
 #include <common/socket_client.h>
 #include <evolution/evolution_strategy.h>
 
-#define FOLDER_PREFIX "./data/exp/"
+#define FOLDER_PREFIX "../data/exp/"
 
 enum PStatus {NEW, RESUME, WATCH}; // TODO rename
 

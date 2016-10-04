@@ -72,7 +72,8 @@ void Setting::read_setting_file(const std::string& setting_name)
         wrn_msg("No settings file provided. Using default settings.");
         return;
     }
-    read_configuration("./data/settings/" + setting_name + ".setting");
+    //read_configuration("./data/settings/" + setting_name + ".setting");
+    read_configuration(setting_name);
 }
 
 void Setting::read_project_file(const std::string& project_name) {
