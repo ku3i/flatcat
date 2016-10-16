@@ -13,6 +13,7 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
 , evolution_log(FOLDER_PREFIX + projectname + "/evolution.log")
 , bestindiv_log(FOLDER_PREFIX + projectname + "/bestindiv.log")
 , verbose(settings.visuals)
+, playback_only(false)
 {
     common_setup();
 
@@ -70,6 +71,7 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
 , evolution_log(FOLDER_PREFIX + projectname + "/evolution.log", true)
 , bestindiv_log(FOLDER_PREFIX + projectname + "/bestindiv.log", true)
 , verbose(settings.visuals)
+, playback_only(playback_only)
 {
     common_setup();
 
@@ -192,10 +194,14 @@ bool Evolution::loop(void)
 void
 Evolution::prepare_quit(void)
 {
-    configuration.load();
-    configuration.writeINT("STATUS", 1);
-    strategy->save_config(configuration);
-    configuration.finish();
+    if (not playback_only) {
+        sts_msg("Saving data.");
+        configuration.load();
+        configuration.writeINT("STATUS", 1);
+        strategy->save_config(configuration);
+        configuration.finish();
+    }
+    sts_msg("Sending evolution stop signal.");
     state = Evolution_State::stopped;
 }
 
@@ -204,6 +210,8 @@ void
 Evolution::finish(void)
 {
     sts_msg("Closing.");
+    dbg_msg("Current state is: %d", state);
+
     if ((Evolution_State::running == state) || (Evolution_State::aborted == state))
         prepare_quit();
     else if (Evolution_State::playback == state)

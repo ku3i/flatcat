@@ -63,6 +63,7 @@ private:
     file_io::Logfile      bestindiv_log;
 
     const bool            verbose;
+    const bool            playback_only;
 
     void common_setup(void);
     void save_best_individual(void);
