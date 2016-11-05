@@ -144,7 +144,6 @@ public:
             sts_msg("Trial: %u (refreshing)", current_trial);
             result = refreshing_trial();
         }
-        sts_msg("**");
 
         if (not result) return Evolution_State::aborted;
 

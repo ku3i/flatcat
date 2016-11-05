@@ -33,7 +33,7 @@ public:
         for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i) {
             if (robot.get_joints()[i].type == robots::Joint_Type_Normal) {
                 xpos += row_width;
-                glprintf(xpos, ypos, 0.0, 0.5*line_height, "%2lu_%s", i, robot.get_joints()[i].name.substr(2,16).c_str());
+                glprintf(xpos, ypos, 0.0, 0.5*line_height, "%2lu_%s", i, robot.get_joints()[i].name.substr(0,16).c_str());
             }
         }
         for (std::size_t k = 0; k < control.number_of_inputs; ++k)

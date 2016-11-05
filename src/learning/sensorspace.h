@@ -2,7 +2,9 @@
 #define SENSORSPACE_H_INCLUDED
 
 #include <vector>
+#include <string>
 #include <cassert>
+#include <functional>
 #include <common/vector_n.h>
 
 /**TODO move to control or robots */
