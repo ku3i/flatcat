@@ -2,7 +2,7 @@
 
 
 void
-Population::initialize_from_seed(const std::vector<double>& seed)
+Population::initialize_from_seed(const std::vector<double>& seed) //TODO take a vector of vectors and init the population or just use load_population
 {
     for (std::size_t i = 0; i < individuals.size(); ++i)
         individuals[i].initialize_from_seed(seed);

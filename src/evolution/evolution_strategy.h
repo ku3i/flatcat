@@ -70,6 +70,12 @@ public:
         population.initialize_from_seed(seed);
     }
 
+    void load_start_population(const std::string& filename) {
+        dbg_msg("Will try to load the population from file %s", filename.c_str());
+        file_io::CSV_File<double> pop_csv(filename, population.get_size(), population.get_individual_size());
+        load_population(population, pop_csv);
+    }
+
     Population&           population;
     Evaluation_Interface& evaluation;
     config&               configuration;

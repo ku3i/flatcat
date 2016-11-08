@@ -50,6 +50,8 @@ class Setting
         double       moving_rate;
         double       selection_bias;
         std::string  seed;
+        std::string  initial_population;
+
 
         double       param_p;
         double       param_d;

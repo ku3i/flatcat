@@ -6,6 +6,7 @@
 #include <float.h>
 #include <common/modules.h>
 #include <common/log_messages.h>
+#include <common/incremental_average.h>
 
 class Individual;
 
@@ -13,31 +14,17 @@ class Fitness_Value
 {
 public:
 
-    Fitness_Value(void)     : fitness(-DBL_MAX), number_of_evaluations(0) {}
-    Fitness_Value(double f) : fitness(f)       , number_of_evaluations(1) {}
+    Fitness_Value(void)     : fitness(-DBL_MAX, 0) {}
+    Fitness_Value(double f) : fitness(f       , 1) {}
 
-    double get_value(void)   const { return fitness; }
-    void   set_value(double value) {
-        /* average fitness (leaky) */
-        if (number_of_evaluations > 0) {
-            //dbg_msg("averaging fitness: %1.2f = 0.1 * %1.2f + 0.9 * %1.2f", 0.1*value + 0.9*fitness, value, fitness);
-            sts_msg(" averaging fitness");
+    double get_value(void)   const { return fitness.mean; }
+    void   set_value(double value) { fitness.sample(value); } // average fitness incrementally
 
-            fitness = 0.1 * value + 0.9 * fitness;// TODO make a constant
-        } else
-            fitness = value;
-        ++number_of_evaluations;
-    }
-
-    void reset(void) {
-        fitness = -DBL_MAX;
-        number_of_evaluations = 0;
-    }
-    std::size_t get_number_of_evaluations(void) const { return number_of_evaluations; }
+    void reset(void) { fitness.reset(-DBL_MAX); }
+    std::size_t get_number_of_evaluations(void) const { return fitness.num_samples; }
 
 private:
-    double      fitness;
-    std::size_t number_of_evaluations;
+    incremental_average fitness;
 
     friend bool operator==(const Fitness_Value& lhs, const Fitness_Value& rhs);
     friend bool operator!=(const Fitness_Value& lhs, const Fitness_Value& rhs);
@@ -48,12 +35,12 @@ private:
     friend void crossover (const Individual& mother, const Individual& father, Individual& child);
 };
 
-inline bool operator==(const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness == rhs.fitness; }
-inline bool operator!=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator==(lhs,rhs);       }
-inline bool operator< (const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness < rhs.fitness;  }
-inline bool operator> (const Fitness_Value& lhs, const Fitness_Value& rhs) { return  operator< (rhs,lhs);       }
-inline bool operator<=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator> (lhs,rhs);       }
-inline bool operator>=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator< (lhs,rhs);       }
+inline bool operator==(const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.mean == rhs.fitness.mean; }
+inline bool operator!=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator==(lhs,rhs);                 }
+inline bool operator< (const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.mean < rhs.fitness.mean;  }
+inline bool operator> (const Fitness_Value& lhs, const Fitness_Value& rhs) { return  operator< (rhs,lhs);                 }
+inline bool operator<=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator> (lhs,rhs);                 }
+inline bool operator>=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator< (lhs,rhs);                 }
 
 void crossover(const Individual& mother, const Individual& father, Individual& child);
 

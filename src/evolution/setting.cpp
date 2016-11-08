@@ -29,6 +29,7 @@ Setting::Setting( int argc, char **argv )
                 , moving_rate(0.5)
                 , selection_bias(1.0) // (0,...,5]
                 , seed()
+                , initial_population()
                 , param_p(3.0)
                 , param_d(-1.0)
                 , param_m(1.0)
@@ -134,6 +135,10 @@ Setting::read_configuration(const std::string& filename)
     seed = settings_file.readSTR("SEED");
     if (seed == "") dbg_msg("   No seed file.");
     else dbg_msg("   Seed file name: %s", seed.c_str());
+
+    initial_population = settings_file.readSTR("INIT_POPULATION");
+    if (initial_population == "") dbg_msg("   No initial population file.");
+    else dbg_msg("   Initial population file name: %s", initial_population.c_str());
 
     fitness_function = settings_file.readSTR("FITNESS_FUNCTION");
     assert(not fitness_function.empty());

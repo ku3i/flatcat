@@ -48,7 +48,12 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
 
     assert(strategy != nullptr);
     assert(not settings.fitness_function.empty());
-    strategy->generate_start_population(seed);
+
+    dbg_msg("Init population filename: %s", settings.initial_population.c_str());
+    if (not settings.initial_population.empty())
+        strategy->load_start_population(settings.initial_population);
+    else
+        strategy->generate_start_population(seed);
 
     state = Evolution_State::running;
     sts_msg("Ready to create.");
