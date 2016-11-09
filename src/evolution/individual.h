@@ -14,14 +14,13 @@ class Fitness_Value
 {
 public:
 
-    Fitness_Value(void)     : fitness(-DBL_MAX, 0) {}
-    Fitness_Value(double f) : fitness(f       , 1) {}
+    explicit Fitness_Value(void) : fitness() {}
 
-    double get_value(void)   const { return fitness.mean; }
-    void   set_value(double value) { fitness.sample(value); } // average fitness incrementally
+    double get_value(void) const { return fitness.get(); }
+    void set_value(double value) { fitness.sample(value); } // average fitness incrementally
 
-    void reset(void) { fitness.reset(-DBL_MAX); }
-    std::size_t get_number_of_evaluations(void) const { return fitness.num_samples; }
+    void reset(void) { fitness.reset(); }
+    std::size_t get_number_of_evaluations(void) const { return fitness.get_num_samples(); }
 
 private:
     incremental_average fitness;
@@ -35,12 +34,12 @@ private:
     friend void crossover (const Individual& mother, const Individual& father, Individual& child);
 };
 
-inline bool operator==(const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.mean == rhs.fitness.mean; }
-inline bool operator!=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator==(lhs,rhs);                 }
-inline bool operator< (const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.mean < rhs.fitness.mean;  }
-inline bool operator> (const Fitness_Value& lhs, const Fitness_Value& rhs) { return  operator< (rhs,lhs);                 }
-inline bool operator<=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator> (lhs,rhs);                 }
-inline bool operator>=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator< (lhs,rhs);                 }
+inline bool operator==(const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.get() == rhs.fitness.get(); }
+inline bool operator!=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator==(lhs,rhs);                   }
+inline bool operator< (const Fitness_Value& lhs, const Fitness_Value& rhs) { return lhs.fitness.get() < rhs.fitness.get();  }
+inline bool operator> (const Fitness_Value& lhs, const Fitness_Value& rhs) { return  operator< (rhs,lhs);                   }
+inline bool operator<=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator> (lhs,rhs);                   }
+inline bool operator>=(const Fitness_Value& lhs, const Fitness_Value& rhs) { return !operator< (lhs,rhs);                   }
 
 void crossover(const Individual& mother, const Individual& father, Individual& child);
 

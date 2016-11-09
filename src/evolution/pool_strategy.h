@@ -77,7 +77,7 @@ public:
     bool evaluate(Individual& individual)
     {
         bool result = evaluation.evaluate(individual.fitness, individual.genome, random_value(0.0, 1.0));
-        sts_msg(" f = %+1.4f", individual.fitness);
+        sts_msg(" f = %+1.4f", individual.fitness.get_value());
         return result;
     }
 
@@ -97,7 +97,7 @@ public:
 
         if (child.fitness > population[replace_idx].fitness)
         {// if better than the replacement candidate, replace it.
-            sts_msg(" (%+1.4f > %+1.4f) individual pushed back, replacing %u", replace_idx, child.fitness, population[replace_idx].fitness);
+            sts_msg(" (%+1.4f > %+1.4f) individual pushed back, replacing %u", replace_idx, child.fitness.get_value(), population[replace_idx].fitness.get_value());
             population[replace_idx] = child;
 
             best_individual_has_changed |= (replace_idx == 0);
@@ -105,7 +105,7 @@ public:
             if (population[replace_idx].fitness.get_number_of_evaluations() == 0)
                 err_msg(__FILE__, __LINE__, "overriding a not yet tested one: %u", replace_idx);
         }
-        else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness, population[replace_idx].fitness);
+        else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness.get_value(), population[replace_idx].fitness.get_value());
 
         return result;
     }
@@ -205,7 +205,7 @@ public:
 
     const Individual& get_best_individual(void) const
     {
-        sts_msg("Get best individual (%1.4f)", population.get_best_individual().fitness);
+        sts_msg("Get best individual (%1.4f)", population.get_best_individual().fitness.get_value());
         return population.get_best_individual();
     }
 

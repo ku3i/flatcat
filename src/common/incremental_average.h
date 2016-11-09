@@ -4,23 +4,24 @@
 class incremental_average {
 public:
 
-    incremental_average(double mean = 0.0, std::size_t num_samples = 0)
-    : mean(mean)
-    , num_samples(num_samples)
-    {}
+    explicit incremental_average(void) : mean{.0}, num_samples{0} {}
 
     void sample(double value) {
         ++num_samples;
         mean = mean + (value - mean) / num_samples;
     }
 
-    void reset(double m = 0.0, std::size_t n = 0) {
-        mean = m;
-        num_samples = n;
+    double get(void) const { return mean; }
+    std::size_t get_num_samples(void) const { return num_samples; }
+
+    void reset(void) {
+        mean = .0;
+        num_samples = 0;
     }
 
-    double mean{.0};
-    std::size_t num_samples{0};
+private:
+    double mean;
+    std::size_t num_samples;
 };
 
 

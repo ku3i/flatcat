@@ -7,7 +7,7 @@
 class Application_Interface
 {
 public:
-    virtual void setup()  = 0; //Think about using this method for unit tests
+    virtual void setup()  = 0; //Think about using this method for unit tests, update: NO! remove
     virtual bool loop()   = 0;
     virtual void finish() = 0;
     virtual void draw(const pref&) const = 0;

@@ -9,21 +9,28 @@
 TEST_CASE( "Incremental Average", "[math]" ) {
     incremental_average inc;
 
-    REQUIRE( inc.mean == 0.0 );
-    REQUIRE( inc.num_samples == 0 );
+    REQUIRE( inc.get() == 0.0 );
+    REQUIRE( inc.get_num_samples() == 0 );
 
+    inc.sample(-0.01337);
+
+    REQUIRE( inc.get() == -0.01337 );
+    REQUIRE( inc.get_num_samples() == 1 );
+
+    inc.sample(-0.01337);
+
+    REQUIRE( inc.get() == -0.01337 );
+    REQUIRE( inc.get_num_samples() == 2 );
+
+    inc.reset();
     for (unsigned i = 0; i < 10; ++i)
         inc.sample(1.0*i);
 
-    REQUIRE( inc.num_samples == 10 );
-    REQUIRE( inc.mean == 4.5 );
+    REQUIRE( inc.get_num_samples() == 10 );
+    REQUIRE( inc.get() == 4.5 );
 
     inc.reset();
-    REQUIRE( inc.mean == 0.0 );
-    REQUIRE( inc.num_samples == 0 );
-
-    inc.reset(13.37, 42);
-    REQUIRE( inc.mean == 13.37 );
-    REQUIRE( inc.num_samples == 42 );
+    REQUIRE( inc.get() == 0.0 );
+    REQUIRE( inc.get_num_samples() == 0 );
 }
 
