@@ -5,6 +5,11 @@
  * Di, 8.November 2016
  * Hillary oder Donald? */
 
+static bool close(double value, double refval, double maxdiff) { return (fabs(value - refval) < maxdiff); }
+
+const double tolerance = 0.0001; // DO NOT CHANGE!
+
+
 #include <common/incremental_average.h>
 TEST_CASE( "Incremental Average", "[math]" ) {
     incremental_average inc;
@@ -34,3 +39,28 @@ TEST_CASE( "Incremental Average", "[math]" ) {
     REQUIRE( inc.get_num_samples() == 0 );
 }
 
+#include <common/modules.h>
+TEST_CASE( "unwrap", "[math]" ) {
+
+    /* Test of wrap2 and unwrap */
+    double step = M_PI_4;
+    double angle = -4*M_PI;
+    double unwrapped = angle;
+
+    for (unsigned int i = 0; i < 32; ++i)
+    {
+        double mod_angle = wrap2(angle);
+        REQUIRE( close(mod_angle, wrap(angle), tolerance) ); // check 2nd version
+        unwrapped = unwrap(mod_angle, unwrapped);
+        REQUIRE( close(angle, unwrapped, tolerance) );
+        angle += step;
+    }
+    for (unsigned int i = 0; i < 32; ++i)
+    {
+        double mod_angle = wrap2(angle);
+        REQUIRE( close(mod_angle, wrap(angle), tolerance) ); // check 2nd version
+        unwrapped = unwrap(mod_angle, unwrapped);
+        REQUIRE( close(angle, unwrapped, tolerance) );
+        angle -= step;
+    }
+}
