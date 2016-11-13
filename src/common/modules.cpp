@@ -274,9 +274,3 @@ unwrap(double new_angle, double last_angle)
     return last_angle;
 }
 
-void
-assert_close(double value, double refval, double maxdiff)
-{
-    assert(fabs(value - refval) < maxdiff);
-}
-

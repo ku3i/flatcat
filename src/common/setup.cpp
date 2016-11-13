@@ -23,7 +23,6 @@ process_application(void *data)
 
     Application_Interface *a = static_cast<Application_Interface *>(data);
     sts_msg("Setting up application.");
-    a->setup();
     do_drawing.enable(); // enable drawing
 
     sts_msg("Entering application main loop.");

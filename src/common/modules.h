@@ -95,8 +95,11 @@ double wrap2(double angle);
 /* unwraps angles of -pi..+pi to -inf..+inf */
 double unwrap(double new_angle, double last_angle);
 
-/* assert that value is close to refval by max distance of maxdiff */
-void assert_close(double value, double refval, double maxdiff);
+/* checks that value is close to refval by max distance of maxdiff */
+inline bool close(double value, double refval, double maxdiff) { return (fabs(value - refval) < maxdiff); }
+
+/* asserts that value is close to refval by max distance of maxdiff */
+inline void assert_close(double value, double refval, double maxdiff) { assert( close(value, refval, maxdiff) ); }
 
 /* checks if variable is in the given range [lower, upper]*/
 template <typename T>
