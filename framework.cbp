@@ -39,6 +39,7 @@
 			<Add option="-std=c++11" />
 			<Add option="`sdl2-config --cflags`" />
 			<Add option="`pkg-config --cflags gtk+-2.0 gmodule-2.0`" />
+			<Add option="-D__LINUX_ALSA__" />
 			<Add directory="../simloidTCP/src" />
 			<Add directory="../framework/src" />
 		</Compiler>
@@ -49,6 +50,8 @@
 			<Add library="GL" />
 			<Add library="GLU" />
 			<Add library="glut" />
+			<Add library="asound" />
+			<Add library="pthread" />
 		</Linker>
 		<Unit filename="src/common/application_interface.h">
 			<Option target="Release" />
@@ -353,9 +356,7 @@
 		<Unit filename="src/learning/eligibility.h">
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="src/learning/epsilon_greedy.h">
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="src/learning/epsilon_greedy.h" />
 		<Unit filename="src/learning/expert.h">
 			<Option target="Release" />
 		</Unit>
@@ -410,6 +411,15 @@
 		<Unit filename="src/learning/sensorspace.h">
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src/midi/RtMidi.cpp">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/midi/RtMidi.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/midi/midi_in.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/robots/accel.h">
 			<Option target="Release" />
 		</Unit>
@@ -438,6 +448,9 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/tests/catch.hpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/learning.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/main.cpp">
