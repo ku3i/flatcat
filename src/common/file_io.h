@@ -21,7 +21,7 @@ class CSV_File : public noncopyable
     CSV_File(const CSV_File& other) = delete;      // non construction-copyable
     CSV_File& operator=(const CSV_File&) = delete; // non copyable
 public:
-    CSV_File(const std::string& filename, const std::size_t rows, const std::size_t cols)
+    CSV_File(const std::string& filename, const std::size_t rows, const std::size_t cols, bool assert_size = false)
     : csv_file()
     , nbytes(cols * constants::format_length)
     , txtbuf((char *) malloc(nbytes + 1))
@@ -29,6 +29,7 @@ public:
     , max_rows(rows)
     , max_cols(cols)
     , filename(filename)
+    , assert_size(assert_size)
     {}
 
     ~CSV_File() { free(txtbuf); }
@@ -48,6 +49,8 @@ public:
             while (col < max_cols) {
                 if (token != NULL)
                     data[row][col++] = atof(token);
+                else if (assert_size)
+                    err_msg(__FILE__, __LINE__, "Unexpected colums size: %u (%u expected)", col, max_cols);
                 else break;
                 token = strtok(NULL, constants::separator); // get next token
             }
@@ -101,7 +104,7 @@ private:
     const std::size_t max_rows;
     const std::size_t max_cols;
     const std::string filename;
-
+    bool assert_size;
 };
 
 

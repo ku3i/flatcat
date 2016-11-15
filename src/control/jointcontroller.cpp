@@ -73,7 +73,7 @@ Jointcontroller::load_seed(const std::string& filename)
     assert(seed_from_file.size() == 0);
     assert(not filename.empty());
 
-    file_io::CSV_File<double> seed_csv(filename, 1, total_num_params);
+    file_io::CSV_File<double> seed_csv(filename, 1, total_num_params, true/*assert_size*/);
     seed_csv.read();
     seed_from_file.assign(total_num_params, 0.0);
     seed_csv.get_line(0, seed_from_file);
@@ -164,9 +164,9 @@ double
 Jointcontroller::get_normalized_mechanical_power(void) const
 {
     double power = .0;
-	for (unsigned int i = 0; i < robot.number_of_joints; ++i)
+    for (unsigned int i = 0; i < robot.number_of_joints; ++i)
         power += square(robot.joint[i].motor);
-	return power/robot.number_of_joints;
+    return power/robot.number_of_joints;
 }
 
 void
