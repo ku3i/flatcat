@@ -38,7 +38,7 @@ public:
     {
         sts_msg("Loading controller weights from DAT file:\n   '%s'", filename.c_str());
         file_io::Data_Reader dat_file(filename);
-        assert(dat_file.read("parameter", parameter));
+        assert(dat_file.read("parameter", parameter)); //TODO: remove assert dependence
 
         symmetry    = ("symmetric" == dat_file.read_string("symmetry"   )) ? Symmetry   ::symmetric : Symmetry   ::asymmetric;
         propagation = ("original"  == dat_file.read_string("propagation")) ? Propagation::original  : Propagation::mirrored;

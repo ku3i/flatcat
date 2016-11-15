@@ -20,6 +20,8 @@ struct Minimal_Seed_t {
     double motor_self;
 };
 
+Control_Parameter initialize_anyhow(bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename );
+
 namespace constants {
     const double initial_bias = 0.1;
 }
@@ -55,7 +57,6 @@ public:
         assert(weights   .size() == robot.get_number_of_joints());
         assert(weights[0].size() == number_of_inputs);
 
-        //print_parameter(); //remove, since no weights will be loaded at construction time
         sts_msg( "Created controller with: \n   %u inputs\n   %u outputs\n   %u symmetric params\n   %u asymmetric params."
                , number_of_inputs
                , robot.get_number_of_joints()
@@ -81,9 +82,15 @@ public:
         symmetric_controller = controller.is_symmetric();
     }
 
+    void set_control_parameter(const std::vector<double>& params) {
+        dbg_msg("Apply raw control parameter.");
+        if (symmetric_controller) apply_symmetric_weights(params);
+        else apply_weights(params);
+    }
+
     double get_normalized_mechanical_power(void) const;
 
-    /* where to place this better?*/
+    /**TODO move outside this class if no members are used*/
     Control_Parameter get_initial_parameter(const Minimal_Seed_t& seed) const;
     Control_Parameter make_symmetric (const Control_Parameter& other) const;
     Control_Parameter make_asymmetric(const Control_Parameter& other) const;

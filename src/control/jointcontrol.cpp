@@ -150,7 +150,7 @@ Jointcontrol::get_normalized_mechanical_power(void) const
 }
 
 Control_Parameter
-Jointcontrol::get_initial_parameter(const Minimal_Seed_t& seed) const
+Jointcontrol::get_initial_parameter(const Minimal_Seed_t& seed) const //TODO if you can get rid of number_of_inputs, then this can be used outside
 {
     const std::size_t number_of_joints = robot.get_number_of_joints();
     std::vector<double> params(number_of_joints*number_of_inputs);
@@ -223,6 +223,21 @@ Jointcontrol::make_asymmetric(const Control_Parameter& other) const {
         }
 
     return Control_Parameter(params, Control_Parameter::asymmetric);
+}
+
+/* non member functions, mostly factories */
+Control_Parameter initialize_anyhow(bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename ) {
+    assert( false && "TODO implement");
+//    if (filename.empty())
+//        return get_initial_parameter(params_pdm /**TODO:, is_symmetric*/);
+//
+//    sts_msg("Reading seed from file.");
+//    return Control_Parameter( filename
+//                            , is_symmetric ? control.get_number_of_symmetric_parameter()
+//                                           : control.get_number_of_parameter()
+//                            , symmetry, propagation );
+//    // TODO: if the last action does not succeed, try reading as asym and make
+    return Control_Parameter{};
 }
 
 } // namespace control
