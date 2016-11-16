@@ -124,7 +124,7 @@ public:
     , applied_state(0)
     , learner(learner)
     , self_adjusting(self_adjusting)
-    , motor_layer(control, state_payload, parameter_set, max_actions, num_actions_begin, mutation_rate, learning_rate, self_adjusting, seed)
+    , motor_layer(robot, state_payload, parameter_set, max_actions, num_actions_begin, mutation_rate, learning_rate, self_adjusting, seed)
     {
         dbg_msg("Creating self adjusting motor space.");
         control.set_control_parameter(motor_layer.get_unit(0).weights); // initialize non-mutated start controller

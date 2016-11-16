@@ -19,14 +19,14 @@ public:
 
     explicit Control_Parameter( const std::string& filename
                               , const std::size_t number_of_params
-                              , const Symmetry symmetry //provide this until the file format supports this
+                              , const Symmetry symmetry
                               , const Propagation propagation)
     : parameter(number_of_params)
     , symmetry(symmetry)
     , propagation(propagation)
     {
         sts_msg("Loading controller weights from CSV file:\n   '%s'", filename.c_str());
-        file_io::CSV_File<double> csv_file(filename, 1, number_of_params);
+        file_io::CSV_File<double> csv_file(filename, 1, number_of_params, /*assert_size=*/false); // ignore less parameters
         csv_file.read();
         csv_file.get_line(0, parameter);
     }

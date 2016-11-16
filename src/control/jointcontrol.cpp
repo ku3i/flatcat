@@ -2,6 +2,10 @@
 
 namespace control {
 
+std::size_t get_number_of_inputs(robots::Robot_Interface const& robot) {
+    return 3 * robot.get_number_of_joints() + 3 * robot.get_number_of_accel_sensors() + 1;
+}
+
 void
 Jointcontrol::reset(void)
 {
@@ -142,7 +146,7 @@ Jointcontrol::print_parameter(void) const
 double
 Jointcontrol::get_normalized_mechanical_power(void) const
 {
-    dbg_msg("Get normalized mechanical power.");
+    //dbg_msg("Get normalized mechanical power.");
     double power = .0;
     for (unsigned int i = 0; i < robot.get_number_of_joints(); ++i)
         power += square(get_joints[i].motor);
@@ -150,9 +154,10 @@ Jointcontrol::get_normalized_mechanical_power(void) const
 }
 
 Control_Parameter
-Jointcontrol::get_initial_parameter(const Minimal_Seed_t& seed) const //TODO if you can get rid of number_of_inputs, then this can be used outside
+get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t& seed, bool symmetric = false)
 {
     const std::size_t number_of_joints = robot.get_number_of_joints();
+    const std::size_t number_of_inputs = get_number_of_inputs(robot);
     std::vector<double> params(number_of_joints*number_of_inputs);
 
     /* set default weights for asymmetric joints */
@@ -167,27 +172,32 @@ Jointcontrol::get_initial_parameter(const Minimal_Seed_t& seed) const //TODO if 
         /** Divide by initial bias, because bias in the control input will be < 1.
          *  If pgain or default_pos is zero this bias is also zero.
          */
-        params[(i+1)*number_of_inputs - 1] = -params[pos + 0] * get_joints[i].default_pos * 1.0 / constants::initial_bias;
+        params[(i+1)*number_of_inputs - 1] = -params[pos + 0] * robot.get_joints()[i].default_pos * 1.0 / constants::initial_bias;
     }
+
+    if (symmetric)
+        return make_symmetric(robot, Control_Parameter(params));
+
     return Control_Parameter(params); /* asymmetric */
 }
 
 /**TODO: instead of throwing away the not used weights, we could average the corresponding weight pairs*/
 Control_Parameter
-Jointcontrol::make_symmetric(const Control_Parameter& other) const {
+make_symmetric(robots::Robot_Interface const& robot, const Control_Parameter& other) {
     if (other.is_symmetric())
         return other;
 
     dbg_msg("Making controller symmetric.");
     assert(robot.get_number_of_joints() > robot.get_number_of_symmetric_joints());
     const std::size_t num_joints = robot.get_number_of_joints() - robot.get_number_of_symmetric_joints();
+    const std::size_t number_of_inputs = get_number_of_inputs(robot);
     const std::vector<double>& other_params = other.get_parameter();
     std::size_t p = 0;
 
     std::vector<double> params(number_of_inputs * num_joints);
     for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
     {
-        if (get_joints[i].type == robots::Joint_Type_Normal)
+        if (robot.get_joints()[i].type == robots::Joint_Type_Normal)
             for (std::size_t k = 0; k < number_of_inputs; ++k)
                 params[p++] = other_params[i*number_of_inputs + k];
     }
@@ -198,13 +208,14 @@ Jointcontrol::make_symmetric(const Control_Parameter& other) const {
 }
 
 Control_Parameter
-Jointcontrol::make_asymmetric(const Control_Parameter& other) const {
+make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& other) {
     if (not other.is_symmetric())
         return other;
 
     dbg_msg("Making controller asymmetric.");
     wrn_msg("Not tested yet.");
 
+    const std::size_t number_of_inputs = get_number_of_inputs(robot);
     std::vector<double> params(number_of_inputs * robot.get_number_of_joints());
     const std::vector<double>& other_params = other.get_parameter();
 
@@ -215,9 +226,9 @@ Jointcontrol::make_asymmetric(const Control_Parameter& other) const {
 
     /* copy weights for symmetric joints */
     for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
-        if (get_joints[i].type == robots::Joint_Type_Symmetric)
+        if (robot.get_joints()[i].type == robots::Joint_Type_Symmetric)
         {
-            std::size_t j = get_joints[i].symmetric_joint;
+            std::size_t j = robot.get_joints()[i].symmetric_joint;
             for (std::size_t k = 0; k < number_of_inputs; ++k)
                 params[i*number_of_inputs + k] = other_params[j*number_of_inputs + k];
         }
@@ -225,19 +236,25 @@ Jointcontrol::make_asymmetric(const Control_Parameter& other) const {
     return Control_Parameter(params, Control_Parameter::asymmetric);
 }
 
-/* non member functions, mostly factories */
-Control_Parameter initialize_anyhow(bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename ) {
-    assert( false && "TODO implement");
-//    if (filename.empty())
-//        return get_initial_parameter(params_pdm /**TODO:, is_symmetric*/);
-//
-//    sts_msg("Reading seed from file.");
-//    return Control_Parameter( filename
-//                            , is_symmetric ? control.get_number_of_symmetric_parameter()
-//                                           : control.get_number_of_parameter()
-//                            , symmetry, propagation );
-//    // TODO: if the last action does not succeed, try reading as asym and make
-    return Control_Parameter{};
+/** this initializer is capable of reading a symmetric file and transform it to asymmetric */
+Control_Parameter
+initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& control, bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename ) {
+
+    if (filename.empty())
+        return get_initial_parameter(robot, params_pdm, is_symmetric);
+
+    sts_msg("Reading seed from file.");
+    Control_Parameter params( filename
+                            , is_symmetric ? control.get_number_of_symmetric_parameter()
+                                           : control.get_number_of_parameter()
+                            , is_symmetric ? Control_Parameter::Symmetry::symmetric
+                                           : Control_Parameter::Symmetry::asymmetric
+                            , Control_Parameter::Propagation::original );
+
+    if (not is_symmetric)
+        return make_asymmetric(robot, Control_Parameter(params));
+
+    return params;
 }
 
 } // namespace control

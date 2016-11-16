@@ -50,7 +50,7 @@ public:
 class CompetitiveMotorLayer
 {
 public:
-    CompetitiveMotorLayer( const control::Jointcontrol&   control
+    CompetitiveMotorLayer( const robots::Robot_Interface& robot
                          , static_vector<State_Payload>&  states
                          , const control::Control_Vector& parameter_sets
                          , const std::size_t              number_of_motor_units
@@ -59,7 +59,7 @@ public:
                          , const double                   learning_rate
                          , bool                           do_adaption
                          , const control::Minimal_Seed_t& seed = MotorLayerConstants::seed)
-    : control(control)
+    : robot(robot)
     , states(states)
     , parameter_sets(parameter_sets)
     , motor_units()
@@ -89,10 +89,7 @@ public:
 
         //if ?
         for (std::size_t i = motor_units.size(); i < number_of_motor_units; ++i) {
-            control::Control_Parameter params = control.get_initial_parameter(seed);
-
-            if (i % 2 == 0)
-                params = control.make_symmetric(params);
+            control::Control_Parameter params = control::get_initial_parameter(robot, seed, /*symmetric?*/(i % 2 == 0));
 
             randomize_control_parameter(params, 0.1, 1.0); /**TODO make to settings, and constrain motor self not not go beyond zero */
             /**TODO also: make settings grouped and only give the local settings as ref */
@@ -210,9 +207,9 @@ private:
 
         /** Change symmetry to balance the ratio of symmetric and asymmetric joint count */
         if (get_number_of_symmetric_units() < (motor_units.size()/2))
-            motor_units[replace_idx].weights = control.make_symmetric(motor_units[replace_idx].weights);
+            motor_units[replace_idx].weights = make_symmetric(robot, motor_units[replace_idx].weights);
         else
-            motor_units[replace_idx].weights = control.make_asymmetric(motor_units[replace_idx].weights);
+            motor_units[replace_idx].weights = make_asymmetric(robot, motor_units[replace_idx].weights);
 
         /* copy associate Q-values and eligibility traces */
         for (std::size_t i = 0; i < states.size(); ++i)
@@ -257,7 +254,7 @@ private:
         return num_sym;
     }
 
-    const control::Jointcontrol&   control; // only needed for changing symmetry of controller weights
+    const robots::Robot_Interface& robot; // only needed for changing symmetry of controller weights
     static_vector<State_Payload>&  states;
     const control::Control_Vector& parameter_sets;
 

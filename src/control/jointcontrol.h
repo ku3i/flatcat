@@ -14,13 +14,21 @@
 
 namespace control {
 
+class Jointcontrol;
+
 struct Minimal_Seed_t {
     double pgain;
     double damping;
     double motor_self;
 };
 
-Control_Parameter initialize_anyhow(bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename );
+std::size_t get_number_of_inputs(robots::Robot_Interface const& robot);
+Control_Parameter get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t&    seed , bool symmetric);
+Control_Parameter make_symmetric       (robots::Robot_Interface const& robot, const Control_Parameter& other);
+Control_Parameter make_asymmetric      (robots::Robot_Interface const& robot, const Control_Parameter& other);
+
+Control_Parameter initialize_anyhow    ( robots::Robot_Interface const& robot, Jointcontrol const& control
+                                       , bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename);
 
 namespace constants {
     const double initial_bias = 0.1;
@@ -33,7 +41,7 @@ class Jointcontrol
 public:
     Jointcontrol(robots::Robot_Interface& robot)
     : robot(robot) /* angle, velocity, motor output + xyz-acceleration + bias */
-    , number_of_inputs(3 * robot.get_number_of_joints() + 3 * robot.get_number_of_accel_sensors() + 1)
+    , number_of_inputs(get_number_of_inputs(robot))
     , number_of_params_sym(number_of_inputs * (robot.get_number_of_joints() - robot.get_number_of_symmetric_joints()))
     , number_of_params_asym(number_of_inputs * robot.get_number_of_joints())
     , get_joints(robot.get_joints())
@@ -83,17 +91,12 @@ public:
     }
 
     void set_control_parameter(const std::vector<double>& params) {
-        dbg_msg("Apply raw control parameter.");
+        //dbg_msg("Apply raw control parameter to %s controller.", symmetric_controller? "symmetric" : "asymmetric");
         if (symmetric_controller) apply_symmetric_weights(params);
         else apply_weights(params);
     }
 
     double get_normalized_mechanical_power(void) const;
-
-    /**TODO move outside this class if no members are used*/
-    Control_Parameter get_initial_parameter(const Minimal_Seed_t& seed) const;
-    Control_Parameter make_symmetric (const Control_Parameter& other) const;
-    Control_Parameter make_asymmetric(const Control_Parameter& other) const;
 
     void print_parameter(void) const;
 
