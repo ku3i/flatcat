@@ -1,7 +1,7 @@
 #include "generation_based_strategy.h"
 
 bool
-Generation_Based_Evolution::show_selection(void)
+Generation_Based_Evolution::show_selection(void) /**TODO show_sel and evaluate have many lines of code in common!*/
 {
     double max_fitness = -DBL_MAX;
     double min_fitness = +DBL_MAX;
@@ -24,9 +24,9 @@ Generation_Based_Evolution::show_selection(void)
     }
     avg_fitness /= selection_size;
     sts_msg("Result: max: %1.2f min: %1.2f avg: %1.2f\n", max_fitness, min_fitness, avg_fitness);
-    last_max_fitness = max_fitness;
-    last_avg_fitness = avg_fitness;
-    last_min_fitness = min_fitness;
+    fitness_stats.max = max_fitness;
+    fitness_stats.avg = avg_fitness;
+    fitness_stats.min = min_fitness;
     return true;
 }
 
@@ -64,9 +64,9 @@ Generation_Based_Evolution::evaluate_generation(void)
     avg_fitness /= population.get_size();
     sts_msg("\rGeneration result: max=%+07.3f avg=%+07.3f min=%+07.3f", max_fitness, avg_fitness, min_fitness);
 
-    last_max_fitness = max_fitness;
-    last_avg_fitness = avg_fitness;
-    last_min_fitness = min_fitness;
+    fitness_stats.max = max_fitness;
+    fitness_stats.avg = avg_fitness;
+    fitness_stats.min = min_fitness;
 
     return true;
 }

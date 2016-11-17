@@ -39,9 +39,8 @@ public:
     bool loop(void);
     void finish(void);
 
-    double get_last_max_fitness(void) const { return strategy->get_max_fitness(); }
-    double get_last_avg_fitness(void) const { return strategy->get_avg_fitness(); }
-    double get_last_min_fitness(void) const { return strategy->get_min_fitness(); }
+    statistics_t const& get_fitness_statistics (void) const { return strategy->get_fitness_statistics();  }
+    statistics_t const& get_mutation_statistics(void) const { return strategy->get_mutation_statistics(); }
 
     std::size_t get_number_of_trials(void) const { return strategy->get_max_trials();    }
     std::size_t get_current_trial   (void) const { return strategy->get_current_trial(); }

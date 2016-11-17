@@ -15,6 +15,12 @@ enum Evolution_State
     playback
 };
 
+struct statistics_t {
+    double max;
+    double avg;
+    double min;
+};
+
 /* base class */
 class Evolution_Strategy
 {
@@ -26,9 +32,8 @@ public:
     , csv_population(project_folder_path + "/population.log", population.get_size(), population.get_individual_size())
     , csv_mutation  (project_folder_path + "/mutation.log"  , population.get_size(), 1)
     , csv_fitness   (project_folder_path + "/fitness.log"   , population.get_size(), 1)
-    , last_max_fitness(.0)
-    , last_avg_fitness(.0)
-    , last_min_fitness(.0)
+    , fitness_stats{}
+    , mutation_stats{}
     , verbose(verbose)
     {
         dbg_msg("created evolution policy (base).");
@@ -42,9 +47,8 @@ public:
 
     virtual void save_config(config& configuration) = 0;
 
-    double get_max_fitness(void) const { return last_max_fitness; }
-    double get_avg_fitness(void) const { return last_avg_fitness; }
-    double get_min_fitness(void) const { return last_min_fitness; }
+    statistics_t const& get_fitness_statistics (void) const { return fitness_stats; }
+    statistics_t const& get_mutation_statistics(void) const { return mutation_stats; }
 
     virtual std::size_t get_max_trials   (void) const = 0;
     virtual std::size_t get_current_trial(void) const = 0;
@@ -84,9 +88,9 @@ public:
     file_io::CSV_File<double> csv_mutation;
     file_io::CSV_File<double> csv_fitness;
 
-    double last_max_fitness;
-    double last_avg_fitness;
-    double last_min_fitness;
+    statistics_t fitness_stats;
+    statistics_t mutation_stats;
+
 
     const bool verbose;
 };

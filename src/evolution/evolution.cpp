@@ -244,11 +244,9 @@ void Evolution::save_best_individual(void)
 void Evolution::save_statistics(void)
 {
     assert(strategy != nullptr);
-    /*TODO what else is to be saved? */
-    evolution_log.append("%+1.8e %+1.8e %+1.8e",
-                         strategy->get_max_fitness(),
-                         strategy->get_avg_fitness(),
-                         strategy->get_min_fitness());
+    /**TODO what else is to be saved? maybe mutation stats? */
+    statistics_t const& fstats = strategy->get_fitness_statistics();
+    evolution_log.append("%+1.8e %+1.8e %+1.8e", fstats.max, fstats.avg, fstats.min);
     evolution_log.flush();
 }
 

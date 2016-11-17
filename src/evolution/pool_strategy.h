@@ -196,10 +196,6 @@ public:
         configuration.writeDBL ("SELECTION_BIAS", selection_bias);
     }
 
-    double get_max_fitness(void) const { return last_max_fitness; }
-    double get_avg_fitness(void) const { return last_avg_fitness; }
-    double get_min_fitness(void) const { return last_max_fitness; }
-
     std::size_t get_max_trials   (void) const { return max_trials;    }
     std::size_t get_current_trial(void) const { return current_trial; }
 
@@ -224,24 +220,32 @@ public:
 
         double sum_fitness = .0;
 
+        mutation_stats = statistics_t{};
+
         for (std::size_t i = 0; i < population.get_size(); ++i) {
             if (population[i].fitness.get_number_of_evaluations() > 0)
                 sum_fitness += population[i].fitness.get_value();
+
+            /* statistics of mutation rates */
+            mutation_stats.max = std::max(population[i].mutation_rate, mutation_stats.max);
+            mutation_stats.min = std::min(population[i].mutation_rate, mutation_stats.min);
+            mutation_stats.avg += population[i].mutation_rate;
         }
-        last_avg_fitness = sum_fitness / population.get_size();
+        mutation_stats.avg /= population.get_size();
+
+        fitness_stats.avg = sum_fitness / population.get_size();
 
         if (population.get_best_individual().fitness.get_number_of_evaluations() > 0)
-            last_max_fitness = population.get_best_individual().fitness.get_value();
+            fitness_stats.max = population.get_best_individual().fitness.get_value();
 
         if (population.get_last_individual().fitness.get_number_of_evaluations() > 0)
-            last_min_fitness = population.get_last_individual().fitness.get_value();
+            fitness_stats.min = population.get_last_individual().fitness.get_value();
 
         if ((current_trial+1) % population.get_size() == 0)
             sts_msg("max:%+1.4f, avg:%+1.4f, min:%+1.4f",
-                    last_max_fitness,
-                    last_avg_fitness,
-                    last_min_fitness);
-
+                    fitness_stats.max,
+                    fitness_stats.avg,
+                    fitness_stats.min);
     }
 
     Population&  population;
