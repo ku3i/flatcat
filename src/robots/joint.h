@@ -35,9 +35,6 @@ public:
         sts_msg("  Type: %u, symmetric: %u \n", type, symmetric_joint);
     }
 
-    Joint_Model()
-    : Joint_Model(0, Joint_Type_Normal, 0, "joint0", -1.0, +1.0, 0.0) {}
-
     const unsigned int joint_id;
     double s_ang;
     double s_vel;

@@ -53,7 +53,7 @@ public:
     , accels() //empty
     {
         joints.reserve(1);
-        joints.emplace_back();
+        joints.emplace_back(0, Joint_Type_Normal, 0, "joint0", -1.0, +1.0, 0.0);
         assert(joints.size() == 1);
         reset_state(tilted);
     }
