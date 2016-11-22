@@ -6,6 +6,7 @@
 
 #include <common/modules.h>
 #include <common/config.h>
+#include <common/log_messages.h>
 
 #include <control/controlparameter.h>
 
