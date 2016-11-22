@@ -1,11 +1,9 @@
 #define CATCH_CONFIG_MAIN
 #include <tests/catch.hpp>
-
+#include <common/modules.h>
 /* Framework tests
  * Di, 8.November 2016
  * Hillary oder Donald? */
-
-static bool close(double value, double refval, double maxdiff) { return (fabs(value - refval) < maxdiff); }
 
 const double tolerance = 0.0001; // DO NOT CHANGE!
 
@@ -37,6 +35,15 @@ TEST_CASE( "Incremental Average", "[math]" ) {
     inc.reset();
     REQUIRE( inc.get() == 0.0 );
     REQUIRE( inc.get_num_samples() == 0 );
+
+    double sum = .0;
+    for (unsigned int i = 0; i < 10000; ++i) {
+        double r = random_value(0.0, 23.42);
+        sum += r;
+        inc.sample(r);
+    }
+    sum /= 10000;
+    REQUIRE( close(inc.get(), sum, tolerance) );
 }
 
 #include <common/modules.h>
