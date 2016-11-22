@@ -32,7 +32,7 @@ Individual::mutate(void)
     assert_in_range(mutation_rate     , 0.0001, 1.0  );
     assert_in_range(meta_mutation_rate, 0.0   , M_LN2);
     assert(genome.size() > 0);
-    // TODO search for literature reference of that.
+    /** TODO search for literature reference of that. */
     const double rnd_val = random_value_norm(0.0, meta_mutation_rate, -M_LN2, M_LN2);
     const double factor = exp(rnd_val); // mutate the mutation rate
     assert_in_range(factor, 0.5, 2.0);
@@ -42,6 +42,6 @@ Individual::mutate(void)
 //    sts_msg(" mutating: mu = %1.5f, d mu = %1.3f", mutation_rate, factor);
     const double sigma = mutation_rate / sqrt(genome.size()); // normalize
 
-    for (unsigned int j = 0; j < genome.size(); ++j)
-        genome[j] += rand_norm_zero_mean(sigma);
+    for (auto& element : genome)
+        element += rand_norm_zero_mean(sigma);
 }

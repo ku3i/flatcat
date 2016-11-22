@@ -16,7 +16,7 @@ public:
 
     explicit Fitness_Value(void) : fitness() {}
 
-    double get_value(void) const { return fitness.get(); }
+    double get_value(void) const { return fitness.get();  }
     void set_value(double value) { fitness.sample(value); } // average fitness incrementally
 
     void reset(void) { fitness.reset(); }
@@ -82,7 +82,7 @@ public:
     }
 
     void mutate(void);
-    void initialize_from_seed(const std::vector<double>& seed); // TODO make a constructor of that
+    void initialize_from_seed(const std::vector<double>& seed); /** TODO make a constructor of that */
     std::size_t get_size(void) const { return genome.size(); }
 
     std::vector<double> genome;

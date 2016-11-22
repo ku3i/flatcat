@@ -11,7 +11,7 @@
 
 #define FOLDER_PREFIX "../data/exp/"
 
-enum PStatus {NEW, RESUME, WATCH}; // TODO rename
+enum PStatus {NEW, RESUME, WATCH}; /** TODO rename */
 
 class Setting
 {
@@ -57,7 +57,7 @@ class Setting
         double       param_d;
         double       param_m;
 
-        unsigned int push_mode; //TODO struct?
+        unsigned int push_mode; /** TODO make a struct from that */
         unsigned int push_body;
         unsigned int push_cycle;
         unsigned int push_steps;

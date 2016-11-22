@@ -73,7 +73,6 @@ void Setting::read_setting_file(const std::string& setting_name)
         wrn_msg("No settings file provided. Using default settings.");
         return;
     }
-    //read_configuration("./data/settings/" + setting_name + ".setting");
     read_configuration(setting_name);
 }
 
@@ -229,7 +228,7 @@ read_option_uint(int argc, char **argv, const std::string long_name, const std::
                 ++i;
             }
             break;
-		}
+        }
     }
     dbg_msg("Reading option '%s' = %u", long_name.c_str(), value);
     return value;
@@ -253,7 +252,7 @@ read_option_string(int argc, char **argv, const std::string long_name, const std
                 ++i;
             }
             break;
-		}
+        }
     }
     dbg_msg("Reading option '%s' = '%s'", long_name.c_str(), value.c_str());
     return value;
