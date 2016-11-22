@@ -105,8 +105,8 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
     assert(not settings.fitness_function.empty());
 
     switch (configuration.readINT("STATUS")) {
-        case 1:  sts_msg("Former evolution has not finished."); break;
-        case 2:  sts_msg("Former evolution was finished.    "); break;
+        case 1: sts_msg("Former evolution has not finished."); break;
+        case 2: sts_msg("Former evolution was finished.    "); break;
         default:
             wrn_msg("Project has invalid status. Abort.");
             state = Evolution_State::stopped;
@@ -145,8 +145,8 @@ Evolution::write_config()
     else
         sts_msg("Safely override existing configuration file.");
 
-    configuration.writeUINT("STATUS"            , 0); // evolution has not started yet
-    configuration.writeUINT("INDIVIDUAL_SIZE"   , population.get_individual_size());
+    configuration.writeUINT("STATUS"         , 0); // evolution has not started yet
+    configuration.writeUINT("INDIVIDUAL_SIZE", population.get_individual_size());
 
     assert(strategy != nullptr);
     strategy->save_config(configuration);
@@ -163,7 +163,7 @@ bool Evolution::loop(void)
             state = strategy->execute_trial();
             save_best_individual();
             save_statistics();
-            /*TODO update GUI status*/
+            /** TODO update GUI status */
             break;
 
         case finished:
@@ -244,9 +244,11 @@ void Evolution::save_best_individual(void)
 void Evolution::save_statistics(void)
 {
     assert(strategy != nullptr);
-    /**TODO what else is to be saved? maybe mutation stats? */
     statistics_t const& fstats = strategy->get_fitness_statistics();
-    evolution_log.append("%+1.8e %+1.8e %+1.8e", fstats.max, fstats.avg, fstats.min);
+    statistics_t const& mstats = strategy->get_mutation_statistics();
+    evolution_log.append( "%+1.8e %+1.8e %+1.8e %+1.8e %+1.8e %+1.8e"
+                         , fstats.max, fstats.avg, fstats.min
+                         , mstats.max, mstats.avg, mstats.min );
     evolution_log.flush();
 }
 
