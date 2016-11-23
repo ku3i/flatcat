@@ -26,7 +26,7 @@ public:
             content.emplace_back(/*index, */args...);
     }
 
-    virtual ~static_vector() {}
+    virtual ~static_vector() = default;
 
     std::size_t size() const { return content.size(); }
 

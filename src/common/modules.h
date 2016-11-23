@@ -74,7 +74,7 @@ int argmin(double *f, unsigned int N);
 /* computes the argument which maximizes the function */
 int argmax(double *f, unsigned int N);
 
-/* computes the squared distanc of two vectors */
+/* computes the squared distance of two vectors */
 double squared_distance(double *x , double *y, unsigned int length);
 
 /* true is integer is even */

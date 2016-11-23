@@ -21,55 +21,56 @@ class CSV_File : public noncopyable
     CSV_File(const CSV_File& other) = delete;      // non construction-copyable
     CSV_File& operator=(const CSV_File&) = delete; // non copyable
 public:
-    CSV_File(const std::string& filename, const std::size_t rows, const std::size_t cols, bool assert_size = false)
-    : csv_file()
-    , nbytes(cols * constants::format_length)
+    CSV_File(const std::string& filename, const std::size_t rows, const std::size_t cols)
+    : nbytes(cols * constants::format_length)
     , txtbuf((char *) malloc(nbytes + 1))
     , data(rows, std::vector<T>(cols))
     , max_rows(rows)
     , max_cols(cols)
     , filename(filename)
-    , assert_size(assert_size)
     {}
 
     ~CSV_File() { free(txtbuf); }
 
     bool read(void)
     {
-        csv_file = open_file("r", filename.c_str());
+        FILE* csv_file = open_file("r", filename.c_str());
+        bool result = true;
         unsigned int row = 0;
         while (row < max_rows)
         {   // read next line
             if (getline(&txtbuf, &nbytes, csv_file) < 0) {
                 wrn_msg("Error reading csv file %s in line %u\n", filename.c_str(), row + 1);
-                return false;
+                result = false;
+                break;
             }
             char* token = strtok(txtbuf, constants::separator); // get first token
             unsigned int col = 0;
             while (col < max_cols) {
                 if (token != NULL)
                     data[row][col++] = atof(token);
-                else if (assert_size)
-                    err_msg(__FILE__, __LINE__, "Unexpected colums size: %u (%u expected)", col, max_cols);
-                else break;
+                else {
+                    wrn_msg("Unexpected columns size: %u (%u expected)", col, max_cols);
+                    result = false;
+                    break;
+                }
                 token = strtok(NULL, constants::separator); // get next token
             }
             ++row;
         }
         fclose(csv_file);
-        return true;
+        return result;
     }
 
     void write(void)
     {
-        csv_file = open_file("w", filename.c_str());
+        FILE* csv_file = open_file("w", filename.c_str());
         for (std::size_t row = 0; row < max_rows; ++row)
         {
             for (std::size_t col = 0; col < max_cols; ++col)
                 fprintf(csv_file, "%+1.8e ", data[row][col]);
             fprintf(csv_file, "\n");
         }
-
         fclose(csv_file);
     }
 
@@ -97,14 +98,12 @@ public:
     }
 
 private:
-    FILE* csv_file;
     std::size_t nbytes;
     char* txtbuf;
     std::vector< std::vector<T> > data;
     const std::size_t max_rows;
     const std::size_t max_cols;
     const std::string filename;
-    bool assert_size;
 };
 
 
@@ -114,7 +113,7 @@ class Logfile
     Logfile& operator=(const Logfile&) = delete; // non copyable
 public:
     Logfile(const std::string& filename, bool append = false)
-    : fd( append ? open_file("a", filename.c_str()) : open_file("w", filename.c_str()) )
+    : fd( open_file(append ? "a":"w", filename.c_str()))
     {}
 
     ~Logfile() { fclose(fd); }

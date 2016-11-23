@@ -20,7 +20,7 @@ double** init_double(unsigned int N, unsigned int M) __attribute_deprecated__;
 void clear_double(double *values, unsigned int N) __attribute_deprecated__;
 
 /* file opening, formatted yeah! */
-FILE * open_file(const char *mode, const char *format, ...);
+FILE * open_file(const char *mode, const char *format, ...)__attribute_deprecated__;
 void make_directory(const char *format, ...);
 
 namespace basic { /**TODO: move to file_io*/

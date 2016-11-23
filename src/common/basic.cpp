@@ -32,8 +32,8 @@ clear_double(double *values, unsigned int N)
         values[i] = .0;
 }
 
-FILE *
-open_file(const char * mode, const char* format, ...)
+FILE*
+open_file(const char* mode, const char* format, ...)
 {
     char filename[1024];
     va_list args;
