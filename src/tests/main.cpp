@@ -71,3 +71,32 @@ TEST_CASE( "unwrap", "[math]" ) {
         angle -= step;
     }
 }
+
+#include <evolution/pool_strategy.h>
+TEST_CASE( "biased_random_index", "[math]") {
+    srand(2342);
+    /* test case for biased random index */
+    double selection_bias = 1.0;
+    unsigned N = 7;
+    std::vector<unsigned> bins(N,0);
+    std::size_t total = 50000;
+
+    for (unsigned i = 0; i < total; ++i){
+        unsigned k = biased_random_index_inv(N, selection_bias);
+        REQUIRE( k < bins.size() );
+        ++bins[k];
+    }
+
+    auto draw_bar = [](unsigned len) {
+        std::string foo{};
+        for (unsigned i = 0; i < len;++i) foo.append("=");
+        return foo;
+    };
+
+    unsigned counter = total;
+    for (unsigned p = 0; p < bins.size(); ++p) {
+        dbg_msg("%2u: %5u %5.2f %s", p, bins[p], 100.0*bins[p]/total, draw_bar(50*bins[p]/total).c_str());
+        REQUIRE( bins[p] < counter );
+        counter = bins[p];
+    }
+}
