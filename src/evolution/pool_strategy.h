@@ -55,21 +55,6 @@ public:
         sts_msg("Created pool evolution strategy.");
         assert(current_trial <= max_trials);
         assert(max_trials > 1);
-
-        // this is a test case for biased random index, dam'it
-        // move this test to Testcases
-        unsigned int N = 10;
-        std::vector<unsigned int> bins(N,0);
-
-        for (unsigned int i = 0; i < 1000; ++i){
-            unsigned int k = biased_random_index_inv(N, selection_bias);
-            assert(k < bins.size());
-            ++bins[k];
-        }
-
-        for (unsigned int p = 0; p < bins.size(); ++p) {
-            dbg_msg("bin %2u: %3u", p, bins[p]);
-        }
     }
 
     ~Pool_Evolution() { sts_msg("Destroyed pool evolution strategy."); }
