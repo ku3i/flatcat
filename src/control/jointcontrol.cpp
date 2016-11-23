@@ -288,26 +288,38 @@ make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& o
 
 /** this initializer is capable of reading a symmetric file and transform it to asymmetric */
 Control_Parameter
-initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& control, bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename ) {
+initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& control, bool force_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename ) {
 
     if (filename.empty())
-        return get_initial_parameter(robot, params_pdm, is_symmetric);
+        return get_initial_parameter(robot, params_pdm, force_symmetric);
 
     sts_msg("Reading seed from file: %s", filename.c_str());
-    sts_msg("Trying to fetch %s controller.", is_symmetric? "a symmetric" : "an asymmetric");
-    Control_Parameter params( filename
-                            , is_symmetric ? control.get_number_of_symmetric_parameter()
-                                           : control.get_number_of_parameter()
-                            , is_symmetric ? Control_Parameter::Symmetry::symmetric
-                                           : Control_Parameter::Symmetry::asymmetric
-                            , Control_Parameter::Propagation::original );
+    sts_msg("Trying to fetch %s controller.", force_symmetric? "a symmetric" : "an asymmetric");
 
-    if (not is_symmetric) {
-        /* ensure asymmetric, somewhat brute force */
-        return make_asymmetric(robot, params);
+    std::size_t num_params = force_symmetric ? control.get_number_of_symmetric_parameter() : control.get_number_of_parameter();
+
+    Control_Parameter param0( filename, num_params, force_symmetric ? Control_Parameter::Symmetry::symmetric
+                                                                    : Control_Parameter::Symmetry::asymmetric );
+    if (param0.get_parameter().size() == num_params)
+        return param0; /* success */
+
+    /* try again with different symmetry */
+    bool new_symmetry = not force_symmetric;
+
+    num_params = new_symmetry ? control.get_number_of_symmetric_parameter() : control.get_number_of_parameter();
+
+    Control_Parameter param1( filename, num_params, new_symmetry ? Control_Parameter::Symmetry::symmetric
+                                                                 : Control_Parameter::Symmetry::asymmetric );
+    if (param1.get_parameter().size() == num_params)
+    {/* success, now force correct symmetry */
+
+        if (force_symmetric) return make_symmetric(robot, param1);
+        else return make_asymmetric(robot, param1);
     }
+    else
+        err_msg(__FILE__,__LINE__,"Could not read controller weights from file: %s.", filename.c_str());
 
-    return params;
+    return Control_Parameter();
 }
 
 } // namespace control

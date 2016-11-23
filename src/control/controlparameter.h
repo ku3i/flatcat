@@ -20,15 +20,18 @@ public:
     explicit Control_Parameter( const std::string& filename
                               , const std::size_t number_of_params
                               , const Symmetry symmetry
-                              , const Propagation propagation)
-    : parameter(number_of_params)
+                              , const Propagation propagation = Propagation::original )
+    : parameter()
     , symmetry(symmetry)
     , propagation(propagation)
     {
         sts_msg("Loading controller weights from CSV file:\n   '%s'", filename.c_str());
-        file_io::CSV_File<double> csv_file(filename, 1, number_of_params, /*assert_size=*/false); // ignore less parameters
-        csv_file.read();
-        csv_file.get_line(0, parameter);
+        file_io::CSV_File<double> csv_file(filename, 1, number_of_params);
+        if (csv_file.read()) {
+            parameter.assign(number_of_params, 0.0);
+            csv_file.get_line(0, parameter);
+        } else
+            wrn_msg("Could not read from file: %s", filename.c_str());
     }
 
     explicit Control_Parameter(const std::string& filename)
@@ -38,7 +41,7 @@ public:
     {
         sts_msg("Loading controller weights from DAT file:\n   '%s'", filename.c_str());
         file_io::Data_Reader dat_file(filename);
-        assert(dat_file.read("parameter", parameter)); //TODO: remove assert dependence
+        assert(dat_file.read("parameter", parameter)); /** TODO: remove assert dependence */
 
         symmetry    = ("symmetric" == dat_file.read_string("symmetry"   )) ? Symmetry   ::symmetric : Symmetry   ::asymmetric;
         propagation = ("original"  == dat_file.read_string("propagation")) ? Propagation::original  : Propagation::mirrored;
@@ -52,7 +55,7 @@ public:
     , propagation(propagation)
     {}
 
-    explicit Control_Parameter() : parameter(), symmetry(), propagation() {}
+    explicit Control_Parameter() : parameter(), symmetry(), propagation() {} /** TODO should not be used */
 
     Control_Parameter(const Control_Parameter& other)
     : parameter(other.parameter)

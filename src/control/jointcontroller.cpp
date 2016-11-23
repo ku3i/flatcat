@@ -73,7 +73,7 @@ Jointcontroller::load_seed(const std::string& filename)
     assert(seed_from_file.size() == 0);
     assert(not filename.empty());
 
-    file_io::CSV_File<double> seed_csv(filename, 1, total_num_params, true/*assert_size*/);
+    file_io::CSV_File<double> seed_csv(filename, 1, total_num_params);
     seed_csv.read();
     seed_from_file.assign(total_num_params, 0.0);
     seed_csv.get_line(0, seed_from_file);
