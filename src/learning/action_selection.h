@@ -28,13 +28,12 @@ public:
     {}
     const Vector_t& get_distribution(void) const { return selection_probabilities; }
 
-    virtual ~Action_Selection_Base() {}
+    virtual ~Action_Selection_Base() = default;
     virtual std::size_t select_action( std::size_t current_state, std::size_t current_policy) = 0;
 };
 
 std::size_t select_from_distribution(const Action_Selection_Base::Vector_t& distribution);
 void print_distribution(const Action_Selection_Base::Vector_t& distribution);
-
 
 
 #endif // ACTION_SELECTION_H_INCLUDED

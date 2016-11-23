@@ -51,7 +51,7 @@ public:
             if (actions.exists(a))
                 qvalues[a] = other.qvalues[a]
                            + random_value(-0.05 * other.qvalues[a],
-                                          +0.05 * other.qvalues[a]); // TODO: put into method and use gaussian
+                                          +0.05 * other.qvalues[a]); /** TODO: put into method and use gaussian noise */
     }
 
     void copy_q_value(std::size_t from_idx, std::size_t to_idx) {
