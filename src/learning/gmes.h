@@ -197,7 +197,7 @@ private:
         return with_max_capacity;
     }
 
-    std::size_t count_existing_experts(void) const /**TODO move to expert vector class */
+    std::size_t count_existing_experts(void) const
     {
         std::size_t num_experts = 0;
         for (std::size_t n = 0; n < Nmax; ++n)

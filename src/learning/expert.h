@@ -96,31 +96,29 @@ public:
                  , const double              local_learning_rate
                  , const std::size_t         experience_size
                  )
-    : expert()
+    : experts()
     , payloads(payloads)
     {
         assert(payloads.size() == max_number_of_experts);
-        expert.reserve(max_number_of_experts);
+        experts.reserve(max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            expert.emplace_back(input, max_number_of_experts, local_learning_rate, experience_size);
+            experts.emplace_back(input, max_number_of_experts, local_learning_rate, experience_size);
     }
 
-          Expert& operator[] (const std::size_t index)       { assert(index < expert.size()); return expert[index]; }
-    const Expert& operator[] (const std::size_t index) const { assert(index < expert.size()); return expert[index]; }
+          Expert& operator[] (const std::size_t index)       { assert(index < experts.size()); return experts[index]; }
+    const Expert& operator[] (const std::size_t index) const { assert(index < experts.size()); return experts[index]; }
 
-    std::size_t get_max_number_of_experts(void) const { return expert.size(); }
-
-    /** TODO count existing experts */
+    std::size_t get_max_number_of_experts(void) const { return experts.size(); }
 
     void copy_payload(std::size_t to, std::size_t from) {
-        assert(from < expert.size());
-        assert(to   < expert.size());
+        assert(from < experts.size());
+        assert(to   < experts.size());
         //dbg_msg("Copy from %u to %u", from, to);
         payloads[to].copy_with_flaws(payloads[from]); /* take a flawed copy of the payload */
     }
 
 private:
-    std::vector<Expert> expert; /**TODO rename to experts*/
+    std::vector<Expert> experts; /**TODO rename to experts*/
     static_vector<Payload_t>& payloads;
 };
 
