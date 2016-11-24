@@ -9,10 +9,9 @@
 
 class Empty_Payload
 {
-    Empty_Payload& operator=(const Empty_Payload& other) = delete;
 public:
     Empty_Payload() {}
-    void copy_with_flaws(const Empty_Payload& other) {}
+    Empty_Payload& operator=(const Empty_Payload& other) { return *this; };
 };
 
 class State_Payload
@@ -29,6 +28,13 @@ public:
         return *this;
     }
 
+    void copy_payload(std::size_t from_idx, std::size_t to_idx) {
+        for (std::size_t policy_idx = 0; policy_idx < policies.size(); ++policy_idx)
+            policies[policy_idx].copy_q_value(from_idx, to_idx);
+        eligibility_trace[to_idx] = eligibility_trace[from_idx];
+    }
+
+private:
     void copy_with_flaws(const State_Payload& other)
     {
         //dbg_msg("Copy with flaws");
@@ -39,14 +45,14 @@ public:
         eligibility_trace = other.eligibility_trace;
     }
 
-    void copy_payload(std::size_t from_idx, std::size_t to_idx) {
-        for (std::size_t policy_idx = 0; policy_idx < policies.size(); ++policy_idx)
-            policies[policy_idx].copy_q_value(from_idx, to_idx);
-        eligibility_trace[to_idx] = eligibility_trace[from_idx];
-    }
-
     copyable_static_vector<Policy> policies;
     copyable_static_vector<Eligibility> eligibility_trace;
+
+    friend class SARSA;
+    friend class Epsilon_Greedy;
+    friend class Boltzmann_Softmax;
+    friend class State_Payload_Graphics;
+    template <typename T> friend class Payload_Graphics;
 };
 
 #include <draw/graphics.h>

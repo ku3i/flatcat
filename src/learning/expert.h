@@ -79,6 +79,7 @@ private:
 
     template <typename T> friend class GMES;
     template <typename T> friend class GMES_Graphics;
+    template <typename T> friend class Force_Field;
 };
 
 
