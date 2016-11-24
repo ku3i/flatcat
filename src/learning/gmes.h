@@ -27,17 +27,20 @@
  * bishin zu Körperbewegungen oder -posen (4) erkennt.
  */
 
+/** TODO: namespace learning */
+/** TODO: move implementation to .cpp */
+
 template <typename Expert_Vector_t>
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
     GMES(Expert_Vector_t& expert, double learning_rate = gmes_constants::global_learning_rate)
     : expert(expert)
-    , Nmax(expert.get_max_number_of_experts()) //TODO: check usage of Nmax
+    , Nmax(expert.get_max_number_of_experts()) /** TODO: check usage of Nmax */
     , min_prediction_error(.0)
     , learning_progress(.0)
     , sum_capacity(.0)
     , learning_rate(learning_rate)
-    , one_shot_learning(true) // TODO could be a constructor argument
+    , one_shot_learning(true) /** TODO could be a constructor argument */
     , learning_enabled(true)
     , number_of_experts(0)
     , winner(0)
@@ -50,7 +53,7 @@ public:
         assert(gmes_constants::number_of_initial_experts < Nmax);
         assert(gmes_constants::number_of_initial_experts > 0);
 
-        //TODO create the first one on input?
+        /** TODO create the first one on input? */
         for (std::size_t n = 0; n < gmes_constants::number_of_initial_experts; ++n)
             expert[n].create();
         sts_msg("Created GMES with %u experts and learning rate %.4f", Nmax, learning_rate);
@@ -85,14 +88,15 @@ public:
         /* if needed, insert expert before adaptation takes place */
         if (expert[winner].learning_capacity_is_exhausted() && to_insert != winner)
         {
-            expert[to_insert].copy_from(expert[winner], one_shot_learning);
+            expert[to_insert].copy_from(expert[winner], one_shot_learning); // copy weights
+            expert.copy_payload(to_insert, winner);
 
             /* clear transitions emanating from 'to_insert' */
             expert[to_insert].clear_transitions();
             clear_transitions_to(to_insert);
 
             /* set new transition */
-            expert[to_insert].transition[winner] = gmes_constants::initial_transition_validation;
+            expert[to_insert].reset_transition(winner);
             winner = to_insert;
             new_node = true;
         }
@@ -110,7 +114,7 @@ public:
         /* reduce learning capacity proportional to progress in learning */ //TODO move to expert
         /** This should be rethought, 'proportional to the progress in learning' or better 'equal steps'? */
         double delta_capacity = expert[winner].learning_capacity - expert[winner].learning_capacity * exp(-learning_rate * learning_progress); // TODO x * (1-exp)
-        expert[winner].learning_capacity = expert[winner].learning_capacity - delta_capacity;
+        expert[winner].learning_capacity -= delta_capacity;
 
         recipient = random_index(Nmax);
         assert(recipient < Nmax);
@@ -123,11 +127,11 @@ public:
         }
 
         /* validate the connection from last_winner to winner */
-        //TODO? validate_transition();
+        /** TODO: validate_transition(); */
         expert[winner].transition[last_winner] = gmes_constants::initial_transition_validation;
 
         /* count experts */
-        number_of_experts = count_existing_experts();
+        number_of_experts = count_existing_experts(); /** could be a member method of experts class */
 
         /* assert learning_capacity does not leak */
         check_learning_capacity();
@@ -193,7 +197,7 @@ private:
         return with_max_capacity;
     }
 
-    std::size_t count_existing_experts(void) const
+    std::size_t count_existing_experts(void) const /**TODO move to expert vector class */
     {
         std::size_t num_experts = 0;
         for (std::size_t n = 0; n < Nmax; ++n)

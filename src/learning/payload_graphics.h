@@ -40,14 +40,14 @@ public:
         glRotatef(p.x_angle, 0.f, 1.f, 0.f);
 
         for (std::size_t n = 0; n < gmes.get_max_number_of_experts(); ++n) {
-            if (gmes.expert[n].exists) {
+            if (gmes.expert[n].does_exists()) {
                 const Point& point = gmes_graphics.graph.get_position(n);
 
-                unsigned int argmax_q = gmes.expert[n].payload.policies[sarsa.get_current_policy()].get_argmax_q();
+                unsigned int argmax_q = payload[n].policies[sarsa.get_current_policy()].get_argmax_q();
                 const Color4& c = table.get_color(argmax_q);
 
                 glColor3f(c.r, c.g, c.b);
-                glprintf(point.x, point.y, point.z, 0.025, "%u", argmax_q);
+                glprintf(point.x, point.y, point.z, 0.03, "%u", argmax_q);
 
                 /** make that switchable */
             }

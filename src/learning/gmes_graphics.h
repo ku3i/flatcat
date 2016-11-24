@@ -33,7 +33,7 @@ public:
                               -1.0,
                               gmes_constants::initial_learning_capacity);
 
-            predictor_graphics.emplace_back(expert[n].predictor);
+            predictor_graphics.emplace_back(expert[n].get_predictor());
         }
         sts_msg("Created GMES Graphics Extension");
     }
