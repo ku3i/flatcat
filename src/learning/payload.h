@@ -9,7 +9,7 @@
 
 class Empty_Payload
 {
-    Empty_Payload& operator=(const Empty_Payload& other);
+    Empty_Payload& operator=(const Empty_Payload& other) = delete;
 public:
     Empty_Payload() {}
     void copy_with_flaws(const Empty_Payload& other) {}
@@ -17,16 +17,21 @@ public:
 
 class State_Payload
 {
-    State_Payload& operator=(const State_Payload& other);
-
 public:
     State_Payload(const Action_Module_Interface& actions, std::size_t number_of_policies, double q_initial)
     : policies(number_of_policies, actions, q_initial)
     , eligibility_trace(actions.get_number_of_actions())
     {}
 
+    State_Payload& operator=(const State_Payload& other) {
+        assert(this != &other); // no self-assignment
+        copy_with_flaws(other); // redirect copy-assignment
+        return *this;
+    }
+
     void copy_with_flaws(const State_Payload& other)
     {
+        //dbg_msg("Copy with flaws");
         /* inherit flawed Q-values, i.e. mutate, hidden in the copy assignment [!] */
         policies = other.policies;
 

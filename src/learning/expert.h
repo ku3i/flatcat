@@ -114,11 +114,11 @@ public:
         assert(from < experts.size());
         assert(to   < experts.size());
         //dbg_msg("Copy from %u to %u", from, to);
-        payloads[to].copy_with_flaws(payloads[from]); /* take a flawed copy of the payload */
+        payloads.copy(to, from); /* take a flawed copy of the payload */
     }
 
 private:
-    std::vector<Expert> experts; /**TODO rename to experts*/
+    std::vector<Expert> experts;
     static_vector<Payload_t>& payloads;
 };
 

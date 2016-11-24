@@ -30,13 +30,15 @@ public:
 
     std::size_t size() const { return content.size(); }
 
-          element_t& operator[] (std::size_t index)       { assert(index < content.size()); return content[index]; }
-    const element_t& operator[] (std::size_t index) const { assert(index < content.size()); return content[index]; }
+          element_t& operator[] (std::size_t index)       { return content.at(index); }
+    const element_t& operator[] (std::size_t index) const { return content.at(index); }
 
     element_t   get_max   (void) const { return *std::max_element(content.begin(), content.end()); }
     element_t   get_min   (void) const { return *std::min_element(content.begin(), content.end()); }
     std::size_t get_argmax(void) const { return  std::distance(content.begin(), std::max_element(content.begin(), content.end())); }
     std::size_t get_argmin(void) const { return  std::distance(content.begin(), std::min_element(content.begin(), content.end())); }
+
+    void copy(std::size_t dst, std::size_t src) { content.at(dst) = content.at(src); }
 
 protected:
     std::vector<element_t> content;
