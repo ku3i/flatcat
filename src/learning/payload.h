@@ -52,7 +52,7 @@ private:
     friend class Epsilon_Greedy;
     friend class Boltzmann_Softmax;
     friend class State_Payload_Graphics;
-    template <typename T> friend class Payload_Graphics;
+    friend class Payload_Graphics;
 };
 
 #include <draw/graphics.h>

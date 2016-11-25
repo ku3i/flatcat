@@ -77,9 +77,9 @@ private:
     const double perceptive_width;
     VectorN      transition;              // validity of connections //TODO some day: max k connections
 
-    template <typename T> friend class GMES;
-    template <typename T> friend class GMES_Graphics;
-    template <typename T> friend class Force_Field;
+    friend class GMES;
+    friend class GMES_Graphics;
+    friend class Force_Field;
 };
 
 
@@ -87,13 +87,12 @@ private:
  * and should neither carry any information nor functionality
  * regarding the expert modules in it.
  */
-template <typename Payload_t>
 class Expert_Vector {
 public:
 
     Expert_Vector( const std::size_t         max_number_of_experts
                  , const sensor_vector&      input
-                 , static_vector<Payload_t>& payloads
+                 , static_vector_interface&  payloads
                  , const double              local_learning_rate
                  , const std::size_t         experience_size
                  )
@@ -120,7 +119,7 @@ public:
 
 private:
     std::vector<Expert> experts;
-    static_vector<Payload_t>& payloads;
+    static_vector_interface& payloads;
 };
 
 #endif // EXPERT_H_INCLUDED

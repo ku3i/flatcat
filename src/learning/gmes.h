@@ -28,12 +28,11 @@
  */
 
 /** TODO: namespace learning */
-/** TODO: move implementation to .cpp */
+/** TODO: now that the template argument is gone, move implementation to .cpp */
 
-template <typename Expert_Vector_t>
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
-    GMES(Expert_Vector_t& expert, double learning_rate = gmes_constants::global_learning_rate)
+    GMES(Expert_Vector& expert, double learning_rate = gmes_constants::global_learning_rate)
     : expert(expert)
     , Nmax(expert.get_max_number_of_experts()) /** TODO: check usage of Nmax */
     , min_prediction_error(.0)
@@ -224,7 +223,7 @@ private:
             expert[n].transition[to_clear] = .0;
     }
 
-    Expert_Vector_t& expert;
+    Expert_Vector& expert;
     const std::size_t Nmax;
 
     double min_prediction_error;
@@ -244,9 +243,9 @@ private:
     VectorN     activations;
     bool        new_node;
 
-    template <typename T> friend class GMES_Graphics;
-    template <typename T> friend class Payload_Graphics;
-    template <typename T> friend class Force_Field;
+    friend class GMES_Graphics;
+    friend class Payload_Graphics;
+    friend class Force_Field;
 };
 
 #endif // GMES_H

@@ -94,10 +94,9 @@ Vector3 repell(const Vector3& vec1, const Vector3& vec2, double g_const, double 
     return force;
 }
 
-template <typename Expert_Vector_t>
 class Force_Field : public Graphics_Interface {
 public:
-    Force_Field(const GMES<Expert_Vector_t>& gmes)
+    Force_Field(const GMES& gmes)
     : gmes(gmes)
     , expert(gmes.expert)
     , activations(gmes.get_activations())
@@ -187,9 +186,9 @@ public:
         glprintf(0.8, 0.7, 0.0, 0.03, "%u/%u", gmes.get_number_of_experts(), gmes.get_max_number_of_experts());
     }
 
-    const GMES<Expert_Vector_t>& gmes;
-    const Expert_Vector_t&       expert;
-    const VectorN&               activations;
+    const GMES&            gmes;
+    const Expert_Vector&   expert;
+    const VectorN&         activations;
 
     std::vector<Particle>  particle;
     const double           dt;

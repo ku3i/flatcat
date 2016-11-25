@@ -9,6 +9,7 @@
 #include <learning/action_module.h>
 #include <learning/payload.h>
 #include <learning/sarsa.h>
+#include <learning/gmes.h>
 #include <learning/competitive_motor_layer.h>
 #include <learning/competitive_motor_layer_graphics.h>
 #include <learning/sensorspace.h> /** TODO move sensorspace to control*/
@@ -32,11 +33,10 @@ public:
     }
 };
 
-template <typename GMES_t>
 class pendulum_reward_space : public reward_base
 {
 public:
-    pendulum_reward_space( const GMES_t&                gmes
+    pendulum_reward_space( const GMES&                  gmes
                          , const robots::Jointvector_t& joints )
     : reward_base(3)
     {
@@ -59,11 +59,10 @@ public:
     }
 };
 
-template <typename GMES_t>
 class walking_reward_space : public reward_base
 {
 public:
-    walking_reward_space( const GMES_t&          gmes
+    walking_reward_space( const GMES&            gmes
                         , const robots::Simloid& robot )
     : reward_base(16)
     {

@@ -159,6 +159,7 @@
 		<Unit filename="src/learning/epsilon_greedy.h" />
 		<Unit filename="src/learning/expert.h" />
 		<Unit filename="src/learning/forcefield.h" />
+		<Unit filename="src/learning/gmes.cpp" />
 		<Unit filename="src/learning/gmes.h" />
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />

@@ -10,20 +10,19 @@
 #include <learning/payload.h>
 #include <learning/sarsa.h>
 
-template <typename Expert_Vector_t>
 class Payload_Graphics : public Graphics_Interface {
 
-    const GMES<Expert_Vector_t>&          gmes;
-    const GMES_Graphics<Expert_Vector_t>& gmes_graphics;
-    const static_vector<State_Payload>&   payload;
-    const SARSA&                          sarsa;
-    const ColorTable                      table;
+    const GMES&                         gmes;
+    const GMES_Graphics&                gmes_graphics;
+    const static_vector<State_Payload>& payload;
+    const SARSA&                        sarsa;
+    const ColorTable                    table;
 
 public:
-    Payload_Graphics( const GMES<Expert_Vector_t>&          gmes
-                    , const GMES_Graphics<Expert_Vector_t>& gmes_graphics
-                    , const static_vector<State_Payload>&   payload
-                    , const SARSA&                          sarsa )
+    Payload_Graphics( const GMES&                         gmes
+                    , const GMES_Graphics&                gmes_graphics
+                    , const static_vector<State_Payload>& payload
+                    , const SARSA&                        sarsa )
     : gmes(gmes)
     , gmes_graphics(gmes_graphics)
     , payload(payload)

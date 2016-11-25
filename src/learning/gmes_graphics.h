@@ -10,10 +10,9 @@
 #include <learning/gmes.h>
 #include <learning/predictor_graphics.h>
 
-template <typename Expert_Vector_t>
 class GMES_Graphics : public Graphics_Interface {
 public:
-    GMES_Graphics(const GMES<Expert_Vector_t>& gmes, const sensor_vector& input)
+    GMES_Graphics(const GMES& gmes, const sensor_vector& input)
     : gmes(gmes)
     , expert(gmes.expert)
     , input(input)
@@ -91,9 +90,9 @@ public:
         draw_vector2(-1.0, 1.2, 0.1, 2.0, gmes.get_activations());
     }
 
-    const GMES<Expert_Vector_t>& gmes;
-    const Expert_Vector_t&       expert;
-    const sensor_vector&         input;
+    const GMES&          gmes;
+    const Expert_Vector& expert;
+    const sensor_vector& input;
 
     const axes3D         axis;
     plot3D               plot;
