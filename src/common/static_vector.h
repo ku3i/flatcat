@@ -6,6 +6,14 @@
 #include <cassert>
 #include <common/log_messages.h>
 
+class static_vector_interface {
+public:
+    virtual ~static_vector_interface() = default;
+    virtual std::size_t size(void) const = 0;
+    virtual void copy(std::size_t, std::size_t) = 0;
+};
+
+
 /** this vector wrapper class prevents direct access to the underlying vector.
  *  no copying of elements allowed
  *  constructed via emplace back
@@ -14,7 +22,7 @@
  */
 
 template <typename element_t>
-class static_vector {
+class static_vector : public static_vector_interface {
 //TODO    static_vector(const static_vector& other) = delete;      // non construction-copyable
     static_vector& operator=(const static_vector&) = delete; // non copyable
 public:
@@ -28,7 +36,7 @@ public:
 
     virtual ~static_vector() = default;
 
-    std::size_t size() const { return content.size(); }
+    std::size_t size() const override final { return content.size(); }
 
           element_t& operator[] (std::size_t index)       { return content.at(index); }
     const element_t& operator[] (std::size_t index) const { return content.at(index); }
@@ -38,7 +46,7 @@ public:
     std::size_t get_argmax(void) const { return  std::distance(content.begin(), std::max_element(content.begin(), content.end())); }
     std::size_t get_argmin(void) const { return  std::distance(content.begin(), std::min_element(content.begin(), content.end())); }
 
-    void copy(std::size_t dst, std::size_t src) { content.at(dst) = content.at(src); }
+    void copy(std::size_t dst, std::size_t src) override final { content.at(dst) = content.at(src); }
 
 protected:
     std::vector<element_t> content;
