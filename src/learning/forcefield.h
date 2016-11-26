@@ -100,10 +100,10 @@ public:
     : gmes(gmes)
     , expert(gmes.expert)
     , activations(gmes.get_activations())
-    , particle(expert.get_max_number_of_experts())
+    , particle(expert.size())
     , dt(0.001)
     , ff_axis(.0, .0, .0, 1., 1., 1., 0)
-    , ff_graph(expert.get_max_number_of_experts(), ff_axis, white)
+    , ff_graph(expert.size(), ff_axis, white)
     {
         dbg_msg("Creating Forcefield");
     }
@@ -131,7 +131,7 @@ public:
         if (gmes.has_new_node())
             calculate_new_node_position();
 
-        for (unsigned int i = 0; i < expert.get_max_number_of_experts(); ++i)
+        for (unsigned int i = 0; i < expert.size(); ++i)
         {
             particle[i].force  = .0; //clear
             particle[i].force += -ff_constants::fluid_friction * particle[i].velocity;
@@ -140,7 +140,7 @@ public:
             {
                 particle[i].force += gravity(particle[i].position, Vector3(.0), ff_constants::center_gravity, ff_constants::distance_0);
 
-                for (unsigned int k = 0; k < expert.get_max_number_of_experts(); ++k)
+                for (unsigned int k = 0; k < expert.size(); ++k)
                 {
                     if (i != k && expert[k].exists)
                     {
@@ -164,7 +164,7 @@ public:
         }
 
         /* update drawings */
-        for (unsigned int i = 0; i < expert.get_max_number_of_experts(); ++i)
+        for (unsigned int i = 0; i < expert.size(); ++i)
         {
             ff_graph.update_node(i,
                                  particle[i].position.x,
@@ -172,7 +172,7 @@ public:
                                  particle[i].position.z,
                                  fmin(2.0, expert[i].learning_capacity));
 
-            for (unsigned int k = 0; k < expert.get_max_number_of_experts(); ++k)
+            for (unsigned int k = 0; k < expert.size(); ++k)
                 ff_graph.update_edge(i, k, (expert[i].exists_transition(k) ? expert[i].transition[k]*192 : 0)); //TODO use color of edge to display eligibility traces
         }
         ff_graph.activated(gmes.get_winner());

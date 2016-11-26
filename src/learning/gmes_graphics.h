@@ -18,13 +18,13 @@ public:
     , input(input)
     , axis(.0, .0, .0, 1., 1., 1., 0)
     , plot(100, axis, LineColorMix0[0])
-    , graph(expert.get_max_number_of_experts(), axis, white)
+    , graph(expert.size(), axis, white)
     , predictor_graphics()
     {
-        predictor_graphics.reserve(expert.get_max_number_of_experts());
+        predictor_graphics.reserve(expert.size());
 
-        int dsize = (int) ceil(sqrt(expert.get_max_number_of_experts()));
-        for (unsigned int n = 0; n < expert.get_max_number_of_experts(); ++n)
+        int dsize = (int) ceil(sqrt(expert.size()));
+        for (unsigned int n = 0; n < expert.size(); ++n)
         {
             graph.update_node(n,
                               -1.0 + 2.0/dsize*(n%dsize) + 1.0/dsize,
@@ -42,7 +42,7 @@ public:
         assert(input.size() == 3);
         plot.add_sample((float) input[0], (float) input[1], (float) input[2]);
 
-        for (unsigned int n = 0; n < expert.get_max_number_of_experts(); ++n) {
+        for (unsigned int n = 0; n < expert.size(); ++n) {
             graph.update_edge(n, gmes.get_winner(), (unsigned char) 255 * expert[n].transition[gmes.get_winner()]);
             graph.update_edge(gmes.get_winner(), n, (unsigned char) 255 * expert[gmes.get_winner()].transition[n]);
         }

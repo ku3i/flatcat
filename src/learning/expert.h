@@ -105,10 +105,10 @@ public:
             experts.emplace_back(input, max_number_of_experts, local_learning_rate, experience_size);
     }
 
-          Expert& operator[] (const std::size_t index)       { assert(index < experts.size()); return experts[index]; }
-    const Expert& operator[] (const std::size_t index) const { assert(index < experts.size()); return experts[index]; }
+          Expert& operator[] (const std::size_t index)       { return experts.at(index); }
+    const Expert& operator[] (const std::size_t index) const { return experts.at(index); }
 
-    std::size_t get_max_number_of_experts(void) const { return experts.size(); }
+    std::size_t size(void) const { return experts.size(); }
 
     void copy_payload(std::size_t to, std::size_t from) {
         assert(from < experts.size());
