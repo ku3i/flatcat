@@ -63,10 +63,10 @@ public:
         else copy_predictor_weights_from(other);
     }
 
-    bool exists_transition(std::size_t index) const { assert(index < transition.size()); return transition[index] > gmes_constants::transition_exist_treshold; }
+    bool exists_transition(std::size_t index) const { return transition.at(index) > gmes_constants::transition_exist_treshold; }
+    void reset_transition(std::size_t index) { transition.at(index) = gmes_constants::initial_transition_validation; }
 
     Predictor const& get_predictor(void) const { return predictor; }
-    void reset_transition(std::size_t index) { assert(index < transition.size()); transition[index] = gmes_constants::initial_transition_validation; }
     bool does_exists(void) const { return exists; }
 
 

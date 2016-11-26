@@ -99,4 +99,31 @@ TEST_CASE( "biased_random_index", "[math]") {
         REQUIRE( bins[p] < counter );
         counter = bins[p];
     }
+    srand((unsigned) time(0));
+}
+
+
+TEST_CASE( "random_index", "[math]") {
+    srand((unsigned) time(0));
+
+    /* check that random index does not overshoot range */
+    REQUIRE( random_index(0) == 0 );
+    unsigned counter = 0;
+    for (unsigned i = 1; i < 1337; ++i) {
+        unsigned rnd_idx = random_index(i);
+        if (rnd_idx >= i) ++counter;
+    }
+    REQUIRE( counter == 0);
+
+    /* weakly check uniform distribution */
+    const unsigned num_bins = 13;
+    std::vector<unsigned> bins(num_bins);
+    for (unsigned i = 0; i < 13000; ++i) {
+        ++bins.at(random_index(num_bins));
+    }
+
+    for (auto& b : bins) {
+        REQUIRE( in_range(b, 900u, 1100u));
+        dbg_msg("%u", b);
+    }
 }

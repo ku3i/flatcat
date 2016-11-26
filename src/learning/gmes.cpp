@@ -113,7 +113,6 @@
                                     - expert[winner].learning_capacity * exp(-learning_rate * learning_progress); /** TODO: reorder eq. to: x * (1-exp) */
 
         recipient = random_index(Nmax);
-        assert(recipient < Nmax); /**TODO write a test for that and remove assertion*/
 
         expert[winner   ].learning_capacity -= delta_capacity;
         expert[recipient].learning_capacity += delta_capacity;
@@ -131,8 +130,7 @@
         }
 
         /* validate the connection from last_winner to winner */
-        /** TODO: validate_transition(); */
-        expert[winner].transition[last_winner] = gmes_constants::initial_transition_validation;
+        expert[winner].reset_transition(last_winner);
     }
 
 
