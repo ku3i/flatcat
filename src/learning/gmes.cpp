@@ -1,20 +1,55 @@
 #include <learning/gmes.h>
 
     /* gmes main loop
-     * TODO: split to smaller subroutines, e.g.
-     * 1) Detection part
-     * 2) Adaption part
+     */
+    /** TODO: consider changing the call pattern of private member
+     *        methods to functions like x = f(y) and make them
      */
     void GMES::execute_cycle(void)
     {
         /* backup last winner */
         last_winner = winner;
-        new_node = false;
 
         /* determine new winner */
         winner = determine_winner();
 
         /* if needed, insert expert before adaptation takes place */
+        insert_expert_on_demand();
+
+        /* adapt weights of winner */
+        expert[winner].adapt_weights();
+
+        /* estimate learning progress: L = -dE/dt */
+        estimate_learning_progress();
+
+        /* shift learning capacity proportional to progress in learning */
+        adjust_learning_capacity();
+
+        /* refreshes transitions according to adaptation */
+        refresh_transitions();
+
+        /* count experts */
+        number_of_experts = count_existing_experts(); /** could be a member method of experts class */
+
+        /* assert learning_capacity does not leak */
+        check_learning_capacity();
+
+        /* choose next expert to insert
+         * if all available experts are in use,
+         * find and take the one with max. learning capacity */
+        to_insert = (number_of_experts < Nmax) ? number_of_experts : arg_max_capacity();
+
+        update_activations();
+    }
+
+
+    /* if needed, insert expert
+     * before adaptation takes place
+     */
+    void GMES::insert_expert_on_demand(void)
+    {
+        new_node = false;
+
         if (expert[winner].learning_capacity_is_exhausted() && to_insert != winner)
         {
             expert[to_insert].copy_from(expert[winner], one_shot_learning); // copy weights
@@ -29,27 +64,40 @@
             winner = to_insert;
             new_node = true;
         }
+    }
 
-        /* adapt weights of winner */
-        expert[winner].adapt_weights();
 
-        /* estimate learning progress: L = -dE/dt */
-        double prediction_error_before_adaption = expert[winner].get_prediction_error();
+    /* estimate learning progress: L = -dE/dt
+     */
+    void GMES::estimate_learning_progress(void)
+    {
+        const double prediction_error_before_adaption = expert[winner].get_prediction_error();
         learning_progress = prediction_error_before_adaption - expert[winner].make_prediction();
-
-        //dbg_msg("e: %1.20f %s", learning_progress, (new_node)? "new":"");
         assert_in_range(learning_progress, 0.0, 1.0);
+    }
 
-        /* reduce learning capacity proportional to progress in learning */ //TODO move to expert
-        /** This should be rethought, 'proportional to the progress in learning' or better 'equal steps'? */
-        double delta_capacity = expert[winner].learning_capacity - expert[winner].learning_capacity * exp(-learning_rate * learning_progress); // TODO x * (1-exp)
-        expert[winner].learning_capacity -= delta_capacity;
+
+    /* adjust learning capacity by shifting a fraction of learning capacity
+     * away from the winner towards a randomly picked expert
+     */
+    void GMES::adjust_learning_capacity(void)
+    {
+        const double delta_capacity = expert[winner].learning_capacity
+                                    - expert[winner].learning_capacity * exp(-learning_rate * learning_progress); /** TODO: reorder eq. to: x * (1-exp) */
 
         recipient = random_index(Nmax);
-        assert(recipient < Nmax);
-        expert[recipient].learning_capacity += delta_capacity;
+        assert(recipient < Nmax); /**TODO write a test for that and remove assertion*/
 
-        /* devaluate connections emanating from n1 */
+        expert[winner   ].learning_capacity -= delta_capacity;
+        expert[recipient].learning_capacity += delta_capacity;
+    }
+
+
+    /* refreshes transitions according to adaptations
+     */
+    void GMES::refresh_transitions(void)
+    {
+        /* invalidate connections emanating from winner */
         for (std::size_t n = 0; n < Nmax; ++n) {
             expert[n].transition[winner] *= exp(-learning_rate * learning_progress); /** TODO: this factor can be computed beforehand and used several times*/
             expert[winner].transition[n] *= exp(-learning_rate * learning_progress);
@@ -58,19 +106,6 @@
         /* validate the connection from last_winner to winner */
         /** TODO: validate_transition(); */
         expert[winner].transition[last_winner] = gmes_constants::initial_transition_validation;
-
-        /* count experts */
-        number_of_experts = count_existing_experts(); /** could be a member method of experts class */
-
-        /* assert learning_capacity does not leak */
-        check_learning_capacity();
-
-        /* choose next expert to insert
-         * if all available experts are in use,
-         * find and take the one with max. learning capacity */
-        to_insert = (number_of_experts < Nmax) ? number_of_experts : arg_max_capacity();
-
-        update_activations();
     }
 
 

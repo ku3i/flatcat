@@ -62,6 +62,8 @@ public:
     bool        has_state_changed         (void) const { return winner != last_winner; }
     bool        has_new_node              (void) const { return new_node;              }
 
+    /** TODO: consider grouping the state variables of gmes to gmes_status and
+     *        return this all at once. */
     std::size_t get_number_of_experts     (void) const { return number_of_experts;     }
     std::size_t get_max_number_of_experts (void) const { return expert.size();         }
     std::size_t get_winner                (void) const { return winner;                }
@@ -86,8 +88,11 @@ private:
     std::size_t count_existing_experts    (void) const;
     void        check_learning_capacity   (void) const;
 
+    void        estimate_learning_progress(void);
+    void        adjust_learning_capacity  (void);
+    void        refresh_transitions       (void);
+    void        insert_expert_on_demand   (void);
     void        clear_transitions_to(std::size_t to_clear);
-
 
     Expert_Vector& expert;
     const std::size_t Nmax;

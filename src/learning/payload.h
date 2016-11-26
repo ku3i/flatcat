@@ -44,7 +44,7 @@ private:
         /* inherit flawless eligibility traces */
         eligibility_trace = other.eligibility_trace;
     }
-
+public:
     copyable_static_vector<Policy> policies;
     copyable_static_vector<Eligibility> eligibility_trace;
 
