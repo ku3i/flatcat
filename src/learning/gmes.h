@@ -28,35 +28,12 @@
  */
 
 /** TODO: namespace learning */
-/** TODO: now that the template argument is gone, move implementation to .cpp */
-
 /** TODO: GMES_Base, Expert_Vector_Base, Predictor_Base */
 
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
-    GMES(Expert_Vector& expert, double learning_rate = gmes_constants::global_learning_rate, bool one_shot_learning = true)
-    : expert(expert)
-    , Nmax(expert.size()) /** TODO: check usage of Nmax */
-    , min_prediction_error(.0)
-    , learning_progress(.0)
-    , learning_rate(learning_rate)
-    , one_shot_learning(one_shot_learning)
-    , learning_enabled(true)
-    , number_of_experts(0)
-    , winner(0)
-    , last_winner(0)
-    , recipient(0)
-    , to_insert(0)
-    , activations(Nmax)
-    , new_node(false)
-    {
-        assert(in_range(gmes_constants::number_of_initial_experts, std::size_t{1}, Nmax));
-        for (std::size_t n = 0; n < gmes_constants::number_of_initial_experts; ++n)
-            expert[n].create();
-        sts_msg("Created GMES with %u experts and learning rate %.4f", Nmax, learning_rate);
-    }
-
-    ~GMES() { dbg_msg("Destroying GMES."); }
+    GMES(Expert_Vector& expert, double learning_rate, bool one_shot_learning);
+    ~GMES();
 
     bool        is_learning_enabled       (void) const { return learning_enabled;      }
     bool        has_state_changed         (void) const { return winner != last_winner; }
