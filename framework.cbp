@@ -91,8 +91,6 @@
 		<Unit filename="src/common/socket_client.h" />
 		<Unit filename="src/common/static_vector.h" />
 		<Unit filename="src/common/stopwatch.h" />
-		<Unit filename="src/common/vector.cpp" />
-		<Unit filename="src/common/vector.h" />
 		<Unit filename="src/common/vector2.h" />
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/visuals.h" />
@@ -152,8 +150,6 @@
 		<Unit filename="src/learning/boltzmann_softmax.h" />
 		<Unit filename="src/learning/competitive_motor_layer.h" />
 		<Unit filename="src/learning/competitive_motor_layer_graphics.h" />
-		<Unit filename="src/learning/delayline.cpp" />
-		<Unit filename="src/learning/delayline.h" />
 		<Unit filename="src/learning/eigenzeit.h" />
 		<Unit filename="src/learning/eligibility.h" />
 		<Unit filename="src/learning/epsilon_greedy.h" />
