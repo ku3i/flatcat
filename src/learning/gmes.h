@@ -19,9 +19,7 @@
  * 23.02.2015 (Elmar ist heute 16 Monate alt geworden) */
 
 
-/* TODO:
- * find a better name for 'to_insert'
- * ---
+/**
  * Überlege Dir eine geschachtelte Gmes-Schichten-Anordnung, welche zunächst aus Sensordaten (1)
  * Fixpunkte und verschiedene Attraktoren (2) erkennt und dann in "kombinierte Gelenke"-Features (3)
  * bishin zu Körperbewegungen oder -posen (4) erkennt.
@@ -32,7 +30,10 @@
 
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
-    GMES(Expert_Vector& expert, double learning_rate, bool one_shot_learning);
+    GMES( Expert_Vector& expert
+        , double learning_rate = gmes_constants::global_learning_rate
+        , bool one_shot_learning = true );
+
     ~GMES();
 
     bool        is_learning_enabled       (void) const { return learning_enabled;      }
@@ -69,6 +70,7 @@ private:
     void        adjust_learning_capacity  (void);
     void        refresh_transitions       (void);
     void        insert_expert_on_demand   (void);
+
     void        clear_transitions_to(std::size_t to_clear);
 
     Expert_Vector& expert;
@@ -81,11 +83,11 @@ private:
     const bool one_shot_learning;
     bool learning_enabled;
 
-    std::size_t number_of_experts;
-    std::size_t winner;         // winning expert
-    std::size_t last_winner;    // winning expert of last time step
-    std::size_t recipient;      // donee of the learning capacity consumed by the winner
-    std::size_t to_insert;
+    std::size_t number_of_experts;  // number of existing experts
+    std::size_t winner;             // winning expert
+    std::size_t last_winner;        // winning expert of last time step
+    std::size_t recipient;          // donee of the learning capacity consumed by the winner
+    std::size_t to_insert;          // expert to be inserted on demand
 
     VectorN     activations;
     bool        new_node;

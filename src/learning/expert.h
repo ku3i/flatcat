@@ -22,13 +22,12 @@ public:
     , transition(max_number_of_nodes)
     { }
 
-    ~Expert() { }
-
     /** TODO get 3d coordinates (graphical representation) note: must provided by the underlying type */
 
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
     double get_prediction_error          (void) const { return predictor.get_prediction_error();  }
     void   adapt_weights                 (void)       { predictor.adapt_with_experience_replay(); }
+    const VectorN& get_weights (void)           const { return predictor.get_weights();           }
 
     double update_and_get_activation     (void) const {
         if (not exists) return 0.0;
@@ -39,15 +38,10 @@ public:
     void   copy_predictor_weights_from   (const Expert& other)  { predictor.copy_weights_from(other.predictor); }
     void   reinit_predictor_weights      (void)                 { predictor.init_weights();                     }
 
-    const VectorN& get_weights (void)           const { return predictor.get_weights();             }
-
     /* make prediction and update prediction error */
     double make_prediction(void) { return predictor.predict(); }
 
-    void clear_transitions(void) {
-        for (std::size_t n = 0; n < transition.size(); ++n)
-            transition[n] = 0.0;
-    }
+    void clear_transitions(void) { for (auto& t : transition) t = 0.0; }
 
     void create(void) {
         exists = true;
@@ -73,9 +67,10 @@ public:
 private:
     bool         exists;
     Predictor    predictor;
-    double       learning_capacity; /** TODO think of having the learning capacity as integer value and only count discrete learning steps*/
+    double       learning_capacity;
     const double perceptive_width;
-    VectorN      transition;              // validity of connections //TODO some day: max k connections
+    VectorN      transition;       // validity of connections
+    /** TODO some day: restrict to max. k connections */
 
     friend class GMES;
     friend class GMES_Graphics;

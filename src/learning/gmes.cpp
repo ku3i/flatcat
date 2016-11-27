@@ -1,8 +1,8 @@
 #include <learning/gmes.h>
 
     GMES::GMES( Expert_Vector& expert
-              , double learning_rate = gmes_constants::global_learning_rate
-              , bool one_shot_learning = true )
+              , double learning_rate
+              , bool one_shot_learning )
     : expert(expert)
     , Nmax(expert.size()) /** TODO: check usage of Nmax */
     , min_prediction_error(.0)
@@ -78,7 +78,8 @@
 
         if (expert[winner].learning_capacity_is_exhausted() && to_insert != winner)
         {
-            expert[to_insert].copy_from(expert[winner], one_shot_learning); // copy weights
+            /* copy weights and payload */
+            expert[to_insert].copy_from(expert[winner], one_shot_learning);
             expert.copy_payload(to_insert, winner);
 
             /* clear transitions emanating from 'to_insert' */

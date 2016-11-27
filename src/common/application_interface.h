@@ -14,7 +14,7 @@ public:
     virtual uint64_t get_cycle_count(void) const = 0;
 
 protected:
-    virtual ~Application_Interface() {};
+    virtual ~Application_Interface() = default;
 };
 
 class Application_Base
@@ -26,7 +26,7 @@ public:
     , name(name)
     { }
 
-    virtual ~Application_Base() {}
+    virtual ~Application_Base() = default;
 
     const unsigned int window_width;
     const unsigned int window_height;
