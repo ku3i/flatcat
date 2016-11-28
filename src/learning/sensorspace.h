@@ -63,8 +63,8 @@ public:
 
     const std::size_t size(void) const { return sensors.size(); }
 
-          double operator[] (std::size_t index)       { assert(index < sensors.size()); return sensors[index](); }
-    const double operator[] (std::size_t index) const { assert(index < sensors.size()); return sensors[index](); }
+          double operator[] (std::size_t index)       { return sensors.at(index)(); }
+    const double operator[] (std::size_t index) const { return sensors.at(index)(); }
 
     VectorN get(void) const {
         VectorN result(sensors.size());

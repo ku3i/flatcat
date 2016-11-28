@@ -8,6 +8,8 @@
 
 
 class Expert {
+    Expert(const Expert& other) = delete; // non construction-copyable
+
 public:
 
     Expert( const sensor_vector& input
@@ -22,6 +24,8 @@ public:
     , transition(max_number_of_nodes)
     { }
 
+    Expert(Expert&& other) = default;
+
     /** TODO get 3d coordinates (graphical representation) note: must provided by the underlying type */
 
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
@@ -35,17 +39,17 @@ public:
         return exp(-e*e/perceptive_width);
     }
 
-    void   copy_predictor_weights_from   (const Expert& other)  { predictor.copy_weights_from(other.predictor); }
-    void   reinit_predictor_weights      (void)                 { predictor.init_weights();                     }
+    void   copy_predictor_weights_from   (const Expert& other) { predictor = other.predictor;       }
+    void   reinit_predictor_weights      (void)                { predictor.initialize_from_input(); }
 
     /* make prediction and update prediction error */
     double make_prediction(void) { return predictor.predict(); }
 
     void clear_transitions(void) { for (auto& t : transition) t = 0.0; }
 
-    void create(void) {
+    void create_randomized(void) {
         exists = true;
-        predictor.init_random_weights();
+        predictor.initialize_randomized();
     }
 
     void copy_from(const Expert& other, bool one_shot_learning)

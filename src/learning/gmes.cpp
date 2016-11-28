@@ -20,7 +20,7 @@
     {
         assert(in_range(gmes_constants::number_of_initial_experts, std::size_t{1}, Nmax));
         for (std::size_t n = 0; n < gmes_constants::number_of_initial_experts; ++n)
-            expert[n].create();
+            expert[n].create_randomized();
         sts_msg("Created GMES with %u experts and learning rate %.4f", Nmax, learning_rate);
     }
 
