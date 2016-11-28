@@ -161,6 +161,7 @@
 		<Unit filename="src/learning/gmes_graphics.h" />
 		<Unit filename="src/learning/payload.h" />
 		<Unit filename="src/learning/payload_graphics.h" />
+		<Unit filename="src/learning/predictor.cpp" />
 		<Unit filename="src/learning/predictor.h" />
 		<Unit filename="src/learning/predictor_graphics.h" />
 		<Unit filename="src/learning/q_function.h" />
@@ -194,6 +195,9 @@
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/main.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/predictor_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Extensions>
