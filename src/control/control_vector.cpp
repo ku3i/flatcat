@@ -55,5 +55,4 @@ namespace control {
         controls.at(index) = Control_Parameter(filename);
     }
 
-
 } // namespace control
