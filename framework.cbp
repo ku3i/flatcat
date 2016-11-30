@@ -95,6 +95,8 @@
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/visuals.h" />
 		<Unit filename="src/control/behavior_state_machine.h" />
+		<Unit filename="src/control/control_vector.cpp" />
+		<Unit filename="src/control/control_vector.h" />
 		<Unit filename="src/control/controlparameter.cpp" />
 		<Unit filename="src/control/controlparameter.h" />
 		<Unit filename="src/control/csl.h" />
@@ -159,6 +161,7 @@
 		<Unit filename="src/learning/gmes.h" />
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />
+		<Unit filename="src/learning/motor_layer.h" />
 		<Unit filename="src/learning/payload.h" />
 		<Unit filename="src/learning/payload_graphics.h" />
 		<Unit filename="src/learning/predictor.cpp" />
@@ -197,7 +200,13 @@
 		<Unit filename="src/tests/main.cpp">
 			<Option target="tests" />
 		</Unit>
+		<Unit filename="src/tests/motor_layer_tests.cpp">
+			<Option target="tests" />
+		</Unit>
 		<Unit filename="src/tests/predictor_tests.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/test_robot.h">
 			<Option target="tests" />
 		</Unit>
 		<Extensions>

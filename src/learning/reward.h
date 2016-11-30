@@ -2,7 +2,7 @@
 #define REWARD_H_INCLUDED
 
 #include <common/integrator.h>
-#include <learning/sensorspace.h>
+#include <control/sensorspace.h>
 
 class reward_base
 {

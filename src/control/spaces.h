@@ -3,6 +3,7 @@
 
 #include <robots/joint.h>
 #include <control/jointcontrol.h>
+#include <control/sensorspace.h>
 
 #include <robots/simloid.h>
 
@@ -12,7 +13,6 @@
 #include <learning/gmes.h>
 #include <learning/competitive_motor_layer.h>
 #include <learning/competitive_motor_layer_graphics.h>
-#include <learning/sensorspace.h> /** TODO move sensorspace to control*/
 
 /** TODO:
  * Think of having intermediate 'terminal' states, i.e. that switch to a specific policy and

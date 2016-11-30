@@ -7,7 +7,7 @@
 #include <functional>
 #include <common/vector_n.h>
 
-/**TODO move to control or robots */
+/**TODO namespace */
 
 class sensor_signal
 {
@@ -57,8 +57,7 @@ public:
     virtual ~sensor_vector() { /*dbg_msg("Destroying sensor vector base.");*/ };
 
     void execute_cycle(void) {
-        for (std::size_t i = 0; i < sensors.size(); ++i)
-            sensors[i].execute_cycle();
+        for (auto& s : sensors) s.execute_cycle();
     }
 
     const std::size_t size(void) const { return sensors.size(); }

@@ -4,7 +4,7 @@
 #include <common/modules.h>
 #include <common/vector_n.h>
 #include <common/log_messages.h>
-#include <learning/sensorspace.h>
+#include <control/sensorspace.h>
 
 /** Notes regarding normalizing the prediction error
  *  N: input size

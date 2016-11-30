@@ -3,7 +3,7 @@
 
 #include <learning/gmes_constants.h>
 #include <learning/predictor.h>
-#include <learning/sensorspace.h>
+#include <control/sensorspace.h>
 #include <common/static_vector.h>
 
 
