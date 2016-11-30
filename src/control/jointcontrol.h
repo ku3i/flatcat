@@ -9,6 +9,7 @@
 #include <common/log_messages.h>
 
 #include <control/controlparameter.h>
+#include <control/control_vector.h>
 
 #include <robots/robot.h>
 #include <robots/joint.h>

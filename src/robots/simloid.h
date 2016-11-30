@@ -19,7 +19,6 @@
 #include <common/socket_client.h>
 #include <common/basic.h>
 #include <common/log_messages.h>
-#include <control/jointcontroller.h>
 #include <common/robot_conf.h>
 #include <robots/robot.h>
 #include <robots/joint.h>
@@ -93,8 +92,8 @@ public:
             configuration.bodies[i].force.zero();
     }
 
-    __attribute_deprecated__
-    Robot_Configuration& get_robot_config(void) { return configuration; } //TODO remove
+    //__attribute_deprecated__
+    //Robot_Configuration& get_robot_config(void) { return configuration; } //TODO remove
 
     /* implements the robot interface */
     bool execute_cycle(void) { return update(); }

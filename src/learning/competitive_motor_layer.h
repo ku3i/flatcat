@@ -91,7 +91,7 @@ public:
         for (std::size_t i = motor_units.size(); i < number_of_motor_units; ++i) {
             control::Control_Parameter params = control::get_initial_parameter(robot, seed, /*symmetric?*/(i % 2 == 0));
 
-            randomize_control_parameter(params, 0.1, 1.0); /**TODO make to settings, and constrain motor self not not go beyond zero */
+            control::randomize_control_parameter(params, 0.1, 1.0); /**TODO make to settings, and constrain motor self not not go beyond zero */
             /**TODO also: make settings grouped and only give the local settings as ref */
             motor_units.emplace_back(params, (i < number_of_motor_units_begin));
         }

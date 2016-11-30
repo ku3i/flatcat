@@ -12,11 +12,15 @@
 
 #define INITIAL_BIAS 0.1
 
+/** WARNING: This class is outdated, do not use it anymore.
+  * Use Jointcontrol instead.
+  */
+
 class Jointcontroller
 {
 public:
     Jointcontroller( Robot_Configuration& configuration, bool symmetric_controller
-                   , double param_p, double param_d, double param_m, const std::string& seed_filename);
+                   , double param_p, double param_d, double param_m, const std::string& seed_filename) __attribute_deprecated__;
 
     ~Jointcontroller() { sts_msg("Destroying joint controller."); }
 
