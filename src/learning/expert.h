@@ -30,7 +30,7 @@ public:
 
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
     double get_prediction_error          (void) const { return predictor.get_prediction_error();  }
-    void   adapt_weights                 (void)       { predictor.adapt_with_experience_replay(); }
+    void   adapt_weights                 (void)       { predictor.adapt();                        }
     const VectorN& get_weights (void)           const { return predictor.get_weights();           }
 
     double update_and_get_activation     (void) const {

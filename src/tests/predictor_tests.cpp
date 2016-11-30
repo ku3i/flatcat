@@ -23,7 +23,7 @@ TEST_CASE( "adapt" , "[predictor]")
 
     for (unsigned i = 0; i < 100; ++i) {
         sensors.execute_cycle();
-        pred.adapt_with_experience_replay();
+        pred.adapt();
         const std::vector<double>& w = pred.get_weights();
     }
     REQUIRE( close(w[0], 0.42, 0.001) );
@@ -44,7 +44,7 @@ TEST_CASE( "adapt with experience replay" , "[predictor]")
 
     for (unsigned i = 0; i < 1000; ++i) {
         sensors.execute_cycle();
-        pred.adapt_with_experience_replay();
+        pred.adapt();
         //const std::vector<double>& w = pred.get_weights();
         //dbg_msg("%6.4f %6.4f %6.4f", sensors[0], sensors[1], sensors[2]);
     }

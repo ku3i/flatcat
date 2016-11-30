@@ -5,13 +5,9 @@
                         , const double         learning_rate
                         , const double         random_weight_range
                         , const std::size_t    experience_size )
-    : input(input)
-    , learning_rate(learning_rate)
-    , random_weight_range(random_weight_range)
-    , normalize_factor( 1.0 / (sqrt(input.size() * 4)))
+    : Predictor_Base(input, learning_rate, random_weight_range)
     , weights(input.size())
     , experience(experience_size)
-    , prediction_error()
     {
         //dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
         assert(in_range(input.size(),         1ul,  500ul));
@@ -48,7 +44,8 @@
     }
 
 
-    /* copy assignment */
+    /* copy assignment
+     */
     Predictor& Predictor::operator=(const Predictor& other)
     {
         if (this != &other) {// avoid invalid self-assignment
@@ -63,7 +60,8 @@
         return *this;
     }
 
-
+    /* make the prediction based on actual weights
+     */
     double Predictor::predict(void)
     {
         assert(input.size() == weights.size());
@@ -83,22 +81,24 @@
         return prediction_error;
     }
 
-
-    void Predictor::adapt_with_experience_replay(void)
+    /* adapt the weights to the current
+     * input sample and learn from experience
+     */
+    void Predictor::adapt(void)
     {
         assert(input.size() == weights.size());
 
         if (experience.size() == 1)
-            adapt();
+            learn_from_input_sample();
         else {
 
             /** create random index to skip an arbitrary
              *  sample and replaced it by current input */
             std::size_t rand_idx = random_index(experience.size());
 
-            adapt_by_experience_replay(rand_idx); // adapt without new sample
-            predict();                            // refresh prediction error
-            adapt();                              // adapt to new sample
+            learn_from_experience(rand_idx); // adapt without new sample
+            predict();                       // refresh prediction error
+            learn_from_input_sample();         // adapt to new sample
 
             /** Insert current input into random position of experience list.
              *  This must be done after adaptation to guarantee a positive learning progress */
@@ -108,14 +108,14 @@
 
 
 
-    void Predictor::adapt(void) {
+    void Predictor::learn_from_input_sample(void) {
         for (std::size_t m = 0; m < input.size(); ++m)
             weights[m] += learning_rate * (input[m] - weights[m]) / experience.size();
     }
 
 
 
-    void Predictor::adapt_by_experience_replay(std::size_t skip_idx) {
+    void Predictor::learn_from_experience(std::size_t skip_idx) {
         assert(experience.size() > 1);
         assert(experience[0].size() == weights.size());
         /* learn the list */

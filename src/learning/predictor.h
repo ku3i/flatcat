@@ -22,7 +22,46 @@ namespace predictor_constants {
     const double error_min = 0.0;
 }
 
-class Predictor {
+
+class Predictor_Base {
+protected:
+    /* constants */
+    const sensor_vector& input;
+    const double         learning_rate;
+    const double         random_weight_range;
+    const double         normalize_factor;
+
+    /* non-const */
+    double               prediction_error;
+
+public:
+
+    Predictor_Base( const sensor_vector& input
+                  , const double         learning_rate
+                  , const double         random_weight_range )
+    : input(input)
+    , learning_rate(learning_rate)
+    , random_weight_range(random_weight_range)
+    , normalize_factor( 1.0 / (sqrt(input.size() * 4)))
+    , prediction_error(predictor_constants::error_min)
+    { dbg_msg("Creating predictor base"); }
+
+    /* getter */
+    double get_prediction_error(void) const { return prediction_error; }
+
+    virtual double predict(void) = 0;
+    virtual void   adapt  (void) = 0;
+    /** TODO move as much as possible to the base class
+     *  e.g. consider: weights and experience
+     *  as components of the base class?
+     * write the motor predictor in parallel
+     */
+
+};
+
+
+
+class Predictor : public Predictor_Base {
 
     Predictor(const Predictor& other) = delete; // non construction-copyable
 
@@ -33,35 +72,26 @@ public:
              , const double         random_weight_range
              , const std::size_t    experience_size = 1 );
 
-    Predictor& operator=(const Predictor& other);
+    Predictor(Predictor&& other) = default;       /** move to base? */
+    Predictor& operator=(const Predictor& other); /** move to base? */
 
-    Predictor(Predictor&& other) = default;
 
-    double predict(void);
+    VectorN const&  get_weights(void) const { return weights; } /** move to base? */
 
-    double get_prediction_error(void) const { return prediction_error; }
-    const VectorN& get_weights(void) const { return weights; }
+    double predict(void) override;
+    void   adapt  (void) override;
 
-    void adapt_with_experience_replay(void);
-
-    void initialize_randomized(void);
-    void initialize_from_input(void);
+    void initialize_randomized(void);/** move to base? */
+    void initialize_from_input(void);/** move to base? */
 
 private:
 
-    void adapt(void);
-    void adapt_by_experience_replay(std::size_t skip_idx);
-
-    /* constants */
-    const sensor_vector& input;
-    const double         learning_rate;
-    const double         random_weight_range;
-    const double         normalize_factor;
+    void learn_from_input_sample(void);
+    void learn_from_experience(std::size_t skip_idx);
 
     /* non-cost part which must be copied by cloning */
-    VectorN              weights;             /** TODO consider: weights and experience can be properties of the expert, and predictor is external and only uses them*/
+    VectorN              weights;
     std::vector<VectorN> experience; // replay buffer
-    double               prediction_error;
 
     friend class Predictor_Graphics;
 };
