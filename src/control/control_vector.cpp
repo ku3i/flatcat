@@ -38,11 +38,11 @@ namespace control {
 
     void Control_Vector::add( const std::string& filename
                             , const std::size_t number_of_params
-                            , Control_Parameter::Symmetry symmetry
-                            , Control_Parameter::Propagation propagation )
+                            , bool symmetric
+                            , bool mirrored )
     {
         assert(controls.size() < max_number_of_parameter_sets);
-        controls.emplace_back(new Control_Parameter(filename, number_of_params, symmetry, propagation));
+        controls.emplace_back(new Control_Parameter(filename, number_of_params, symmetric, mirrored));
     }
 
 
@@ -54,8 +54,7 @@ namespace control {
 
     void Control_Vector::reload(std::size_t index, const std::string& filename)
     {
-        assert(index < controls.size());
-        *(controls[index]) = Control_Parameter(filename);
+        *(controls.at(index)) = Control_Parameter(filename);
     }
 
 

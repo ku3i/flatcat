@@ -202,7 +202,7 @@ make_symmetric(robots::Robot_Interface const& robot, const Control_Parameter& ot
                 params[p++] = other_params[i*number_of_inputs + k];
     }
     assert(p == params.size());
-    return Control_Parameter(params, Control_Parameter::symmetric);
+    return Control_Parameter(params, true);
 
 }
 
@@ -283,7 +283,7 @@ make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& o
 
     assert(params.size() == number_of_inputs * robot.get_number_of_joints());
 
-    return Control_Parameter(params, Control_Parameter::asymmetric);
+    return Control_Parameter(params, false);
 }
 
 /** this initializer is capable of reading a symmetric file and transform it to asymmetric */
@@ -298,8 +298,7 @@ initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& cont
 
     std::size_t num_params = force_symmetric ? control.get_number_of_symmetric_parameter() : control.get_number_of_parameter();
 
-    Control_Parameter param0( filename, num_params, force_symmetric ? Control_Parameter::Symmetry::symmetric
-                                                                    : Control_Parameter::Symmetry::asymmetric );
+    Control_Parameter param0( filename, num_params, force_symmetric );
     if (param0.get_parameter().size() == num_params)
         return param0; /* success */
 
@@ -308,8 +307,7 @@ initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& cont
 
     num_params = new_symmetry ? control.get_number_of_symmetric_parameter() : control.get_number_of_parameter();
 
-    Control_Parameter param1( filename, num_params, new_symmetry ? Control_Parameter::Symmetry::symmetric
-                                                                 : Control_Parameter::Symmetry::asymmetric );
+    Control_Parameter param1( filename, num_params, new_symmetry );
     if (param1.get_parameter().size() == num_params)
     {/* success, now force correct symmetry */
 

@@ -15,21 +15,19 @@ namespace control {
 class Control_Parameter : public noncopyable
 {
 public:
-    enum Symmetry { symmetric, asymmetric };
-    enum Propagation { original, mirrored };
 
     explicit Control_Parameter( const std::string& filename
-                              , const std::size_t number_of_params
-                              , const Symmetry symmetry
-                              , const Propagation propagation = Propagation::original );
+                              , std::size_t number_of_params
+                              , bool symmetric
+                              , bool mirrored = false );
 
     explicit Control_Parameter(const std::string& filename);
 
     explicit Control_Parameter( const std::vector<double>& parameter
-                              , const Symmetry             symmetry    = asymmetric
-                              , const Propagation          propagation = original );
+                              , bool symmetric = false
+                              , bool mirrored = false );
 
-    explicit Control_Parameter() : parameter(), symmetry(), propagation() {} /** TODO should not be used */
+    explicit Control_Parameter() : parameter(), symmetric(), mirrored() {} /** TODO should not be used */
 
     Control_Parameter(const Control_Parameter& other);
 
@@ -43,14 +41,14 @@ public:
     const double& operator[](std::size_t idx) const { return parameter.at(idx); }
           double& operator[](std::size_t idx)       { return parameter.at(idx); }
 
-    bool is_symmetric(void) const { return symmetry    == Symmetry   ::symmetric; }
-    bool is_mirrored (void) const { return propagation == Propagation::mirrored;  }
+    bool is_symmetric(void) const { return symmetric; }
+    bool is_mirrored (void) const { return mirrored;  }
 
 private:
 
     std::vector<double> parameter;
-    Symmetry            symmetry;
-    Propagation         propagation;
+    bool                symmetric;
+    bool                mirrored;
 
 
 };

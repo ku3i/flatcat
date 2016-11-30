@@ -19,12 +19,12 @@ public:
     Control_Vector(std::size_t max_number_of_parameter_sets, const std::string& foldername = "");
 
     std::size_t              get_number_of_sets(void) const { return controls.size(); }
-    const Control_Parameter& get(std::size_t index)   const { assert(index < controls.size()); return *(controls[index]); }
+    const Control_Parameter& get(std::size_t index)   const { return *(controls.at(index)); }
 
     void add( const std::string& filename
             , const std::size_t number_of_params
-            , Control_Parameter::Symmetry symmetry
-            , Control_Parameter::Propagation propagation );
+            , bool symmetric
+            , bool mirrored );
 
     void add(const std::string& filename);
     void reload(std::size_t index, const std::string& filename);
@@ -32,7 +32,7 @@ public:
 
 private:
     const std::size_t max_number_of_parameter_sets;
-    std::vector<std::unique_ptr<Control_Parameter> >controls;
+    std::vector<std::unique_ptr<Control_Parameter> >controls; /**TODO why pointers? */
 };
 
 
