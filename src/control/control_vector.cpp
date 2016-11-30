@@ -12,7 +12,6 @@ namespace control {
 
 
 
-
     Control_Vector::Control_Vector( std::size_t max_number_of_parameter_sets
                                   , const std::string& foldername )
     : max_number_of_parameter_sets(max_number_of_parameter_sets)
@@ -27,7 +26,7 @@ namespace control {
                 for (auto& f : files)
                 {
                     sts_msg("Adding file %s", f.c_str());
-                    controls.emplace_back(new Control_Parameter(foldername + f));
+                    controls.emplace_back(foldername + f);
                 }
             } else
                 sts_msg("No files found in '%s'", foldername.c_str());
@@ -42,19 +41,18 @@ namespace control {
                             , bool mirrored )
     {
         assert(controls.size() < max_number_of_parameter_sets);
-        controls.emplace_back(new Control_Parameter(filename, number_of_params, symmetric, mirrored));
+        controls.emplace_back(filename, number_of_params, symmetric, mirrored);
     }
 
 
-    void Control_Vector::add(const std::string& filename)
-    {
-        controls.emplace_back(new Control_Parameter(filename));
+    void Control_Vector::add(const std::string& filename) {
+        assert(controls.size() < max_number_of_parameter_sets);
+        controls.emplace_back(filename);
     }
 
 
-    void Control_Vector::reload(std::size_t index, const std::string& filename)
-    {
-        *(controls.at(index)) = Control_Parameter(filename);
+    void Control_Vector::reload(std::size_t index, const std::string& filename) {
+        controls.at(index) = Control_Parameter(filename);
     }
 
 

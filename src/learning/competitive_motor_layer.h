@@ -76,12 +76,12 @@ public:
         assert_in_range(mutation_rate, 0.0001, 0.5);
         motor_units.reserve(number_of_motor_units);
 
-        if (parameter_sets.get_number_of_sets() <= number_of_motor_units)
-            sts_msg("Initialize %u of %u parameter sets.", parameter_sets.get_number_of_sets(), number_of_motor_units);
+        if (parameter_sets.size() <= number_of_motor_units)
+            sts_msg("Initialize %u of %u parameter sets.", parameter_sets.size(), number_of_motor_units);
         else
-            wrn_msg("Can not initialize all %u parameter sets. Limit is %u.", parameter_sets.get_number_of_sets(), number_of_motor_units);
+            wrn_msg("Can not initialize all %u parameter sets. Limit is %u.", parameter_sets.size(), number_of_motor_units);
 
-        for (std::size_t i = 0; i < std::min(parameter_sets.get_number_of_sets(), number_of_motor_units); ++i)
+        for (std::size_t i = 0; i < std::min(parameter_sets.size(), number_of_motor_units); ++i)
         {
             motor_units.emplace_back(parameter_sets.get(i), true);
         }

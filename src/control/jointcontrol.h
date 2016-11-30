@@ -145,7 +145,7 @@ public:
 
     void next(void) {
         ++current_behavior;
-        if (current_behavior >= parameter_set.get_number_of_sets())
+        if (current_behavior >= parameter_set.size())
             current_behavior = 0;
         dbg_msg("Current behavior: %u", current_behavior);
         control.set_control_parameter(parameter_set.get(current_behavior));
