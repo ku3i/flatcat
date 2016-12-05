@@ -1,11 +1,15 @@
 #ifndef EXPERT_H_INCLUDED
 #define EXPERT_H_INCLUDED
 
+#include <memory>
 #include <learning/gmes_constants.h>
 #include <learning/predictor.h>
 #include <control/sensorspace.h>
-#include <common/static_vector.h>
 
+/** TODO
+ *  + get 3d graphical representation, note: must provided by the underlying type
+ *  + in general, an expert should not care if it exists or not, this should be supervised by the expert_vector.
+ */
 
 class Expert {
     Expert(const Expert& other) = delete; // non construction-copyable
@@ -13,12 +17,13 @@ class Expert {
 public:
 
     Expert( const sensor_vector& input
+          , Predictor_ptr        predictor
           , const std::size_t    max_number_of_nodes
           , const double         local_learning_rate = gmes_constants::local_learning_rate
           , const std::size_t    experience_size     = gmes_constants::experience_size
           )
     : exists(false)
-    , predictor(input, local_learning_rate, gmes_constants::random_weight_range, experience_size)
+    , predictor(std::move(predictor))
     , learning_capacity(gmes_constants::initial_learning_capacity)
     , perceptive_width(gmes_constants::perceptive_width)
     , transition(max_number_of_nodes)
@@ -26,99 +31,47 @@ public:
 
     Expert(Expert&& other) = default;
 
-    /** TODO get 3d coordinates (graphical representation) note: must provided by the underlying type */
-
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
-    double get_prediction_error          (void) const { return predictor.get_prediction_error();  }
-    void   adapt_weights                 (void)       { predictor.adapt();                        }
-    const VectorN& get_weights (void)           const { return predictor.get_weights();           }
+    double get_prediction_error          (void) const { return predictor->get_prediction_error(); }
+    void   adapt_weights                 (void)       { predictor->adapt();                       }
+    void   reinit_predictor_weights      (void)       { predictor->initialize_from_input();       }
 
     double update_and_get_activation     (void) const {
         if (not exists) return 0.0;
-        double e = predictor.get_prediction_error();
+        double e = predictor->get_prediction_error();
         return exp(-e*e/perceptive_width);
     }
 
-    void   copy_predictor_weights_from   (const Expert& other) { predictor = other.predictor;       }
-    void   reinit_predictor_weights      (void)                { predictor.initialize_from_input(); }
-
     /* make prediction and update prediction error */
-    double make_prediction(void) { return predictor.predict(); }
+    double make_prediction(void) { return predictor->predict(); }
 
     void clear_transitions(void) { for (auto& t : transition) t = 0.0; }
 
     void create_randomized(void) {
         exists = true;
-        predictor.initialize_randomized();
-    }
-
-    void copy_from(const Expert& other, bool one_shot_learning)
-    {
-        exists = true;
-
-        /* copy weights */
-        if (one_shot_learning) reinit_predictor_weights();
-        else copy_predictor_weights_from(other);
+        predictor->initialize_randomized();
     }
 
     bool exists_transition(std::size_t index) const { return transition.at(index) > gmes_constants::transition_exist_treshold; }
     void reset_transition(std::size_t index) { transition.at(index) = gmes_constants::initial_transition_validation; }
 
-    Predictor const& get_predictor(void) const { return predictor; }
+    Predictor_Base const& get_predictor(void) const { return *predictor; }
     bool does_exists(void) const { return exists; }
 
 
 private:
-    bool         exists;
-    Predictor    predictor;
-    double       learning_capacity;
-    const double perceptive_width;
-    VectorN      transition;       // validity of connections
+    bool          exists;
+    Predictor_ptr predictor;
+    double        learning_capacity;
+    const double  perceptive_width;
+    VectorN       transition;       // validity of connections
     /** TODO some day: restrict to max. k connections */
 
+    friend class Expert_Vector;
     friend class GMES;
     friend class GMES_Graphics;
     friend class Force_Field;
 };
 
-
-/* The Expert Vector should merely work as a container
- * and should neither carry any information nor functionality
- * regarding the expert modules in it.
- */
-class Expert_Vector {
-public:
-
-    Expert_Vector( const std::size_t         max_number_of_experts
-                 , const sensor_vector&      input
-                 , static_vector_interface&  payloads
-                 , const double              local_learning_rate
-                 , const std::size_t         experience_size
-                 )
-    : experts()
-    , payloads(payloads)
-    {
-        assert(payloads.size() == max_number_of_experts);
-        experts.reserve(max_number_of_experts);
-        for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            experts.emplace_back(input, max_number_of_experts, local_learning_rate, experience_size);
-    }
-
-          Expert& operator[] (const std::size_t index)       { return experts.at(index); }
-    const Expert& operator[] (const std::size_t index) const { return experts.at(index); }
-
-    std::size_t size(void) const { return experts.size(); }
-
-    void copy_payload(std::size_t to, std::size_t from) {
-        assert(from < experts.size());
-        assert(to   < experts.size());
-        //dbg_msg("Copy from %u to %u", from, to);
-        payloads.copy(to, from); /* take a flawed copy of the payload */
-    }
-
-private:
-    std::vector<Expert> experts;
-    static_vector_interface& payloads;
-};
 
 #endif // EXPERT_H_INCLUDED

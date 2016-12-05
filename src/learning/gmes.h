@@ -7,13 +7,10 @@
 #include <common/log_messages.h>
 #include <common/modules.h>
 #include <common/vector_n.h>
-
 #include <control/statemachine.h>
-
-#include <learning/expert.h>
+#include <learning/expert_vector.h>
 #include <learning/gmes_constants.h>
 #include <learning/q_function.h>
-
 #include <learning/payload.h>
 /* first object oriented implementation of GMES
  * 23.02.2015 (Elmar ist heute 16 Monate alt geworden) */
@@ -26,7 +23,7 @@
  */
 
 /** TODO: namespace learning */
-/** TODO: GMES_Base, Expert_Vector_Base, Predictor_Base */
+/** TODO: GMES_Base, Expert_Vector_Base */
 
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
@@ -40,8 +37,6 @@ public:
     bool        has_state_changed         (void) const { return winner != last_winner; }
     bool        has_new_node              (void) const { return new_node;              }
 
-    /** TODO: consider grouping the state variables of gmes to gmes_status and
-     *        return this all at once. */
     std::size_t get_number_of_experts     (void) const { return number_of_experts;     }
     std::size_t get_max_number_of_experts (void) const { return expert.size();         }
     std::size_t get_winner                (void) const { return winner;                }

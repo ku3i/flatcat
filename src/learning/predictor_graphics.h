@@ -8,25 +8,26 @@
 
 class Predictor_Graphics : public Graphics_Interface
 {
-    const Predictor& predictor;
+    const Predictor_Base& predictor;
     const Color4     color;
 
 public:
-    Predictor_Graphics(const Predictor& predictor)
+    Predictor_Graphics(const Predictor_Base& predictor)
     : predictor(predictor)
     , color(random_value(0.2, 1.0), random_value(0.2, 1.0), random_value(0.2, 1.0), 0.2)
     {
-        assert(predictor.experience[0].size() == 3);
+        assert(predictor.get_experience()[0].size() == 3);
     }
 
     void draw(const pref& p) const
     {
-        if (predictor.experience.size() > 1) {
+        std::vector<VectorN> const& experience = predictor.get_experience();
+        if (experience.size() > 1) {
             set_color(color);
-            for (std::size_t i = 0; i < predictor.experience.size(); ++i)
-                draw_solid_cube( predictor.experience[i][0]
-                               , predictor.experience[i][1]
-                               , predictor.experience[i][2]
+            for (std::size_t i = 0; i < experience.size(); ++i)
+                draw_solid_cube( experience[i][0]
+                               , experience[i][1]
+                               , experience[i][2]
                                , 0.02 );
         }
     }

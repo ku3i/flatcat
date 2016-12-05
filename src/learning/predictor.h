@@ -1,6 +1,7 @@
 #ifndef PREDICTOR_H
 #define PREDICTOR_H
 
+#include <memory>
 #include <common/modules.h>
 #include <common/vector_n.h>
 #include <common/log_messages.h>
@@ -24,6 +25,10 @@ namespace predictor_constants {
 
 
 class Predictor_Base {
+
+    Predictor_Base(const Predictor_Base& other) = delete;
+    Predictor_Base& operator=(const Predictor_Base& other) = delete;
+
 protected:
     /* constants */
     const sensor_vector& input;
@@ -49,6 +54,9 @@ public:
     /* getter */
     double get_prediction_error(void) const { return prediction_error; }
 
+    virtual ~Predictor_Base() = default;
+
+    virtual void copy(Predictor_Base const& other) = 0;
     virtual double predict(void) = 0;
     virtual void   adapt  (void) = 0;
     /** TODO move as much as possible to the base class
@@ -57,13 +65,20 @@ public:
      * write the motor predictor in parallel
      */
 
+    virtual void initialize_randomized(void) = 0;
+    virtual void initialize_from_input(void) = 0;
+    virtual VectorN const&  get_weights(void) const = 0;
+    virtual std::vector<VectorN> const& get_experience(void) const = 0;
 };
 
+
+typedef std::unique_ptr<Predictor_Base> Predictor_ptr;
 
 
 class Predictor : public Predictor_Base {
 
-    Predictor(const Predictor& other) = delete; // non construction-copyable
+    Predictor(const Predictor& other) = delete;
+    Predictor& operator=(const Predictor& other) = delete;
 
 public:
 
@@ -72,17 +87,17 @@ public:
              , const double         random_weight_range
              , const std::size_t    experience_size = 1 );
 
-    Predictor(Predictor&& other) = default;       /** move to base? */
-    Predictor& operator=(const Predictor& other); /** move to base? */
 
+    void copy(Predictor_Base const& other) override;
 
-    VectorN const&  get_weights(void) const { return weights; } /** move to base? */
+                VectorN  const& get_weights   (void) const override { return weights;    }
+    std::vector<VectorN> const& get_experience(void) const override { return experience; }
 
     double predict(void) override;
     void   adapt  (void) override;
 
-    void initialize_randomized(void);/** move to base? */
-    void initialize_from_input(void);/** move to base? */
+    void initialize_randomized(void) override;
+    void initialize_from_input(void) override;
 
 private:
 
@@ -94,6 +109,19 @@ private:
     std::vector<VectorN> experience; // replay buffer
 
     friend class Predictor_Graphics;
+};
+
+
+
+class Motor_Predictor : public Predictor_Base {
+public:
+    Motor_Predictor( const sensor_vector& input
+                   , const double learning_rate
+                   , const double random_weight_range )
+    : Predictor_Base(input, learning_rate, random_weight_range)
+    {
+        dbg_msg("Creating motor predictor.");
+    }
 };
 
 #endif // PREDICTOR_H

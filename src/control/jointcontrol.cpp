@@ -2,9 +2,71 @@
 
 namespace control {
 
+
 std::size_t get_number_of_inputs(robots::Robot_Interface const& robot) {
     return 3 * robot.get_number_of_joints() + 3 * robot.get_number_of_accel_sensors() + 1;
 }
+
+
+
+Jointcontrol::Jointcontrol(robots::Robot_Interface& robot)
+: robot(robot) /* angle, velocity, motor output + xyz-acceleration + bias */
+, number_of_inputs(get_number_of_inputs(robot))
+, number_of_params_sym(number_of_inputs * (robot.get_number_of_joints() - robot.get_number_of_symmetric_joints()))
+, number_of_params_asym(number_of_inputs * robot.get_number_of_joints())
+, get_joints(robot.get_joints())
+, set_joints(robot.set_joints())
+, get_accels(robot.get_accels())
+, set_accels(robot.set_accels())
+, weights(robot.get_number_of_joints(), std::vector<double>(number_of_inputs, 0.0))
+, X(number_of_inputs)
+, Y(number_of_inputs)
+, activation(robot.get_number_of_joints())
+, initial_bias(0.1)
+, symmetric_controller(false)
+, is_switched(false)
+{
+    sts_msg("Creating joint controller.");
+    if (robot.get_number_of_joints() < 1) err_msg(__FILE__, __LINE__, "No motor outputs.");
+    if (0 == robot.get_number_of_accel_sensors()) wrn_msg("No use of acceleration sensors in controller.");
+
+    sts_msg("Number of symmetric joints is %u.", robot.get_number_of_symmetric_joints());
+
+    assert(weights   .size() == robot.get_number_of_joints());
+    assert(weights[0].size() == number_of_inputs);
+
+    sts_msg( "Created controller with: \n   %u inputs\n   %u outputs\n   %u symmetric params\n   %u asymmetric params."
+           , number_of_inputs
+           , robot.get_number_of_joints()
+           , number_of_params_sym
+           , number_of_params_asym);
+    reset();
+}
+
+
+void
+Jointcontrol::switch_symmetric(bool switched) {
+    if (not symmetric_controller)
+        is_switched = switched;
+    else wrn_msg("Switching symmetry does not have any effect on symmetrical controller weights.");
+}
+
+void
+Jointcontrol::set_control_parameter(const Control_Parameter& controller)
+{
+    if (controller.is_symmetric()) apply_symmetric_weights(controller.get_parameter());
+    else apply_weights(controller.get_parameter());
+    symmetric_controller = controller.is_symmetric();
+}
+
+void
+Jointcontrol::set_control_parameter(const std::vector<double>& params) {
+    //dbg_msg("Apply raw control parameter to %s controller.", symmetric_controller? "symmetric" : "asymmetric");
+    if (symmetric_controller) apply_symmetric_weights(params);
+    else apply_weights(params);
+}
+
+
 
 void
 Jointcontrol::reset(void)
@@ -16,6 +78,7 @@ Jointcontrol::reset(void)
     for (std::size_t i = 0; i < robot.get_number_of_accel_sensors(); ++i)
         robot.set_accels()[i].reset();
 }
+
 
 void
 Jointcontrol::loop(void)

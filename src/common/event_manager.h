@@ -5,7 +5,7 @@
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <algorithm>
-#include <tr1/functional>
+#include <functional>
 #include <common/log_messages.h>
 
 struct Mouse_Click_Event
@@ -44,7 +44,7 @@ public:
 
     void process_events(void);
 
-    typedef std::tr1::function<void(SDL_Keysym &keysym)> callback_type;
+    typedef std::function<void(SDL_Keysym &keysym)> callback_type;
 
     void register_user_callback_key_pressed (callback_type callback_function);
     void register_user_callback_key_released(callback_type callback_function);

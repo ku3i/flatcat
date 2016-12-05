@@ -2,7 +2,7 @@
 #define FITNESS_H
 
 #include <math.h>
-#include <tr1/memory>
+#include <memory>
 
 #include <common/modules.h>
 #include <common/config.h>
@@ -52,7 +52,7 @@ private:
     const std::string name;
 };
 
-typedef std::tr1::shared_ptr<Fitness_Base> Fitness_ptr;
+typedef std::shared_ptr<Fitness_Base> Fitness_ptr;
 
 Fitness_ptr assign_fitness(const robots::Simloid& robot, const Setting& settings);
 

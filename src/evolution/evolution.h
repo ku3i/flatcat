@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <float.h>
 #include <math.h>
-#include <tr1/memory>
+#include <memory>
 
 #include <common/config.h>
 #include <common/stopwatch.h>
@@ -23,7 +23,7 @@
 #include <evolution/pool_strategy.h>
 #include <evolution/setting.h>
 
-typedef std::tr1::shared_ptr<Evolution_Strategy> Strategy_Pointer;
+typedef std::shared_ptr<Evolution_Strategy> Strategy_Pointer;
 
 class Evolution
 {

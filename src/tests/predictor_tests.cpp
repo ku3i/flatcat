@@ -1,6 +1,6 @@
 #include <tests/catch.hpp>
 
-#include <learning/sensorspace.h>
+#include <control/sensorspace.h>
 #include <learning/predictor.h>
 #include <common/log_messages.h>
 

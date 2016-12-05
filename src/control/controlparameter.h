@@ -27,7 +27,7 @@ public:
                               , bool symmetric = false
                               , bool mirrored = false );
 
-    explicit Control_Parameter() : parameter(), symmetric(), mirrored() { assert(false and "Should not be used."); }
+    explicit Control_Parameter() : parameter(), symmetric(), mirrored() { /*assert(false and "Should not be used."); */} //TODO
 
     Control_Parameter(const Control_Parameter& other);
 

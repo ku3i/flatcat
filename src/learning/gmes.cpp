@@ -79,8 +79,7 @@
         if (expert[winner].learning_capacity_is_exhausted() && to_insert != winner)
         {
             /* copy weights and payload */
-            expert[to_insert].copy_from(expert[winner], one_shot_learning);
-            expert.copy_payload(to_insert, winner);
+            expert.copy(to_insert, winner, one_shot_learning);
 
             /* clear transitions emanating from 'to_insert' */
             expert[to_insert].clear_transitions();

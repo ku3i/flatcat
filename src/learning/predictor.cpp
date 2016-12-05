@@ -9,7 +9,7 @@
     , weights(input.size())
     , experience(experience_size)
     {
-        //dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
+        dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
         assert(in_range(input.size(),         1ul,  500ul));
         assert(in_range(experience_size,      1ul, 1000ul));
         assert(in_range(learning_rate,        0.0,   +1.0));
@@ -44,25 +44,21 @@
     }
 
 
-    /* copy assignment
+    /* copy assignment to base type
      */
-    Predictor& Predictor::operator=(const Predictor& other)
+    void Predictor::copy(Predictor_Base const& other)
     {
-        if (this != &other) {// avoid invalid self-assignment
-            dbg_msg("Copying predictor");
-            assert(weights   .size() == other.weights   .size());
-            assert(experience.size() == other.experience.size());
+        assert(weights   .size() == other.get_weights   ().size());
+        assert(experience.size() == other.get_experience().size());
 
-            weights          = other.weights;
-            experience       = other.experience;
-            prediction_error = other.prediction_error;
-        }
-        return *this;
+        weights          = other.get_weights();
+        experience       = other.get_experience();
+        prediction_error = other.get_prediction_error();
     }
 
     /* make the prediction based on actual weights
      */
-    double Predictor::predict(void)
+    double Predictor::predict(void) /** expert shall pass the weights as const& to the predictor */
     {
         assert(input.size() == weights.size());
 
@@ -84,7 +80,7 @@
     /* adapt the weights to the current
      * input sample and learn from experience
      */
-    void Predictor::adapt(void)
+    void Predictor::adapt(void) /** expert shall pass weights and experience to the predictor */
     {
         assert(input.size() == weights.size());
 

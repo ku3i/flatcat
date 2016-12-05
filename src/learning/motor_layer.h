@@ -6,6 +6,9 @@
 #include <control/jointcontrol.h>
 #include <control/control_vector.h>
 #include <control/sensorspace.h>
+#include <learning/expert.h>
+#include <learning/gmes.h>
+#include <learning/payload.h>
 
 /** WHAT DO WE NEED?
 
@@ -23,14 +26,16 @@ joint_control
 namespace learning {
 
 namespace constants {
-    double      local_learning_rate = 0.01;
-    std::size_t experience_size     = 1;
+    const double number_of_experts    = 20;
+    const double local_learning_rate  = 0.01;
+    const double gmes_learning_rate   = 10.0;
+    const std::size_t experience_size = 100;
 }
 
 
-class motor_space : public sensor_vector {
+class Motor_Space : public sensor_vector {
 public:
-    motor_space(const robots::Jointvector_t& joints)
+    Motor_Space(const robots::Jointvector_t& joints)
     : sensor_vector(joints.size())
     {
         for (robots::Joint_Model const& j : joints)
@@ -42,25 +47,29 @@ public:
 
 class Motor_Layer {
 public:
-    Motor_Layer( robots::Robot_Interface& robot, std::size_t max_num_motor_experts )
+    Motor_Layer( robots::Robot_Interface& robot, std::size_t max_num_motor_experts = constants::number_of_experts )
     : max_num_motor_experts(max_num_motor_experts)
     , control(robot)
     , params(max_num_motor_experts)
-    //, experts(max_num_motor_experts, sensors, payloads, constants::local_learning_rate, constants::experience_size)
-    //, gmes(experts, constants::gmes_learning_rate)
+    , payloads(max_num_motor_experts)
+    , motorspace(robot.get_joints())
+    , experts(max_num_motor_experts, motorspace, payloads, constants::local_learning_rate, constants::experience_size)
+    , gmes(experts, constants::gmes_learning_rate)
     {
         dbg_msg("Creating new competitive motor layer.");
     }
 
 
 
-    std::size_t                 max_num_motor_experts;
-    control::Jointcontrol       control;
-    control::Control_Vector     params; /** implements static_vector_interface and can by used as payload for gmes*/
-
-
-    //Expert_Vector               experts;
-    //GMES                        gmes;
+    std::size_t                  max_num_motor_experts;
+    control::Jointcontrol        control;
+    control::Control_Vector      params; /** IDEA: this object is only responsible for loading controller params from FS, it copies the weights into the experts and the ctrl.loop must be passed a ref to the experts weights.*/
+    /** where to put the control parameters, inside the predictor in the expert? */
+    /** the predictor currently uses only the bias/average weight variant (1), use all inputs from (1, s0..sN-1, m0..mN-1) */
+    static_vector<Empty_Payload> payloads;
+    Motor_Space                  motorspace;
+    Expert_Vector                experts;
+    GMES                         gmes;
 
 };
 
