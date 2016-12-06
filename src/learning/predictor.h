@@ -55,6 +55,7 @@ public:
     , experience(experience_size)
     {
         dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
+        dbg_msg("Input dimension: %u", input.size());
         assert(in_range(input.size(),         1ul,  500ul));
         assert(in_range(experience_size,      1ul, 1000ul));
         assert(in_range(learning_rate,        0.0,   +1.0));
