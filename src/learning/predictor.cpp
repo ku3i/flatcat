@@ -5,16 +5,9 @@
                         , const double         learning_rate
                         , const double         random_weight_range
                         , const std::size_t    experience_size )
-    : Predictor_Base(input, learning_rate, random_weight_range)
+    : Predictor_Base(input, learning_rate, random_weight_range, experience_size)
     , weights(input.size())
-    , experience(experience_size)
     {
-        dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
-        assert(in_range(input.size(),         1ul,  500ul));
-        assert(in_range(experience_size,      1ul, 1000ul));
-        assert(in_range(learning_rate,        0.0,   +1.0));
-        assert(in_range(random_weight_range, -1.0,   +1.0));
-
         initialize_from_input();
         predict(); // initialize prediction error
     }

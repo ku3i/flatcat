@@ -17,6 +17,7 @@ namespace control {
     : max_number_of_parameter_sets(max_number_of_parameter_sets)
     , controls()
     {
+        sts_msg("Initialize control vector from folder: %s", foldername.c_str());
         controls.reserve(max_number_of_parameter_sets);
         if (not foldername.empty())
         {

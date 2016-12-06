@@ -6,6 +6,7 @@
 #include <common/vector_n.h>
 #include <common/log_messages.h>
 #include <control/sensorspace.h>
+#include <control/controlparameter.h> //motor pred
 
 /** Notes regarding normalizing the prediction error
  *  N: input size
@@ -38,25 +39,36 @@ protected:
 
     /* non-const */
     double               prediction_error;
+    std::vector<VectorN> experience;       // replay buffer
 
 public:
 
     Predictor_Base( const sensor_vector& input
                   , const double         learning_rate
-                  , const double         random_weight_range )
+                  , const double         random_weight_range
+                  , const std::size_t    experience_size )
     : input(input)
     , learning_rate(learning_rate)
     , random_weight_range(random_weight_range)
     , normalize_factor( 1.0 / (sqrt(input.size() * 4)))
     , prediction_error(predictor_constants::error_min)
-    { dbg_msg("Creating predictor base"); }
+    , experience(experience_size)
+    {
+        dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
+        assert(in_range(input.size(),         1ul,  500ul));
+        assert(in_range(experience_size,      1ul, 1000ul));
+        assert(in_range(learning_rate,        0.0,   +1.0));
+        assert(in_range(random_weight_range, -1.0,   +1.0));
+    }
 
     /* getter */
     double get_prediction_error(void) const { return prediction_error; }
+    std::vector<VectorN> const& get_experience(void) const { return experience; }
+
 
     virtual ~Predictor_Base() = default;
 
-    virtual void copy(Predictor_Base const& other) = 0;
+    virtual void   copy(Predictor_Base const& other) = 0;
     virtual double predict(void) = 0;
     virtual void   adapt  (void) = 0;
     /** TODO move as much as possible to the base class
@@ -68,7 +80,7 @@ public:
     virtual void initialize_randomized(void) = 0;
     virtual void initialize_from_input(void) = 0;
     virtual VectorN const&  get_weights(void) const = 0;
-    virtual std::vector<VectorN> const& get_experience(void) const = 0;
+
 };
 
 
@@ -90,8 +102,7 @@ public:
 
     void copy(Predictor_Base const& other) override;
 
-                VectorN  const& get_weights   (void) const override { return weights;    }
-    std::vector<VectorN> const& get_experience(void) const override { return experience; }
+    VectorN  const& get_weights (void) const override { return weights; }
 
     double predict(void) override;
     void   adapt  (void) override;
@@ -104,9 +115,7 @@ private:
     void learn_from_input_sample(void);
     void learn_from_experience(std::size_t skip_idx);
 
-    /* non-cost part which must be copied by cloning */
-    VectorN              weights;
-    std::vector<VectorN> experience; // replay buffer
+    VectorN weights;
 
     friend class Predictor_Graphics;
 };
@@ -117,11 +126,29 @@ class Motor_Predictor : public Predictor_Base {
 public:
     Motor_Predictor( const sensor_vector& input
                    , const double learning_rate
-                   , const double random_weight_range )
-    : Predictor_Base(input, learning_rate, random_weight_range)
+                   , const double random_weight_range
+                   , control::Control_Parameter const& ctrl_params )
+    : Predictor_Base(input, learning_rate, random_weight_range, 1/**TODO*/)
+    , ctrl_params(ctrl_params)
     {
         dbg_msg("Creating motor predictor.");
     }
+
+    void   copy(Predictor_Base const& other) { /**TODO implement*/ }
+    double predict(void) { /**TODO implement*/ return .0; }
+    void   adapt  (void) { /**TODO implement*/ }
+    /** TODO move as much as possible to the base class
+     *  e.g. consider: weights and experience
+     *  as components of the base class?
+     * write the motor predictor in parallel
+     */
+
+    void initialize_randomized(void)       override { /**TODO implement*/ }
+    void initialize_from_input(void)       override { /**TODO implement*/ }
+    VectorN const& get_weights(void) const override { return ctrl_params.get_parameter(); }
+
+private:
+    control::Control_Parameter ctrl_params;
 };
 
 #endif // PREDICTOR_H

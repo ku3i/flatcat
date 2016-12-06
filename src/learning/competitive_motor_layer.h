@@ -29,8 +29,6 @@ public:
         dbg_msg("Creating Motor Unit with %u weights: (%s)", seed.size(), to_str(seed.get_parameter()).c_str());
     }
 
-    MotorUnit() : weights(), selection_count(), learning_capacity(MotorLayerConstants::initial_learning_capacity), exists(false) {}
-
     MotorUnit& operator=(const MotorUnit& other) {
         dbg_msg("Copy motor neuron.");
         weights = other.weights; // copy with flaws?
@@ -63,7 +61,7 @@ public:
     , states(states)
     , parameter_sets(parameter_sets)
     , motor_units()
-    , mutated_weights()
+    , mutated_weights(parameter_sets.get(0))
     , last_selected_idx()
     , recipient_idx()
     , do_adaption(do_adaption)

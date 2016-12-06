@@ -53,8 +53,9 @@ public:
     , params(max_num_motor_experts)
     , payloads(max_num_motor_experts)
     , motorspace(robot.get_joints())
-    , experts(max_num_motor_experts, motorspace, payloads, constants::local_learning_rate, constants::experience_size)
+    , experts(max_num_motor_experts, payloads, motorspace, constants::local_learning_rate, constants::experience_size, params)
     , gmes(experts, constants::gmes_learning_rate)
+    , pred( motorspace, 0.01, 0.01, params.get(0)) // for testing, remove
     {
         dbg_msg("Creating new competitive motor layer.");
     }
@@ -68,8 +69,10 @@ public:
     /** the predictor currently uses only the bias/average weight variant (1), use all inputs from (1, s0..sN-1, m0..mN-1) */
     static_vector<Empty_Payload> payloads;
     Motor_Space                  motorspace;
-    Expert_Vector                experts;
+    Motor_Experts                experts;
     GMES                         gmes;
+
+    Motor_Predictor              pred;
 
 };
 

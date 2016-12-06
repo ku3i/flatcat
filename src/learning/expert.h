@@ -16,12 +16,8 @@ class Expert {
 
 public:
 
-    Expert( const sensor_vector& input
-          , Predictor_ptr        predictor
-          , const std::size_t    max_number_of_nodes
-          , const double         local_learning_rate = gmes_constants::local_learning_rate
-          , const std::size_t    experience_size     = gmes_constants::experience_size
-          )
+    Expert( Predictor_ptr     predictor
+          , const std::size_t max_number_of_nodes )
     : exists(false)
     , predictor(std::move(predictor))
     , learning_capacity(gmes_constants::initial_learning_capacity)
@@ -67,7 +63,7 @@ private:
     VectorN       transition;       // validity of connections
     /** TODO some day: restrict to max. k connections */
 
-    friend class Expert_Vector;
+    friend class Expert_Vector_Base;
     friend class GMES;
     friend class GMES_Graphics;
     friend class Force_Field;

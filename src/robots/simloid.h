@@ -92,9 +92,6 @@ public:
             configuration.bodies[i].force.zero();
     }
 
-    //__attribute_deprecated__
-    //Robot_Configuration& get_robot_config(void) { return configuration; } //TODO remove
-
     /* implements the robot interface */
     bool execute_cycle(void) { return update(); }
 

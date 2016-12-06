@@ -27,7 +27,7 @@
 
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
 public:
-    GMES( Expert_Vector& expert
+    GMES( Expert_Vector_Base& expert
         , double learning_rate = gmes_constants::global_learning_rate
         , bool one_shot_learning = true );
 
@@ -68,7 +68,7 @@ private:
 
     void        clear_transitions_to(std::size_t to_clear);
 
-    Expert_Vector& expert;
+    Expert_Vector_Base& expert;
     const std::size_t Nmax;
 
     double min_prediction_error;
