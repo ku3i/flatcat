@@ -107,7 +107,7 @@ public:
           Accelvector_t& set_accels(void)       { return configuration.s_acc; }
 
     const Bodyvector_t& get_bodies(void) const { return configuration.bodies; }
-          Bodyvector_t& get_bodies(void)       { return configuration.bodies; }
+          Bodyvector_t& set_bodies(void)       { return configuration.bodies; }
 
     Vector3 get_min_position(void) const;
     Vector3 get_max_position(void) const;

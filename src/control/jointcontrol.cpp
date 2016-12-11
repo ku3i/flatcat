@@ -3,26 +3,11 @@
 namespace control {
 
 
-std::size_t get_number_of_inputs(robots::Robot_Interface const& robot) {
-    return 3 * robot.get_number_of_joints() + 3 * robot.get_number_of_accel_sensors() + 1;
-}
-
-
-
 Jointcontrol::Jointcontrol(robots::Robot_Interface& robot)
-: robot(robot) /* angle, velocity, motor output + xyz-acceleration + bias */
-, number_of_inputs(get_number_of_inputs(robot))
-, number_of_params_sym(number_of_inputs * (robot.get_number_of_joints() - robot.get_number_of_symmetric_joints()))
-, number_of_params_asym(number_of_inputs * robot.get_number_of_joints())
-, get_joints(robot.get_joints())
-, set_joints(robot.set_joints())
-, get_accels(robot.get_accels())
-, set_accels(robot.set_accels())
-, weights(robot.get_number_of_joints(), std::vector<double>(number_of_inputs, 0.0))
-, X(number_of_inputs)
-, Y(number_of_inputs)
-, activation(robot.get_number_of_joints())
-, initial_bias(0.1)
+: robot(robot)
+, core(robot)
+, number_of_params_sym(get_number_of_inputs(robot) * (robot.get_number_of_joints() - robot.get_number_of_symmetric_joints()))
+, number_of_params_asym(get_number_of_inputs(robot) * robot.get_number_of_joints())
 , symmetric_controller(false)
 , is_switched(false)
 {
@@ -32,11 +17,8 @@ Jointcontrol::Jointcontrol(robots::Robot_Interface& robot)
 
     sts_msg("Number of symmetric joints is %u.", robot.get_number_of_symmetric_joints());
 
-    assert(weights   .size() == robot.get_number_of_joints());
-    assert(weights[0].size() == number_of_inputs);
-
     sts_msg( "Created controller with: \n   %u inputs\n   %u outputs\n   %u symmetric params\n   %u asymmetric params."
-           , number_of_inputs
+           , get_number_of_inputs(robot)
            , robot.get_number_of_joints()
            , number_of_params_sym
            , number_of_params_asym);
@@ -45,11 +27,13 @@ Jointcontrol::Jointcontrol(robots::Robot_Interface& robot)
 
 
 void
-Jointcontrol::switch_symmetric(bool switched) {
+Jointcontrol::switch_symmetric(bool switched)
+{
     if (not symmetric_controller)
         is_switched = switched;
     else wrn_msg("Switching symmetry does not have any effect on symmetrical controller weights.");
 }
+
 
 void
 Jointcontrol::set_control_parameter(const Control_Parameter& controller)
@@ -59,105 +43,57 @@ Jointcontrol::set_control_parameter(const Control_Parameter& controller)
     symmetric_controller = controller.is_symmetric();
 }
 
+
 void
-Jointcontrol::set_control_parameter(const std::vector<double>& params) {
-    //dbg_msg("Apply raw control parameter to %s controller.", symmetric_controller? "symmetric" : "asymmetric");
+Jointcontrol::set_control_parameter(const std::vector<double>& params)
+{
     if (symmetric_controller) apply_symmetric_weights(params);
     else apply_weights(params);
 }
 
 
-
 void
 Jointcontrol::reset(void)
 {
-    for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
-        robot.set_joints()[i].motor = random_value(-0.01, 0.01);
+    for (auto& j : robot.set_joints()) j.motor = random_value(-0.01, 0.01);
+    for (auto& a : robot.set_accels()) a.reset(); // reset integrated velocities from acceleration sensors
+}
 
-    /* reset integrated velocities from acceleration sensors */
-    for (std::size_t i = 0; i < robot.get_number_of_accel_sensors(); ++i)
-        robot.set_accels()[i].reset();
+void
+Jointcontrol::integrate_accels(void)
+{
+    for (auto& a : robot.set_accels()) a.integrate(); // integrate velocities from acceleration sensors
 }
 
 
 void
 Jointcontrol::loop(void)
 {
-    std::size_t index = 0;
-
-    for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix)
-    {
-        //virt_ang[i] = clip(virt_ang[i] + x[i][0]);
-        std::size_t iy = get_joints[ix].symmetric_joint;
-
-        X[index]   = get_joints[ix].s_ang;
-        Y[index++] = get_joints[iy].s_ang;
-
-        X[index]   = get_joints[ix].s_vel;
-        Y[index++] = get_joints[iy].s_vel;
-
-        X[index]   = get_joints[ix].motor;
-        Y[index++] = get_joints[iy].motor; //ganz wichtig!, bringt irre viel dynamic für den anfang
-    }
-
-    for (std::size_t i = 0; i < robot.get_number_of_accel_sensors(); ++i)
-    {
-        /* integrate velocities from acceleration sensors */
-        set_accels[i].integrate();
-
-        X[index]   = get_accels[i].v.x;
-        Y[index++] = -get_accels[i].v.x; // mirror the x-axes
-
-        X[index]   = get_accels[i].v.y;
-        Y[index++] = get_accels[i].v.y;
-
-        X[index]   = get_accels[i].v.z;
-        Y[index++] = get_accels[i].v.z;
-    }
-
-    X[index]   = initial_bias; // bias
-    Y[index++] = initial_bias;
-
-    assert(index == number_of_inputs);
-    assert(activation.size() == robot.get_number_of_joints());
-
-    for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
-    {
-        activation[i] = .0;
-        if (symmetric_controller and get_joints[i].type == robots::Joint_Type_Symmetric)
-        {
-            for (std::size_t k = 0; k < number_of_inputs; ++k)
-                activation[i] += weights[i][k] * (is_switched ? X[k] : Y[k]);
-        }
-        else
-        {
-            for (std::size_t k = 0; k < number_of_inputs; ++k)
-                activation[i] += weights[i][k] * (is_switched ? Y[k] : X[k]);
-        }
-
-        set_joints[(is_switched ? get_joints[i].symmetric_joint : i)].motor = clip(activation[i], 1.0);
-    }
+    integrate_accels();
+    core.prepare_inputs(robot);
+    core.update_outputs(robot, symmetric_controller, is_switched);
+    core.write_motors  (robot, is_switched);
 }
+
 
 void
 Jointcontrol::apply_symmetric_weights(const std::vector<double>& params)
 {
     //dbg_msg("Apply symmetric weights.");
     assert(params.size() == number_of_params_sym);
-    assert(weights.size() == robot.get_number_of_joints());
-    assert(weights[0].size() == number_of_inputs);
+    robots::Jointvector_t const& joints = robot.get_joints();
 
     std::size_t param_index = 0;
     for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix)
     {
-        if (get_joints[ix].type == robots::Joint_Type_Normal)
+        if (joints[ix].type == robots::Joint_Type_Normal)
         {
-            std::size_t iy = get_joints[ix].symmetric_joint; // get symmetric counterpart of ix
+            std::size_t iy = joints[ix].symmetric_joint; // get symmetric counterpart of ix
             assert(iy < robot.get_number_of_joints());
-            for (std::size_t k = 0; k < number_of_inputs; ++k)
+            for (std::size_t k = 0; k < core.weights[ix].size(); ++k)
             {
-                weights[ix][k] = params[param_index++];
-                weights[iy][k] = weights[ix][k];
+                core.weights[ix][k] = params[param_index++];
+                core.weights[iy][k] = core.weights[ix][k];
             }
         }
     }
@@ -169,37 +105,36 @@ Jointcontrol::apply_weights(const std::vector<double>& params)
 {
     //dbg_msg("Apply weights.");
     assert(params.size() == number_of_params_asym);
-    assert(weights.size() == robot.get_number_of_joints());
-    assert(weights[0].size() == number_of_inputs);
 
     std::size_t param_index = 0;
-    for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
-    {
-        for (std::size_t k = 0; k < number_of_inputs; ++k)
-            weights[i][k] = params[param_index++];
-    }
+    for (auto& w_i : core.weights)
+        for (auto& w_ik : w_i)
+            w_ik = params[param_index++];
+
     assert(param_index == params.size());
 }
 
 void
 Jointcontrol::print_parameter(void) const
 {
+    robots::Jointvector_t const& joints = robot.get_joints();
+
     sts_msg("Printing controller parameter:");
-    printf("joints:%lu inputs:%lu\n", robot.get_number_of_joints(), number_of_inputs);
+    printf("joints:%lu inputs:%lu\n", robot.get_number_of_joints(), get_number_of_inputs(robot));
     /*print header*/
     printf(" #  |");
     for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
-        if (!symmetric_controller or get_joints[i].type == robots::Joint_Type_Normal)
+        if (!symmetric_controller or joints[i].type == robots::Joint_Type_Normal)
             printf("%4lu  |", i);
     printf("\n");
 
-    for (std::size_t k = 0; k < number_of_inputs; ++k)
+    for (std::size_t k = 0; k < get_number_of_inputs(robot); ++k)
     {
         printf("%2lu: |", k);
         for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
         {
-            if (!symmetric_controller or get_joints[i].type == robots::Joint_Type_Normal)
-                printf("% 1.3f|", weights[i][k]);
+            if (!symmetric_controller or joints[i].type == robots::Joint_Type_Normal)
+                printf("% 1.3f|", core.weights[i][k]);
         }
         printf("\n");
     }
@@ -209,10 +144,9 @@ Jointcontrol::print_parameter(void) const
 double
 Jointcontrol::get_normalized_mechanical_power(void) const
 {
-    //dbg_msg("Get normalized mechanical power.");
     double power = .0;
-    for (unsigned int i = 0; i < robot.get_number_of_joints(); ++i)
-        power += square(get_joints[i].motor);
+    for (auto const& j : robot.get_joints())
+        power += square(j.motor);
     return power/robot.get_number_of_joints();
 }
 

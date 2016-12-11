@@ -1,6 +1,6 @@
 #include <learning/gmes.h>
 
-    GMES::GMES( Expert_Vector_Base& expert
+    GMES::GMES( Expert_Vector& expert
               , double learning_rate
               , bool one_shot_learning )
     : expert(expert)

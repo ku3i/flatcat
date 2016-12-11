@@ -36,7 +36,7 @@ public:
                 glprintf(xpos, ypos, 0.0, 0.5*line_height, "%2lu_%s", i, robot.get_joints()[i].name.substr(0,16).c_str());
             }
         }
-        for (std::size_t k = 0; k < control.number_of_inputs; ++k)
+        for (std::size_t k = 0; k < control.core.num_inputs; ++k)
         {
             xpos = xstart;
             ypos -= line_height;
@@ -46,14 +46,14 @@ public:
             for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
             {
                 if (robot.get_joints()[i].type == robots::Joint_Type_Normal) {
-                    const double w = control.weights[i][k];
+                    const double w = control.core.weights[i][k];
 
                     if (w == 0.0) glColor3f(0.5, 0.5, 0.5);
                     else if (w > 0.0) glColor3f(1.0, 0.5, 0.5);
                     else glColor3f(0.5, 0.5, 1.0);
 
                     xpos += row_width;
-                    glprintf(xpos, ypos, 0.0, line_height, "%+1.3f", control.weights[i][k]);
+                    glprintf(xpos, ypos, 0.0, line_height, "%+1.3f", control.core.weights[i][k]);
                 }
             }
 

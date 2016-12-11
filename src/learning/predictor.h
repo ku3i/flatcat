@@ -6,7 +6,6 @@
 #include <common/vector_n.h>
 #include <common/log_messages.h>
 #include <control/sensorspace.h>
-#include <control/controlparameter.h> //motor pred
 
 /** Notes regarding normalizing the prediction error
  *  N: input size
@@ -54,8 +53,8 @@ public:
     , prediction_error(predictor_constants::error_min)
     , experience(experience_size)
     {
-        dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
-        dbg_msg("Input dimension: %u", input.size());
+        //dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
+        //dbg_msg("Input dimension: %u", input.size());
         assert(in_range(input.size(),         1ul,  500ul));
         assert(in_range(experience_size,      1ul, 1000ul));
         assert(in_range(learning_rate,        0.0,   +1.0));
@@ -122,14 +121,19 @@ private:
 };
 
 
+#include <control/controlparameter.h>
+#include <control/control_core.h>
+#include <robots/robot.h>
 
 class Motor_Predictor : public Predictor_Base {
 public:
-    Motor_Predictor( const sensor_vector& input
+    Motor_Predictor( const robots::Robot_Interface& robot
+                   , const sensor_vector& input
                    , const double learning_rate
                    , const double random_weight_range
-                   , control::Control_Parameter const& ctrl_params )
+                   , const control::Control_Parameter& ctrl_params )
     : Predictor_Base(input, learning_rate, random_weight_range, 1/**TODO*/)
+    , core(robot)
     , ctrl_params(ctrl_params)
     {
         dbg_msg("Creating motor predictor.");
@@ -149,6 +153,7 @@ public:
     VectorN const& get_weights(void) const override { return ctrl_params.get_parameter(); }
 
 private:
+    control::Fully_Connected_Symmetric_Core core;
     control::Control_Parameter ctrl_params;
 };
 

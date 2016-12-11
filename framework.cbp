@@ -95,6 +95,8 @@
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/visuals.h" />
 		<Unit filename="src/control/behavior_state_machine.h" />
+		<Unit filename="src/control/behavior_switcher.h" />
+		<Unit filename="src/control/control_core.h" />
 		<Unit filename="src/control/control_vector.cpp" />
 		<Unit filename="src/control/control_vector.h" />
 		<Unit filename="src/control/controlparameter.cpp" />
@@ -156,6 +158,7 @@
 		<Unit filename="src/learning/eligibility.h" />
 		<Unit filename="src/learning/epsilon_greedy.h" />
 		<Unit filename="src/learning/expert.h" />
+		<Unit filename="src/learning/expert_vector.h" />
 		<Unit filename="src/learning/forcefield.h" />
 		<Unit filename="src/learning/gmes.cpp" />
 		<Unit filename="src/learning/gmes.h" />

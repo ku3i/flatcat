@@ -10,6 +10,7 @@
 
 #include <control/controlparameter.h>
 #include <control/control_vector.h>
+#include <control/control_core.h>
 
 #include <robots/robot.h>
 #include <robots/joint.h>
@@ -32,9 +33,7 @@ Control_Parameter make_asymmetric      (robots::Robot_Interface const& robot, co
 Control_Parameter initialize_anyhow    ( robots::Robot_Interface const& robot, Jointcontrol const& control
                                        , bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename);
 
-namespace constants {
-    const double initial_bias = 0.1;
-}
+
 
 /** TODO: check for initialization problem in controller when using csl hold */
 
@@ -63,22 +62,14 @@ private:
 
     void apply_symmetric_weights(const std::vector<double>& params);
     void apply_weights          (const std::vector<double>& params);
+    void integrate_accels       (void);
 
     robots::Robot_Interface&          robot;
-    const std::size_t                 number_of_inputs;
+    Fully_Connected_Symmetric_Core    core;
+
     const std::size_t                 number_of_params_sym;
     const std::size_t                 number_of_params_asym;
 
-    const robots::Jointvector_t&      get_joints;
-          robots::Jointvector_t&      set_joints;
-
-    const robots::Accelvector_t&      get_accels;
-          robots::Accelvector_t&      set_accels;
-
-    std::vector<std::vector<double> > weights;
-    std::vector<double>               X, Y, activation;
-
-    const double                      initial_bias;
     bool                              symmetric_controller;
     bool                              is_switched;
 

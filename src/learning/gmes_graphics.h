@@ -90,9 +90,9 @@ public:
         draw_vector2(-1.0, 1.2, 0.1, 2.0, gmes.get_activations());
     }
 
-    const GMES&               gmes;
-    const Expert_Vector_Base& expert;
-    const sensor_vector&      input;
+    const GMES&          gmes;
+    const Expert_Vector& expert;
+    const sensor_vector& input;
 
     const axes3D         axis;
     plot3D               plot;

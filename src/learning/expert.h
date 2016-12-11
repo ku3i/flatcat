@@ -9,6 +9,7 @@
 /** TODO
  *  + get 3d graphical representation, note: must provided by the underlying type
  *  + in general, an expert should not care if it exists or not, this should be supervised by the expert_vector.
+ *  + optional: restrict transitions to have max. k connections
  */
 
 class Expert {
@@ -26,6 +27,7 @@ public:
     { }
 
     Expert(Expert&& other) = default;
+    Expert& operator=(Expert&& other) = default;
 
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
     double get_prediction_error          (void) const { return predictor->get_prediction_error(); }
@@ -61,9 +63,8 @@ private:
     double        learning_capacity;
     const double  perceptive_width;
     VectorN       transition;       // validity of connections
-    /** TODO some day: restrict to max. k connections */
 
-    friend class Expert_Vector_Base;
+    friend class Expert_Vector;
     friend class GMES;
     friend class GMES_Graphics;
     friend class Force_Field;

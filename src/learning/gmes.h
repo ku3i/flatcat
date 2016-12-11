@@ -23,11 +23,16 @@
  */
 
 /** TODO: namespace learning */
-/** TODO: GMES_Base, Expert_Vector_Base */
+/** TODO: compute the activations of GMES as softmax activation function (YL)*/
+
 
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
+    GMES(const GMES& other) = delete; // non construction-copyable
+
 public:
-    GMES( Expert_Vector_Base& expert
+    GMES(GMES&& other) = default;
+
+    GMES( Expert_Vector& expert
         , double learning_rate = gmes_constants::global_learning_rate
         , bool one_shot_learning = true );
 
@@ -68,7 +73,7 @@ private:
 
     void        clear_transitions_to(std::size_t to_clear);
 
-    Expert_Vector_Base& expert;
+    Expert_Vector& expert;
     const std::size_t Nmax;
 
     double min_prediction_error;
