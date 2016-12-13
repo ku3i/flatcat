@@ -1,5 +1,23 @@
 #include <learning/predictor.h>
 
+    double Predictor_Base::calculate_prediction_error(VectorN const& predictions) {
+         assert(input.size() == predictions.size());
+
+        /* sum of squared distances to input */
+        double error = .0;
+        for (std::size_t m = 0; m < input.size(); ++m)
+            error += square(input[m] - predictions[m]);
+
+        /** The prediction error is being normalized by the number
+         *  of weights/inputs and the max. input range [-1,+1] so
+         *  that it is independent of the size of input space.
+         *  Also it should be limited [0..1].
+         */
+        double prediction_error = normalize_factor * sqrt(error);
+        assert_in_range(prediction_error, predictor_constants::error_min, predictor_constants::error_max);
+        return prediction_error;
+    }
+
 
     Predictor::Predictor( const sensor_vector& input
                         , const double         learning_rate
@@ -51,29 +69,16 @@
 
     /* make the prediction based on actual weights
      */
-    double Predictor::predict(void) /** expert shall pass the weights as const& to the predictor */
+    double Predictor::predict(void)
     {
         assert(input.size() == weights.size());
-
-        /* sum of squared distances to input */
-        double error = .0;
-        for (std::size_t m = 0; m < input.size(); ++m)
-            error += square(input[m] - weights[m]);
-
-        /** The prediction error is being normalized by the number
-         *  of weights/inputs and the max. input range [-1,+1] so
-         *  that it is independent of the size of input space.
-         *  Also it should be limited [0..1].
-         */
-        prediction_error = normalize_factor * sqrt(error);
-        assert_in_range(prediction_error, predictor_constants::error_min, predictor_constants::error_max);
-        return prediction_error;
+        return calculate_prediction_error(weights);
     }
 
     /* adapt the weights to the current
      * input sample and learn from experience
      */
-    void Predictor::adapt(void) /** expert shall pass weights and experience to the predictor */
+    void Predictor::adapt(void)
     {
         assert(input.size() == weights.size());
 

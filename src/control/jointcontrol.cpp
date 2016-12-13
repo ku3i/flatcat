@@ -79,39 +79,15 @@ Jointcontrol::loop(void)
 void
 Jointcontrol::apply_symmetric_weights(const std::vector<double>& params)
 {
-    //dbg_msg("Apply symmetric weights.");
     assert(params.size() == number_of_params_sym);
-    robots::Jointvector_t const& joints = robot.get_joints();
-
-    std::size_t param_index = 0;
-    for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix)
-    {
-        if (joints[ix].type == robots::Joint_Type_Normal)
-        {
-            std::size_t iy = joints[ix].symmetric_joint; // get symmetric counterpart of ix
-            assert(iy < robot.get_number_of_joints());
-            for (std::size_t k = 0; k < core.weights[ix].size(); ++k)
-            {
-                core.weights[ix][k] = params[param_index++];
-                core.weights[iy][k] = core.weights[ix][k];
-            }
-        }
-    }
-    assert(param_index == params.size());
+    core.apply_symmetric_weights(robot, params);
 }
 
 void
 Jointcontrol::apply_weights(const std::vector<double>& params)
 {
-    //dbg_msg("Apply weights.");
     assert(params.size() == number_of_params_asym);
-
-    std::size_t param_index = 0;
-    for (auto& w_i : core.weights)
-        for (auto& w_ik : w_i)
-            w_ik = params[param_index++];
-
-    assert(param_index == params.size());
+    core.apply_weights(robot, params);
 }
 
 void
@@ -316,5 +292,24 @@ initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& cont
 
     return Control_Parameter();
 }
+
+    Control_Vector param_factory( const robots::Robot_Interface& robot
+                                , std::size_t number_of_motor_units
+                                , const std::string& folder
+                                , const control::Minimal_Seed_t& seed )
+    {
+        dbg_msg("Launching motor control parameter vector factory.");
+        control::Control_Vector params(number_of_motor_units, folder);
+
+        for (std::size_t i = params.size(); i < number_of_motor_units; ++i) {
+            dbg_msg("Create randomized motor control parameter: %u", i);
+            control::Control_Parameter p = control::get_initial_parameter(robot, seed, false/*symmetric?*/);//(i % 2 == 0));
+            control::randomize_control_parameter(p, 0.1, 1.0);
+                /**TODO make random parameters to settings, and constrain motor self not not go beyond zero */
+                /**TODO also: make settings grouped and only give the local settings as ref */
+            params.add(p);
+        }
+        return params;
+    }
 
 } // namespace control

@@ -9,19 +9,9 @@
 #include <learning/expert.h>
 #include <learning/gmes.h>
 #include <learning/payload.h>
-
-/** WHAT DO WE NEED?
-
-predictor_base
-expert_base
-gmes_base
+#include <learning/motor_predictor.h>
 
 
-robot
-joint_control
-
-
-*/
 
 namespace learning {
 
@@ -43,14 +33,13 @@ public:
     }
 };
 
-/** set up motor space as "sensor_space&" for experts */
 
 class Motor_Layer {
 public:
     Motor_Layer( robots::Robot_Interface& robot, std::size_t max_num_motor_experts = constants::number_of_experts )
     : max_num_motor_experts(max_num_motor_experts)
     , control(robot)
-    , params(max_num_motor_experts)
+    , params(control::param_factory(robot, max_num_motor_experts, "", {0.,0.,0.}))
     , payloads(max_num_motor_experts)
     , motorspace(robot.get_joints())
     , experts(max_num_motor_experts, payloads, motorspace, constants::local_learning_rate, constants::experience_size, params, robot)
@@ -59,7 +48,6 @@ public:
     {
         dbg_msg("Creating new competitive motor layer.");
     }
-
 
 
     std::size_t                  max_num_motor_experts;

@@ -89,6 +89,39 @@ public:
             joints[(is_switched ? joints[i].symmetric_joint : i)].motor = clip(activation[i], 1.0);
     }
 
+    void apply_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
+    {
+        dbg_msg("Apply weights.");
+        assert(params.size() == weights.size() * weights.at(0).size());
+        std::size_t param_index = 0;
+        for (auto& w_i : weights)
+            for (auto& w_ik : w_i)
+                w_ik = params[param_index++];
+
+        assert(param_index == params.size());
+    }
+
+    void apply_symmetric_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
+    {
+        dbg_msg("Apply symmetric weights.");
+        robots::Jointvector_t const& joints = robot.get_joints();
+
+        std::size_t param_index = 0;
+        for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix)
+        {
+            if (joints[ix].type == robots::Joint_Type_Normal)
+            {
+                std::size_t iy = joints[ix].symmetric_joint; // get symmetric counter part of ix
+                assert(iy < robot.get_number_of_joints());
+                for (std::size_t k = 0; k < weights[ix].size(); ++k)
+                {
+                    weights[ix][k] = params[param_index++];
+                    weights[iy][k] = weights[ix][k];
+                }
+            }
+        }
+        assert(param_index == params.size());
+    }
 
 };
 

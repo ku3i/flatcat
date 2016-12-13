@@ -26,14 +26,17 @@ struct Minimal_Seed_t {
 };
 
 std::size_t get_number_of_inputs(robots::Robot_Interface const& robot);
-Control_Parameter get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t&    seed , bool symmetric);
+Control_Parameter get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t& seed, bool symmetric);
 Control_Parameter make_symmetric       (robots::Robot_Interface const& robot, const Control_Parameter& other);
 Control_Parameter make_asymmetric      (robots::Robot_Interface const& robot, const Control_Parameter& other);
 
 Control_Parameter initialize_anyhow    ( robots::Robot_Interface const& robot, Jointcontrol const& control
                                        , bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename);
 
-
+Control_Vector param_factory( const robots::Robot_Interface& robot
+                            , std::size_t number_of_motor_units
+                            , const std::string& folder
+                            , const control::Minimal_Seed_t& seed );
 
 /** TODO: check for initialization problem in controller when using csl hold */
 
@@ -51,7 +54,7 @@ public:
     void set_control_parameter(const Control_Parameter& controller);
     void set_control_parameter(const std::vector<double>& params);
 
-    double get_normalized_mechanical_power(void) const;
+    double get_normalized_mechanical_power(void) const; /**TODO consider this a simloid method */
 
     void print_parameter(void) const;
 

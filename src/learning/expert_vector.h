@@ -4,7 +4,10 @@
 #include <common/static_vector.h>
 #include <control/sensorspace.h>
 #include <control/control_vector.h>
+#include <robots/robot.h>
 #include <learning/expert.h>
+#include <learning/predictor.h>
+#include <learning/motor_predictor.h>
 
 /* The Expert Vector should merely work as a container
  * and should neither carry any information nor functionality

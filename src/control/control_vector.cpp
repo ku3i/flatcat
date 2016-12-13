@@ -5,11 +5,11 @@ namespace control {
 
     void randomize_control_parameter(Control_Parameter& params, double std_dev, double max_dev)
     {
+        dbg_msg("Randomize parameters.");
         assert_in_range(std_dev, 0.0, max_dev);
         for (std::size_t i = 0; i < params.size(); ++i)
             params[i] += random_value_norm(.0, std_dev, -max_dev, +max_dev);
     }
-
 
 
     Control_Vector::Control_Vector( std::size_t max_number_of_parameter_sets
@@ -51,6 +51,10 @@ namespace control {
         controls.emplace_back(filename);
     }
 
+    void Control_Vector::add(const Control_Parameter& params) {
+        assert(controls.size() < max_number_of_parameter_sets);
+        controls.emplace_back(params);
+    }
 
     void Control_Vector::reload(std::size_t index, const std::string& filename) {
         controls.at(index) = Control_Parameter(filename);

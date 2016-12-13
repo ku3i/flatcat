@@ -27,8 +27,9 @@ public:
             , bool mirrored );
 
     void add(const std::string& filename);
-    void reload(std::size_t index, const std::string& filename);
+    void add(const Control_Parameter& params);
 
+    void reload(std::size_t index, const std::string& filename);
 
     std::size_t size(void) const override { return controls.size(); }
     void copy(std::size_t dst, std::size_t src) override { controls.at(dst) = controls.at(src); }

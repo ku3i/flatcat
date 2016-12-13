@@ -30,6 +30,9 @@ class Predictor_Base {
     Predictor_Base& operator=(const Predictor_Base& other) = delete;
 
 protected:
+
+    double calculate_prediction_error(VectorN const& predictions);
+
     /* constants */
     const sensor_vector& input;
     const double         learning_rate;
@@ -121,40 +124,5 @@ private:
 };
 
 
-#include <control/controlparameter.h>
-#include <control/control_core.h>
-#include <robots/robot.h>
-
-class Motor_Predictor : public Predictor_Base {
-public:
-    Motor_Predictor( const robots::Robot_Interface& robot
-                   , const sensor_vector& input
-                   , const double learning_rate
-                   , const double random_weight_range
-                   , const control::Control_Parameter& ctrl_params )
-    : Predictor_Base(input, learning_rate, random_weight_range, 1/**TODO*/)
-    , core(robot)
-    , ctrl_params(ctrl_params)
-    {
-        dbg_msg("Creating motor predictor.");
-    }
-
-    void   copy(Predictor_Base const& other) { /**TODO implement*/ }
-    double predict(void) { /**TODO implement*/ return .0; }
-    void   adapt  (void) { /**TODO implement*/ }
-    /** TODO move as much as possible to the base class
-     *  e.g. consider: weights and experience
-     *  as components of the base class?
-     * write the motor predictor in parallel
-     */
-
-    void initialize_randomized(void)       override { /**TODO implement*/ }
-    void initialize_from_input(void)       override { /**TODO implement*/ }
-    VectorN const& get_weights(void) const override { return ctrl_params.get_parameter(); }
-
-private:
-    control::Fully_Connected_Symmetric_Core core;
-    control::Control_Parameter ctrl_params;
-};
 
 #endif // PREDICTOR_H
