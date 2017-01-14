@@ -9,16 +9,13 @@ Fitness_ptr assign_fitness( const robots::Simloid& robot
 
          if ("FORWARDS"     == fitness) fitness_function = Fitness_ptr(new Fitness_Forwards (robot, settings.drop_penalty, settings.out_of_track_penalty));
     else if ("FORWARDS_MIN" == fitness) fitness_function = Fitness_ptr(new Fitness_Forwards (robot, settings.drop_penalty, settings.out_of_track_penalty, false));
+    else if ("FORWARDS_FEET"== fitness) fitness_function = Fitness_ptr(new Fitness_Forwards_Feet(robot, settings.drop_penalty, settings.out_of_track_penalty, settings.stop_penalty));
     else if ("BACKWARDS"    == fitness) fitness_function = Fitness_ptr(new Fitness_Backwards(robot, settings.drop_penalty, settings.out_of_track_penalty));
     else if ("BACKWARDS_MIN"== fitness) fitness_function = Fitness_ptr(new Fitness_Backwards(robot, settings.drop_penalty, settings.out_of_track_penalty, false));
-    else if ("JUMPING"      == fitness) fitness_function = Fitness_ptr(new Fitness_Jumping  (robot));
     else if ("STOPPING"     == fitness) fitness_function = Fitness_ptr(new Fitness_Stopping (robot, settings.drop_penalty));
     else if ("STANDING"     == fitness) fitness_function = Fitness_ptr(new Fitness_Standing (robot));
     else if ("SIDEWARDS"    == fitness) fitness_function = Fitness_ptr(new Fitness_Sidewards(robot, settings.drop_penalty, settings.out_of_track_penalty));
     else if ("TURNING"      == fitness) fitness_function = Fitness_ptr(new Fitness_Turning  (robot, settings.drop_penalty, settings.out_of_track_penalty));
-    else if ("STANDUP"      == fitness) fitness_function = Fitness_ptr(new Fitness_Standup  (robot));
-    else if ("SITDOWN"      == fitness) fitness_function = Fitness_ptr(new Fitness_Sitdown  (robot));
-    else if ("ROLLOVER"     == fitness) fitness_function = Fitness_ptr(new Fitness_Rollover (robot));
     else err_msg(__FILE__, __LINE__, "Wrong name of fitness function.");
 
     return fitness_function;

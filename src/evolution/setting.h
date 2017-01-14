@@ -37,6 +37,7 @@ class Setting
         bool efficient;
         bool drop_penalty;
         bool out_of_track_penalty;
+        bool stop_penalty;
         bool symmetric_controller;
 
         /* evolution */

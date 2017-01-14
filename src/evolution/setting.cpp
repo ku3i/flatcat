@@ -18,6 +18,7 @@ Setting::Setting( int argc, char **argv )
                 , efficient(true)
                 , drop_penalty(true)
                 , out_of_track_penalty(true)
+                , stop_penalty(true)
                 , symmetric_controller(true)
                 , strategy("GENERATION")
                 , population_size(500)
@@ -108,8 +109,9 @@ Setting::read_configuration(const std::string& filename)
     efficient    = settings_file.readBOOL("EFFICIENT", efficient);
     drop_penalty = settings_file.readBOOL("DROP_PENALTY", drop_penalty);
     out_of_track_penalty = settings_file.readBOOL("OUT_OF_TRACK_PENALTY", out_of_track_penalty);
+    stop_penalty = settings_file.readBOOL("STOP_PENALTY", stop_penalty);
     symmetric_controller = settings_file.readBOOL("SYMMETRIC_CONTROLLER", symmetric_controller);
-    dbg_msg("   Efficient: %s, Dropping: %s, Track: %s, Symmetric: %s", (efficient?"Yes":"No"), (drop_penalty?"Yes":"No"), (out_of_track_penalty?"Yes":"No"), (symmetric_controller?"Yes":"No"));
+    dbg_msg("   Efficient: %s, Dropping: %s, Track: %s, Stop: %s, Symmetric: %s", (efficient?"Yes":"No"), (drop_penalty?"Yes":"No"), (out_of_track_penalty?"Yes":"No"), (stop_penalty?"Yes":"No"), (symmetric_controller?"Yes":"No"));
 
     strategy = settings_file.readSTR("STRATEGY", strategy);
     dbg_msg("   Strategy is: %s", strategy.c_str());
@@ -169,6 +171,7 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeBOOL("EFFICIENT"           , efficient);
     project_file.writeBOOL("DROP_PENALTY"        , drop_penalty);
     project_file.writeBOOL("OUT_OF_TRACK_PENALTY", out_of_track_penalty);
+    project_file.writeBOOL("STOP_PENALTY"        , stop_penalty);
     project_file.writeBOOL("SYMMETRIC_CONTROLLER", symmetric_controller);
 
     project_file.writeDBL ("INIT_MUTATION_RATE"  , init_mutation_rate);
