@@ -14,10 +14,11 @@
 
 struct Body_Segment /**TODO move to separate header */
 {
-    Body_Segment() : position(), velocity(), force() {}
+    Body_Segment(const char* name) : position(), velocity(), force(), name(name) {}
     Vector3 position;
     Vector3 velocity;
     Vector3 force;
+    std::string name;
 };
 typedef std::vector<Body_Segment> Bodyvector_t;
 
@@ -41,8 +42,8 @@ public:
     unsigned int number_of_accelsensors;
     unsigned int number_of_bodies;
 
-    robots::Jointvector_t joint;
-    robots::Accelvector_t s_acc;
+    robots::Jointvector_t joint; //TODO rename to joints
+    robots::Accelvector_t s_acc; //TODO rename to accels
     Bodyvector_t          bodies;
 };
 
