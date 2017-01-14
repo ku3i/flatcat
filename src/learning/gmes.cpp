@@ -214,8 +214,8 @@
 
         double leakage = std::abs(sum_capacity - Nmax * gmes_constants::initial_learning_capacity);
 
-        if (leakage > 1e-12)
-            wrn_msg("Learning capacity is leaking %e", sum_capacity, leakage);
+        if (leakage > 1e-10) //1e-12
+            wrn_msg("Learning capacity (%e) is leaking %e", sum_capacity, leakage);
     }
 
 

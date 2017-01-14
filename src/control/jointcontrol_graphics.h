@@ -36,7 +36,7 @@ public:
                 glprintf(xpos, ypos, 0.0, 0.5*line_height, "%2lu_%s", i, robot.get_joints()[i].name.substr(0,16).c_str());
             }
         }
-        for (std::size_t k = 0; k < control.core.num_inputs; ++k)
+        for (std::size_t k = 0; k < control.core.input.size(); ++k)
         {
             xpos = xstart;
             ypos -= line_height;

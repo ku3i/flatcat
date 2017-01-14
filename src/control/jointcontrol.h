@@ -20,6 +20,17 @@ namespace control {
 class Jointcontrol;
 
 struct Minimal_Seed_t {
+    Minimal_Seed_t(const std::vector<double>& vec)
+    : pgain(), damping(), motor_self()
+    {
+        assert(vec.size() >= 3);
+        pgain      = vec[0];
+        damping    = vec[1];
+        motor_self = vec[2];
+    }
+
+    Minimal_Seed_t(double pgain, double damping, double motor_self) : pgain(pgain), damping(damping), motor_self(motor_self) {}
+
     double pgain;
     double damping;
     double motor_self;

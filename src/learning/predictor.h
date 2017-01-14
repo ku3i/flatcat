@@ -23,11 +23,13 @@ namespace predictor_constants {
     const double error_min = 0.0;
 }
 
+class Predictor_Base;
+typedef std::unique_ptr<Predictor_Base> Predictor_ptr;
+
 
 class Predictor_Base {
 
     Predictor_Base(const Predictor_Base& other) = delete;
-    Predictor_Base& operator=(const Predictor_Base& other) = delete;
 
 protected:
 
@@ -42,6 +44,14 @@ protected:
     /* non-const */
     double               prediction_error;
     std::vector<VectorN> experience;       // replay buffer
+
+    Predictor_Base& operator=(const Predictor_Base& other)
+    {
+        prediction_error = other.prediction_error;
+        assert(experience.size() == other.experience.size());
+        experience = other.experience;
+        return *this;
+    }
 
 public:
 
@@ -68,26 +78,20 @@ public:
     double get_prediction_error(void) const { return prediction_error; }
     std::vector<VectorN> const& get_experience(void) const { return experience; }
 
-
     virtual ~Predictor_Base() = default;
 
     virtual void   copy(Predictor_Base const& other) = 0;
+
     virtual double predict(void) = 0;
     virtual void   adapt  (void) = 0;
-    /** TODO move as much as possible to the base class
-     *  e.g. consider: weights and experience
-     *  as components of the base class?
-     * write the motor predictor in parallel
-     */
 
     virtual void initialize_randomized(void) = 0;
     virtual void initialize_from_input(void) = 0;
     virtual VectorN const&  get_weights(void) const = 0;
+    virtual VectorN const&  get_prediction(void) const = 0;
 
 };
 
-
-typedef std::unique_ptr<Predictor_Base> Predictor_ptr;
 
 
 class Predictor : public Predictor_Base {
@@ -103,9 +107,12 @@ public:
              , const std::size_t    experience_size = 1 );
 
 
+    virtual ~Predictor() = default;
+
     void copy(Predictor_Base const& other) override;
 
-    VectorN  const& get_weights (void) const override { return weights; }
+    VectorN  const& get_weights   (void) const override { return weights; }
+    VectorN  const& get_prediction(void) const override { return weights; }
 
     double predict(void) override;
     void   adapt  (void) override;

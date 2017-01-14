@@ -51,9 +51,9 @@ public:
                           fmin(2.0, expert[gmes.get_recipient()].learning_capacity));
 
         graph.update_node(gmes.get_winner(),
-                          expert[gmes.get_winner()].get_predictor().get_weights()[0],
-                          expert[gmes.get_winner()].get_predictor().get_weights()[1],
-                          expert[gmes.get_winner()].get_predictor().get_weights()[2],
+                          expert[gmes.get_winner()].get_predictor().get_prediction()[0],
+                          expert[gmes.get_winner()].get_predictor().get_prediction()[1],
+                          expert[gmes.get_winner()].get_predictor().get_prediction()[2],
                           fmin(2.0, expert[gmes.get_winner()].learning_capacity));
 
         graph.activated(gmes.get_winner());

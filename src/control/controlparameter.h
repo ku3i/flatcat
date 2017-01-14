@@ -33,9 +33,10 @@ public:
 
     Control_Parameter& operator=(const Control_Parameter& other);
 
-    ~Control_Parameter() { dbg_msg("Destroying control parameters."); }
+    ~Control_Parameter() { /*dbg_msg("Destroying control parameters.");*/ }
 
     const std::vector<double>& get_parameter(void) const { return parameter;        }
+          std::vector<double>& set_parameter(void)       { return parameter;        }
     const std::size_t          size         (void) const { return parameter.size(); }
 
     const double& operator[](std::size_t idx) const { return parameter.at(idx); }

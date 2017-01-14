@@ -13,7 +13,7 @@
          *  that it is independent of the size of input space.
          *  Also it should be limited [0..1].
          */
-        double prediction_error = normalize_factor * sqrt(error);
+        prediction_error = normalize_factor * sqrt(error);
         assert_in_range(prediction_error, predictor_constants::error_min, predictor_constants::error_max);
         return prediction_error;
     }
@@ -26,6 +26,7 @@
     : Predictor_Base(input, learning_rate, random_weight_range, experience_size)
     , weights(input.size())
     {
+        dbg_msg("create pred");
         initialize_from_input();
         predict(); // initialize prediction error
     }
@@ -59,13 +60,12 @@
      */
     void Predictor::copy(Predictor_Base const& other)
     {
-        assert(weights   .size() == other.get_weights   ().size());
-        assert(experience.size() == other.get_experience().size());
-
-        weights          = other.get_weights();
-        experience       = other.get_experience();
-        prediction_error = other.get_prediction_error();
+        Predictor_Base::operator=(other); // copy base members
+        Predictor const& rhs = dynamic_cast<Predictor const&>(other); /**TODO definitely write a test for that crap :) */
+        assert(weights.size() == rhs.weights.size());
+        weights = rhs.weights;
     }
+
 
     /* make the prediction based on actual weights
      */

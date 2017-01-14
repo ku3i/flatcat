@@ -47,7 +47,7 @@ namespace control {
     : parameter(other.parameter)
     , symmetric(other.symmetric)
     , mirrored(other.mirrored)
-    { dbg_msg("Copying control parameter."); }
+    { /*dbg_msg("Copying control parameter.");*/ }
 
 
     Control_Parameter& Control_Parameter::operator=(const Control_Parameter& other)

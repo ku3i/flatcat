@@ -1,6 +1,7 @@
 #ifndef EXPERT_VECTOR_H_INCLUDED
 #define EXPERT_VECTOR_H_INCLUDED
 
+#include <memory>
 #include <common/static_vector.h>
 #include <control/sensorspace.h>
 #include <control/control_vector.h>
@@ -13,6 +14,7 @@
  * and should neither carry any information nor functionality
  * regarding the expert modules in it. However this is theory. :)
  */
+
 class Expert_Vector {
 
     std::vector<Expert> experts;
@@ -42,9 +44,8 @@ public:
         experts.at(to).exists = true; // create
 
         if (one_shot_learning) experts.at(to).reinit_predictor_weights();
-        else {
+        else
             experts.at(to).predictor->copy( *(experts.at(from).predictor) );
-        }
 
         payloads.copy(to, from); /* take a flawed copy of the payload */
     }
@@ -66,7 +67,7 @@ public:
     /* motor action space constructor */
     Expert_Vector( const std::size_t              max_number_of_experts
                  , static_vector_interface&       payloads
-                 , const sensor_vector&           input
+                 , const sensor_vector&           motor_targets
                  , const double                   local_learning_rate
                  , const std::size_t              experience_size
                  , control::Control_Vector const& ctrl_params
@@ -75,7 +76,7 @@ public:
     {
         assert(ctrl_params.size() == max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            experts.emplace_back( Predictor_ptr( new Motor_Predictor(robot, input, local_learning_rate, gmes_constants::random_weight_range, ctrl_params.get(i)) )
+            experts.emplace_back( Predictor_ptr( new Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i)))
                                 , max_number_of_experts );
     }
 

@@ -22,23 +22,19 @@ struct sym_input { double x,y; };
 class Fully_Connected_Symmetric_Core
 {
 public:
-    const std::size_t                 num_inputs, num_outputs;
     std::vector<std::vector<double> > weights;
     std::vector<sym_input>            input;
     std::vector<double>               activation;
 
 
     Fully_Connected_Symmetric_Core(robots::Robot_Interface const& robot)
-    : num_inputs(get_number_of_inputs(robot))
-    , num_outputs(robot.get_number_of_joints())
-    , weights(num_outputs, std::vector<double>(num_inputs, 0.0))
-    , input(num_inputs)
-    , activation(num_outputs)
+    : weights(robot.get_number_of_joints(), std::vector<double>(get_number_of_inputs(robot), 0.0))
+    , input(get_number_of_inputs(robot))
+    , activation(robot.get_number_of_joints())
     {
-        dbg_msg("Creating fully connected symmetric control core.");
-        assert(num_inputs > 0);
-        assert(num_outputs > 0);
-        assert(input.size() == num_inputs);
+        /*dbg_msg("Fully connected symmetric core.\n\t weights: %u x %u ", weights.size(), weights.at(0).size());*/
+        assert(get_number_of_inputs(robot) > 0);
+        assert(robot.get_number_of_joints() > 0);
     }
 
 
@@ -50,9 +46,9 @@ public:
             auto const& jy = robot.get_joints()[jx.symmetric_joint];
 
             /**TODO consider using a virtual (integrated) angle */
-            input[index++] = {jx.s_ang, jy.s_ang};
-            input[index++] = {jx.s_vel, jy.s_vel};
-            input[index++] = {jx.motor, jy.motor};
+            input[index++] = {jx.s_ang             , jy.s_ang             };
+            input[index++] = {jx.s_vel             , jy.s_vel             };
+            input[index++] = {jx.motor.get_backed(), jy.motor.get_backed()};
         }
 
         for (auto const& a : robot.get_accels())
@@ -86,12 +82,12 @@ public:
         assert(activation.size() == joints.size());
 
         for (std::size_t i = 0; i < activation.size(); ++i)
-            joints[(is_switched ? joints[i].symmetric_joint : i)].motor = clip(activation[i], 1.0);
+            joints[(is_switched ? joints[i].symmetric_joint : i)].motor.set( clip(activation[i], 1.0) );
     }
 
     void apply_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
     {
-        dbg_msg("Apply weights.");
+//        dbg_msg("Apply weights.");
         assert(params.size() == weights.size() * weights.at(0).size());
         std::size_t param_index = 0;
         for (auto& w_i : weights)
@@ -103,7 +99,7 @@ public:
 
     void apply_symmetric_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
     {
-        dbg_msg("Apply symmetric weights.");
+//        dbg_msg("Apply symmetric weights.");
         robots::Jointvector_t const& joints = robot.get_joints();
 
         std::size_t param_index = 0;

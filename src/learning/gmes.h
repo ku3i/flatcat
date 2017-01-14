@@ -26,6 +26,10 @@
 /** TODO: compute the activations of GMES as softmax activation function (YL)*/
 
 
+class GMES_Graphics;
+class Payload_Graphics;
+class Force_Field;
+
 class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
     GMES(const GMES& other) = delete; // non construction-copyable
 
