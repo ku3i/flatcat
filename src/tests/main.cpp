@@ -127,3 +127,38 @@ TEST_CASE( "random_index", "[math]") {
         dbg_msg("%u", b);
     }
 }
+
+
+#include <common/backed.h>
+TEST_CASE( "backed value", "[common]") {
+
+    common::backed_t<int> value_unsigned;
+    REQUIRE( value_unsigned.get() == 0 );
+    REQUIRE( value_unsigned.get_backed() ==  0 );
+    value_unsigned.set(44);
+    value_unsigned.set(55);
+    REQUIRE( value_unsigned.get() == 55 );
+    REQUIRE( value_unsigned.get_backed() ==  0 );
+    value_unsigned.transfer();
+    REQUIRE( value_unsigned.get_backed() ==  55 );
+
+    common::backed_t<bool> value_bool(true);
+    REQUIRE( value_bool.get() == true );
+    REQUIRE( value_bool.get_backed() == false );
+    value_bool.set(false);
+    REQUIRE( value_bool.get() == false );
+    REQUIRE( value_bool.get_backed() == false );
+    value_bool.transfer();
+    REQUIRE( value_bool.get_backed() == false );
+
+    common::backed_t<double> value_double(.6, .9);
+    REQUIRE( value_double.get() == .6 );
+    REQUIRE( value_double.get_backed() == .9 );
+    value_double.set(.3);
+    value_double.set(.4);
+    REQUIRE( value_double.get() == .4 );
+    REQUIRE( value_double.get_backed() == .9 );
+    value_double.transfer();
+    REQUIRE( value_double.get_backed() == .4 );
+
+}
