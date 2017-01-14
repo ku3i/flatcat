@@ -3,6 +3,7 @@
 
 #include <string>
 #include <common/log_messages.h>
+#include <common/backed.h>
 
 namespace robots {
 
@@ -21,7 +22,7 @@ public:
     : joint_id(joint_id)
     , s_ang(.0)
     , s_vel(.0)
-    , motor(.0)
+    , motor()
     , type(type)
     , symmetric_joint(symmetric_joint)
     , name(name)
@@ -38,7 +39,7 @@ public:
     const unsigned int joint_id;
     double s_ang;
     double s_vel;
-    double motor;
+    common::backed_t<double> motor;
 
     Joint_Type type;
     unsigned int symmetric_joint;
@@ -47,6 +48,8 @@ public:
     const double limit_lo;
     const double limit_hi;
     const double default_pos;
+
+    bool is_symmetric() const { return type == Joint_Type_Symmetric; }
 };
 
 typedef std::vector<Joint_Model> Jointvector_t;

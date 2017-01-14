@@ -28,6 +28,8 @@ Simloid::Simloid( const unsigned short port,
                 , avg_rot_inf_ang_last()
                 , avg_velocity_forward()
                 , avg_velocity_left()
+                , left_id(get_body_id_by_name(configuration.bodies, "left"))
+                , rift_id(get_body_id_by_name(configuration.bodies, "rift"))
 {
     assert(configuration.number_of_bodies > 0);
 
@@ -99,7 +101,7 @@ Simloid::simulation_idle(double sec)
 {
     sts_msg("Waiting for %1.1f seconds.", sec);
     /* pass 100 time steps per second */
-    for (unsigned int i = 0; i < round(100.0 * sec); ++i)
+    for (unsigned i = 0; i < round(100.0 * sec); ++i)
     {
         read_sensor_data();
         client.send("DONE\n");
@@ -113,14 +115,14 @@ Simloid::set_robot_to_default_position(void)
     sts_msg("Setting robot to default joint position.");
 
     char msg[MSGLEN];
-    /* pass 100 timesteps per second */
-    for (unsigned int i = 0; i < round(100.0 * sec); ++i)
+    /* pass 100 time steps per second */
+    for (unsigned i = 0; i < round(100.0 * sec); ++i)
     {
         read_sensor_data();
 
         short n = snprintf(msg, MSGLEN, "PX");
-        for (unsigned int k = 0; k < configuration.number_of_joints; ++k)
-            n += snprintf(msg + n, MSGLEN - n, " %lf", configuration.joint[k].default_pos);
+        for (auto& j: configuration.joint)
+            n += snprintf(msg + n, MSGLEN - n, " %lf", j.default_pos);
 
         snprintf(msg + n, MSGLEN - n, "\nDONE\n");
         client.send(msg);
@@ -134,8 +136,8 @@ void
 Simloid::reset(void) //non-public
 {
     /* resetting simloid, resetting motor output */
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        configuration.joint[i].motor = .0;
+    for (auto& j: configuration.joint)
+        j.motor.set(.0);
     client.send("UA 0\nRESET\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
 }
@@ -173,8 +175,7 @@ Simloid::restore_state(void)
     }
 
     /* restoring last snapshot of simloid, resetting motor output */
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        configuration.joint[i].motor = .0;
+    for (auto& j: configuration.joint) j.motor.set(.0);
     reset_all_forces();
     client.send("UA 0\nNEWTIME\nRESTORE\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
@@ -221,8 +222,7 @@ void Simloid::init_robot(void)
     sts_msg("Initializing robot.");
 
     /* initialize motor voltages */
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        configuration.joint[i].motor = .0;
+    for (auto& j: configuration.joint) j.motor.set(.0);
     set_robot_to_default_position();
     save_state();
 }
@@ -276,7 +276,7 @@ void
 Simloid::read_sensor_data(void)
 {
     static std::string srv_msg;
-    unsigned int charcount = 0;
+    unsigned charcount = 0;
 
     srv_msg = client.recv(60*seconds_us);
 
@@ -293,154 +293,80 @@ Simloid::read_sensor_data(void)
     timestamp = read_double(server_message, &charcount);
 
     /* read angles */
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        configuration.joint[i].s_ang = clip(read_double(server_message, &charcount));
+    for (auto& j: configuration.joint)
+        j.s_ang = clip(read_double(server_message, &charcount));
 
     /* read angle rate */
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        configuration.joint[i].s_vel = clip(read_double(server_message, &charcount));
+    for (auto& j: configuration.joint)
+        j.s_vel = clip(read_double(server_message, &charcount));
 
     /* read acceleration sensors */
-    for (unsigned int i = 0; i < configuration.number_of_accelsensors; ++i)
-        configuration.s_acc[i].a = read_vector3(server_message, &charcount);
+    for(auto& s: configuration.s_acc)
+        s.a = read_vector3(server_message, &charcount);
 
     /* read body positions + velocities */
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
+    for (auto& b: configuration.bodies)
     {
-        configuration.bodies[i].position = read_vector3(server_message, &charcount);
-        configuration.bodies[i].velocity = read_vector3(server_message, &charcount);
+        b.position = read_vector3(server_message, &charcount);
+        b.velocity = read_vector3(server_message, &charcount);
     }
 }
+
 
 void
 Simloid::write_motor_data(void)
 {
     static char msg[MSGLEN];
-    unsigned int n = snprintf(msg, MSGLEN, "UX");
+    unsigned n = snprintf(msg, MSGLEN, "UX");
 
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        n += snprintf(msg + n, MSGLEN - n, " %lf", clip(configuration.joint[i].motor));
+    for (auto& j: configuration.joint)
+        n += snprintf(msg + n, MSGLEN - n, " %lf", clip(j.motor.get()));
 
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-        if (configuration.bodies[i].force.length() > .0)
-            n += snprintf(msg + n, MSGLEN - n, "\nFI %u %lf %lf %lf", i, configuration.bodies[i].force.x,
-                                                                         configuration.bodies[i].force.y,
-                                                                         configuration.bodies[i].force.z);
+    auto const& bodies = configuration.bodies;
+    for (unsigned i = 0; i < bodies.size(); ++i)
+        if (bodies[i].force.length() > .0)
+            n += snprintf(msg + n, MSGLEN - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
+                                                                         bodies[i].force.y,
+                                                                         bodies[i].force.z);
     snprintf(msg + n, MSGLEN - n, "\nDONE\n");
     client.send(msg);
+
+    /* transfer motor data u(t) to u(t-1) */
+    for (auto& j: configuration.joint)
+        j.motor.transfer();
+
     return;
 }
-
-//double
-//Simloid::get_min_distance_from_start(void)
-//{
-//    double minx = DBL_MAX;
-//    double miny = DBL_MAX;
-//    double minz = DBL_MAX;
-//    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-//    {
-//        if (configuration.bodies[i].x < minx) minx = fabs(configuration.bodies[i].x);
-//        if (configuration.bodies[i].y < miny) miny = fabs(configuration.bodies[i].y);
-//        if (configuration.bodies[i].z < minz) minz = fabs(configuration.bodies[i].z);
-//    }
-//    return sqrt(square(minx) + square(miny) + square(minz));
-//}
-
-//double
-//Simloid::get_median_position_y(void)
-//{
-//    /* sort body positions and return the one in the middle */
-//    double median = 0.0;
-//    switch (configuration.number_of_bodies)
-//    {
-//    case 0: median = 0.0;
-//    case 1: median = configuration.bodies[0].y;
-//    case 2: median = 0.5 * (configuration.bodies[0].y + configuration.bodies[1].y);
-//    default:
-//        std::vector<double> body_positions;
-//        body_positions.reserve(configuration.number_of_bodies);
-//        for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-//            body_positions.emplace_back(configuration.bodies[i].y);
-//        std::sort(body_positions.begin(), body_positions.end());
-//
-//        if (is_even(configuration.number_of_bodies))
-//            median = .5 * (body_positions[configuration.number_of_bodies/2 -1 ] + body_positions[configuration.number_of_bodies/2]);
-//        else
-//            median = body_positions[configuration.number_of_bodies/2];
-//    }
-//
-//    return median;
-//    return get_mean_position_y();
-//}
-
-
-
-//double
-//Simloid::get_median_position_x(void)
-//{
-//    /* sort body positions and return the one in the middle */
-//    double median = 0.0;
-//    switch (configuration.number_of_bodies)
-//    {
-//    case 0: median = 0.0;
-//    case 1: median = configuration.bodies[0].x;
-//    case 2: median = 0.5 * (configuration.bodies[0].x + configuration.bodies[1].x);
-//    default:
-//        std::vector<double> body_positions;
-//        body_positions.reserve(configuration.number_of_bodies);
-//        for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-//            body_positions.emplace_back(configuration.bodies[i].x);
-//        std::sort(body_positions.begin(), body_positions.end());
-//
-//        if (is_even(configuration.number_of_bodies))
-//            median = .5 * (body_positions[configuration.number_of_bodies/2 -1 ] + body_positions[configuration.number_of_bodies/2]);
-//        else
-//            median = body_positions[configuration.number_of_bodies/2];
-//    }
-//
-//    return median;
-//}
-
-//double
-//Simloid::get_min_distance_up(void)
-//{
-//    /* upwards has positive sign on y axis */
-//    assert(configuration.number_of_bodies > 0);
-//    double min_z = configuration.bodies[0].z;
-//    for (unsigned int i = 1; i < configuration.number_of_bodies; ++i)
-//        min_z = std::min(min_z, configuration.bodies[i].z);
-//
-//    return min_z;
-//}
 
 void
 Simloid::update_avg_position(void)
 {
     Vector3 position(.0);
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-        position += configuration.bodies[i].position;
+    for (auto& b: configuration.bodies)
+        position += b.position;
 
-    average_position = position / configuration.number_of_bodies;
+    average_position = position / configuration.bodies.size();
 }
+
 void
 Simloid::update_avg_velocity(void)
 {
     Vector3 velocity(.0);
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
-        velocity += configuration.bodies[i].velocity;
+    for (auto& b: configuration.bodies)
+        velocity += b.velocity;
 
-    average_velocity = velocity / configuration.number_of_bodies;
+    average_velocity = velocity / configuration.bodies.size();
 }
 
 Vector3
 Simloid::get_min_position(void) const
 {
     Vector3 min_position(DBL_MAX);
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
+    for (auto& b: configuration.bodies)
     {
-        min_position.x = std::min(min_position.x, configuration.bodies[i].position.x);
-        min_position.y = std::min(min_position.y, configuration.bodies[i].position.y);
-        min_position.z = std::min(min_position.z, configuration.bodies[i].position.z);
+        min_position.x = std::min(min_position.x, b.position.x);
+        min_position.y = std::min(min_position.y, b.position.y);
+        min_position.z = std::min(min_position.z, b.position.z);
     }
     return min_position;
 }
@@ -449,11 +375,11 @@ Vector3
 Simloid::get_max_position(void) const
 {
     Vector3 max_position(-DBL_MAX);
-    for (unsigned int i = 0; i < configuration.number_of_bodies; ++i)
+    for (auto& b: configuration.bodies)
     {
-        max_position.x = std::max(max_position.x, configuration.bodies[i].position.x);
-        max_position.y = std::max(max_position.y, configuration.bodies[i].position.y);
-        max_position.z = std::max(max_position.z, configuration.bodies[i].position.z);
+        max_position.x = std::max(max_position.x, b.position.x);
+        max_position.y = std::max(max_position.y, b.position.y);
+        max_position.z = std::max(max_position.z, b.position.z);
     }
     return max_position;
 }
@@ -462,9 +388,8 @@ bool
 Simloid::motion_stopped(double thrsh) const
 {
     double sum_v = .0;
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        sum_v += fabs(configuration.joint[i].s_vel);
-
+    for (auto& j: configuration.joint)
+        sum_v += fabs(j.s_vel);
     return ((sum_v/configuration.number_of_joints) < thrsh);
 }
 
@@ -531,9 +456,35 @@ double
 Simloid::get_normalized_mechanical_power(void) const
 {
     double power = .0;
-    for (unsigned int i = 0; i < configuration.number_of_joints; ++i)
-        power += square(configuration.joint[i].motor);
+    for (auto& j: configuration.joint)
+        power += square(j.motor.get());
     return power/configuration.number_of_joints;
 }
+
+unsigned
+Simloid::get_body_id_by_name(const Bodyvector_t& bodies, const std::string& name) const {
+    for (std::size_t i = 0; i < bodies.size(); ++i)
+        if (bodies[i].name == name) return i;
+    return bodies.size();
+}
+
+Vector3
+Simloid::get_min_feet_pos(void) const {
+    assert(left_id < configuration.bodies.size());
+    assert(rift_id < configuration.bodies.size());
+    return Vector3{ std::min(configuration.bodies[left_id].position.x, configuration.bodies[rift_id].position.x)
+                  , std::min(configuration.bodies[left_id].position.y, configuration.bodies[rift_id].position.y)
+                  , std::min(configuration.bodies[left_id].position.z, configuration.bodies[rift_id].position.z) };
+}
+
+Vector3
+Simloid::get_max_feet_pos(void) const {
+    assert(left_id < configuration.bodies.size());
+    assert(rift_id < configuration.bodies.size());
+    return Vector3{ std::max(configuration.bodies[left_id].position.x, configuration.bodies[rift_id].position.x)
+                  , std::max(configuration.bodies[left_id].position.y, configuration.bodies[rift_id].position.y)
+                  , std::max(configuration.bodies[left_id].position.z, configuration.bodies[rift_id].position.z) };
+}
+
 
 } // namespace robots

@@ -195,9 +195,9 @@ public:
     GMES_joint_space(const robots::Joint_Model& joint)
     : sensor_vector(3)
     {
-        sensors.emplace_back("[1] angle"    , [&joint](){ return joint.s_ang; });
-        sensors.emplace_back("[2] velocity" , [&joint](){ return joint.s_vel; });
-        sensors.emplace_back("[3] torque"   , [&joint](){ return joint.motor; }); //don't even think of removing that
+        sensors.emplace_back("[1] angle"    , [&joint](){ return joint.s_ang;       });
+        sensors.emplace_back("[2] velocity" , [&joint](){ return joint.s_vel;       });
+        sensors.emplace_back("[3] torque"   , [&joint](){ return joint.motor.get(); }); //don't even think of removing that
         /**TODO: Think about: the introduction of the motor signal in the sensor space makes that inherently instable.
          * The adaption can skip the world in the loop and can directly influence the sensor space without actually moving the robot.
          * Also, reducing sensor space dimension reduces the overall cost. */

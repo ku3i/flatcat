@@ -9,12 +9,14 @@ pole::execute_cycle(void)
     /* apply action and update pole cart*/
     assert(joints.size() == 1);
 
-    update_dynamics(joints[0].motor);
+    update_dynamics(joints[0].motor.get());
 
     joints[0].s_ang = wrap2(theta) / M_PI;
     joints[0].s_vel = tanh(theta_dot / (2*M_PI));
-    joints[0].motor = force;
+    joints[0].motor.set(force);
     assert(std::abs(joints[0].s_ang) <= 1.0);
+
+    joints[0].motor.transfer();
     return true;
 }
 

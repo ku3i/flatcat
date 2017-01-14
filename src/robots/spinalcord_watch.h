@@ -86,7 +86,7 @@ public:
         for (std::size_t i = 0; i < num_joints; ++i) {
             plot_position[i].add_sample(joints[i].s_ang);
             plot_velocity[i].add_sample(joints[i].s_vel * constants::vel_amp);
-            plot_voltage [i].add_sample(joints[i].motor);
+            plot_voltage [i].add_sample(joints[i].motor.get());
 
             subspace_portrait[i].add_sample(joints[i].s_ang,
                                             joints[i].s_vel * constants::vel_amp);

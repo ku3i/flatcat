@@ -47,7 +47,10 @@ public:
     const robots::Accelvector_t& get_accels(void) const { return accels; }
           robots::Accelvector_t& set_accels(void)       { return accels; }
 
-    bool execute_cycle(void) { return true; }
+    bool execute_cycle(void) {
+        for (auto& j: joints) j.motor.transfer();
+        return true;
+    }
 
     double get_normalized_mechanical_power(void) const { return .0; }
 

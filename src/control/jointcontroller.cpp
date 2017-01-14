@@ -165,7 +165,7 @@ Jointcontroller::get_normalized_mechanical_power(void) const
 {
     double power = .0;
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        power += square(robot.joint[i].motor);
+        power += square(robot.joint[i].motor.get());
     return power/robot.number_of_joints;
 }
 
@@ -173,7 +173,7 @@ void
 Jointcontroller::reset(void)
 {
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        robot.joint[i].motor = random_value(-0.01, 0.01);
+        robot.joint[i].motor.set( random_value(-0.01, 0.01) );
 
     /* reset integrated velocities from accel sensors */
     for (unsigned int i = 0; i < robot.number_of_accelsensors; ++i)
@@ -195,8 +195,8 @@ Jointcontroller::loop(void)
         X[index]   = robot.joint[i].s_vel;
         Y[index++] = robot.joint[k].s_vel;
 
-        X[index]   = robot.joint[i].motor;
-        Y[index++] = robot.joint[k].motor; //ganz wichtig!, bringt irre viel dynamic für den anfang
+        X[index]   = robot.joint[i].motor.get_backed();
+        Y[index++] = robot.joint[k].motor.get_backed(); //ganz wichtig!, bringt irre viel dynamic für den anfang
     }
 
     for (unsigned int i = 0; i < robot.number_of_accelsensors; ++i)
@@ -235,6 +235,6 @@ Jointcontroller::loop(void)
                 activation[i] += weights[i][k] * X[k];
         }
         //TODO robot.joint[i].motor = tanh(activation[i]);
-        robot.joint[i].motor = clip(activation[i], 1.0);
+        robot.joint[i].motor.set( clip(activation[i], 1.0) );
     }
 }

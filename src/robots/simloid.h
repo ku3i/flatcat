@@ -59,6 +59,9 @@ private:
     double  avg_velocity_forward;
     double  avg_velocity_left;
 
+    const unsigned left_id;
+    const unsigned rift_id;
+
     bool open_connection(void);
     void close_connection(void);
     void simulation_idle(double sec);
@@ -111,6 +114,8 @@ public:
 
     Vector3 get_min_position(void) const;
     Vector3 get_max_position(void) const;
+    Vector3 get_min_feet_pos(void) const; /** Currently, this is handcrafted for bipeds, only! */
+    Vector3 get_max_feet_pos(void) const; /** Currently, this is handcrafted for bipeds, only! */
 
     const Vector3& get_avg_position(void) const { return average_position; }
     const Vector3& get_avg_velocity(void) const { return average_velocity; }
@@ -126,10 +131,12 @@ public:
 
     double get_normalized_mechanical_power(void) const;
 
-    bool motion_stopped(double thrsh) const; //TODO make use of this!
+    bool motion_stopped(double thrsh) const;
     bool dropped(double level = 0.5)  const;
     bool out_of_track_x(void)         const;
     bool out_of_track_y(void)         const;
+
+    unsigned get_body_id_by_name(const Bodyvector_t& bodies, const std::string& name) const;
 
 };
 

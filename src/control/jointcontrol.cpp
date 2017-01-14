@@ -55,7 +55,7 @@ Jointcontrol::set_control_parameter(const std::vector<double>& params)
 void
 Jointcontrol::reset(void)
 {
-    for (auto& j : robot.set_joints()) j.motor = random_value(-0.01, 0.01);
+    for (auto& j : robot.set_joints()) j.motor.set( random_value(-0.01, 0.01) );
     for (auto& a : robot.set_accels()) a.reset(); // reset integrated velocities from acceleration sensors
 }
 
@@ -122,7 +122,7 @@ Jointcontrol::get_normalized_mechanical_power(void) const
 {
     double power = .0;
     for (auto const& j : robot.get_joints())
-        power += square(j.motor);
+        power += square(j.motor.get());
     return power/robot.get_number_of_joints();
 }
 
@@ -213,7 +213,7 @@ std::size_t swap_sym_joint_pos(robots::Robot_Interface const& robot, std::size_t
 Control_Parameter
 make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& other) {
     if (not other.is_symmetric()) {
-        dbg_msg("Skipping, already asymmetric.");
+        //dbg_msg("Skipping, already asymmetric.");
         return other;
     }
 
@@ -302,7 +302,7 @@ initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& cont
         control::Control_Vector params(number_of_motor_units, folder);
 
         for (std::size_t i = params.size(); i < number_of_motor_units; ++i) {
-            dbg_msg("Create randomized motor control parameter: %u", i);
+            //dbg_msg("Create randomized motor control parameter: %u", i);
             control::Control_Parameter p = control::get_initial_parameter(robot, seed, false/*symmetric?*/);//(i % 2 == 0));
             control::randomize_control_parameter(p, 0.1, 1.0);
                 /**TODO make random parameters to settings, and constrain motor self not not go beyond zero */
