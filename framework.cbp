@@ -27,6 +27,7 @@
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
 				<Compiler>
+					<Add option="-std=c++11" />
 					<Add directory="src" />
 				</Compiler>
 			</Target>
@@ -165,6 +166,7 @@
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />
 		<Unit filename="src/learning/motor_layer.h" />
+		<Unit filename="src/learning/motor_predictor.h" />
 		<Unit filename="src/learning/payload.h" />
 		<Unit filename="src/learning/payload_graphics.h" />
 		<Unit filename="src/learning/predictor.cpp" />
@@ -204,6 +206,9 @@
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/motor_layer_tests.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/motor_predictor_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/predictor_tests.cpp">
