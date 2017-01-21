@@ -9,7 +9,7 @@ struct Accel_Sensor
 {
     Accel_Sensor() : a(), v() {}
     void integrate(void) { v = 0.1 * a + 0.9 * v; }
-    void reset    (void) { v = 0.0;               }
+    void reset    (void) { v = 0.0; a = 0.0;      }
 
     Vector3 a;
     Vector3 v;
