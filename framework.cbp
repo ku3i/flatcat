@@ -110,6 +110,7 @@
 		<Unit filename="src/control/jointcontroller.h" />
 		<Unit filename="src/control/pidcontrol.h" />
 		<Unit filename="src/control/positioncontrol.h" />
+		<Unit filename="src/control/sensorspace.h" />
 		<Unit filename="src/control/spaces.h" />
 		<Unit filename="src/control/statemachine.h" />
 		<Unit filename="src/draw/axes.cpp" />
@@ -152,6 +153,7 @@
 		<Unit filename="src/learning/action_module.h" />
 		<Unit filename="src/learning/action_selection.cpp" />
 		<Unit filename="src/learning/action_selection.h" />
+		<Unit filename="src/learning/autoencoder.h" />
 		<Unit filename="src/learning/boltzmann_softmax.h" />
 		<Unit filename="src/learning/competitive_motor_layer.h" />
 		<Unit filename="src/learning/competitive_motor_layer_graphics.h" />
@@ -180,7 +182,7 @@
 		<Unit filename="src/learning/sarsa.h" />
 		<Unit filename="src/learning/sarsa_constants.h" />
 		<Unit filename="src/learning/sarsa_graphics.h" />
-		<Unit filename="src/learning/sensorspace.h" />
+		<Unit filename="src/learning/state_predictor.h" />
 		<Unit filename="src/midi/RtMidi.cpp" />
 		<Unit filename="src/midi/RtMidi.h" />
 		<Unit filename="src/midi/midi_in.h" />
@@ -193,6 +195,9 @@
 		<Unit filename="src/robots/simloid.h" />
 		<Unit filename="src/robots/simloid_graphics.h" />
 		<Unit filename="src/robots/spinalcord_watch.h" />
+		<Unit filename="src/tests/autoencoder_tests.cpp">
+			<Option target="tests" />
+		</Unit>
 		<Unit filename="src/tests/catch.hpp">
 			<Option target="tests" />
 		</Unit>

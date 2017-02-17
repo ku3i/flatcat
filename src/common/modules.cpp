@@ -221,7 +221,7 @@ argmax(double *f, unsigned int N)
 double
 squared_distance(double *x , double *y, unsigned int length)
 {
-    double d = .0f;
+    double d = .0;
     for (unsigned int i = 0; i < length; i++)
         d += square(x[i] - y[i]);
     return d;

@@ -8,6 +8,7 @@
 #include <robots/robot.h>
 #include <learning/expert.h>
 #include <learning/predictor.h>
+#include <learning/state_predictor.h>
 #include <learning/motor_predictor.h>
 
 /* The Expert Vector should merely work as a container
@@ -50,7 +51,7 @@ public:
         payloads.copy(to, from); /* take a flawed copy of the payload */
     }
 
-    /* sensor state space constructor */
+    /* simple sensor state space constructor */
     Expert_Vector( const std::size_t         max_number_of_experts
                  , static_vector_interface&  payloads
                  , const sensor_vector&      input
@@ -61,6 +62,21 @@ public:
     {
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
             experts.emplace_back( Predictor_ptr( new Predictor(input, local_learning_rate, random_weight_range, experience_size) )
+                                , max_number_of_experts );
+    }
+
+    /* autoencoder sensor state space constructor */
+    Expert_Vector( const std::size_t         max_number_of_experts
+                 , static_vector_interface&  payloads
+                 , const sensor_vector&      input
+                 , const double              local_learning_rate
+                 , const double              random_weight_range
+                 , const std::size_t         experience_size
+                 , const std::size_t         hidden_size )
+    : Expert_Vector(max_number_of_experts, payloads)
+    {
+        for (std::size_t i = 0; i < max_number_of_experts; ++i)
+            experts.emplace_back( Predictor_ptr( new learning::State_Predictor(input, local_learning_rate, random_weight_range, experience_size, hidden_size) )
                                 , max_number_of_experts );
     }
 
@@ -76,7 +92,7 @@ public:
     {
         assert(ctrl_params.size() == max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            experts.emplace_back( Predictor_ptr( new Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i)))
+            experts.emplace_back( Predictor_ptr( new learning::Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i)))
                                 , max_number_of_experts );
     }
 

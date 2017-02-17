@@ -76,7 +76,7 @@ public:
 
 
 namespace constants {
-    const unsigned subspace_num_datapoints = 100; // 1s of data at 100Hz
+    const unsigned subspace_num_datapoints = 200; // 2s of data at 100Hz
 }
 
 struct subspace_graphics : public Graphics_Interface

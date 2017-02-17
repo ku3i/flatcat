@@ -2,6 +2,7 @@
 
 #include <control/sensorspace.h>
 #include <learning/predictor.h>
+#include <learning/state_predictor.h>
 #include <common/log_messages.h>
 
 class test_space : public sensor_vector {
@@ -19,7 +20,7 @@ TEST_CASE( "predictor adapts" , "[predictor]")
     sensors.execute_cycle();
     Predictor pred{ sensors, 0.1, 0.01, 1 };
     pred.initialize_randomized();
-    const std::vector<double>& w = pred.get_weights();
+    const std::vector<double>& w = pred.get_prediction();
     REQUIRE( w.size() == 3 );
 
     for (unsigned i = 0; i < 100; ++i) {
@@ -42,7 +43,7 @@ TEST_CASE( "adapt with experience replay" , "[predictor]")
     Predictor pred{ sensors, 0.1, 0.01, 100 };
     pred.initialize_randomized();
 
-    const std::vector<double>& w = pred.get_weights();
+    const std::vector<double>& w = pred.get_prediction();
     REQUIRE( w.size() == 3 );
 
     for (unsigned i = 0; i < 1000; ++i) {
@@ -121,4 +122,11 @@ TEST_CASE( "prediction error is reset on (re-)initialization" )
     sensors.execute_cycle();
     pred.predict();
     REQUIRE( pred.get_prediction_error() >  0.0 );
+}
+
+
+TEST_CASE( "state predictor construction", "[predictor]" )
+{
+    test_space inputs(0.01);
+    learning::State_Predictor pred(inputs, 0.01, 0.1, 3, 1);
 }

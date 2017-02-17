@@ -77,6 +77,16 @@ int argmax(double *f, unsigned int N);
 /* computes the squared distance of two vectors */
 double squared_distance(double *x , double *y, unsigned int length);
 
+/* computes the squared distance of two vectors */
+template <typename Vector_Type_A, typename Vector_Type_B>
+double squared_distance(Vector_Type_A const& x , Vector_Type_B const& y) {
+    assert(x.size() == y.size());
+    double d = .0;
+    for (std::size_t i = 0; i < x.size(); ++i)
+        d += square(x[i] - y[i]);
+    return d;
+}
+
 /* true is integer is even */
 inline bool is_even(unsigned int number) { return (number%2 == 0); }
 

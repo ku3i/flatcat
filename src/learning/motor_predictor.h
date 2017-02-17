@@ -8,6 +8,8 @@
 #include <control/control_core.h>
 #include <learning/predictor.h>
 
+namespace learning {
+
 class Motor_Predictor : public Predictor_Base {
 public:
     Motor_Predictor( const robots::Robot_Interface& robot
@@ -24,11 +26,6 @@ public:
     {
         //dbg_msg("Creating motor predictor.");
         core.apply_weights(robot, params.get_parameter());
-        assert(experience_size > 0 && "not allowed.");
-
-        if (experience_size != 1)
-            wrn_msg("Experience replay not implemented yet: %lu", experience_size);
-        /** TODO how to initialize experience? */
     }
 
     void copy(Predictor_Base const& other) override {
@@ -37,47 +34,30 @@ public:
         core = rhs.core;
     }
 
-    double predict(void) {
+    double predict(void) override {
         //dbg_msg("Motor predictor: predicts.");
         core.prepare_inputs(robot);
         core.update_outputs(robot, params.is_symmetric(), params.is_mirrored());
-        return calculate_prediction_error(core.activation);
+        return calculate_prediction_error();
     }
 
-    void adapt(void) {
-        /**TODO regarding the gradient descent on the motor controller weights:
-         * + do we handle the non-smooth transfer function (clip), or do we assume linearity?
-         * + do we handle the 'recurrent' motor connections as just ordinary inputs?
-         */
-
-        if (experience.size() == 1) {
-            learn_from_sample();
-        } else {
-            assert(false && "Not implemented yet.");
-        }
-    }
-
-
-    void initialize_randomized(void) override { /**TODO implement*/
+    void initialize_randomized(void) override {
 
         for (auto& w_k : core.weights)
             for (auto& w_ik : w_k)
                 w_ik = random_value(-random_weight_range,+random_weight_range);
 
-        /** TODO how to initialize experience?
-         *  + empty?
-         *  + random?
-         */
-        //experience.assign(experience.size(), weights);
+        auto initial_experience = input.get(); /**TODO this code is the same in state predictor, move to base?*/
+        for (auto& w: initial_experience)
+            w += random_value(-random_weight_range, random_weight_range);
+        experience.assign(experience.size(), initial_experience);
 
         prediction_error = predictor_constants::error_min;
 
     }
 
+    void initialize_from_input(void) override { assert(false && "one shot learning not supported."); }
 
-    void initialize_from_input(void) override { assert(false && "one shot learning not implemented yet."); }
-
-    VectorN const& get_weights   (void) const override { /**TODO use weights*/ return params.get_parameter(); }
     VectorN const& get_prediction(void) const override { return core.activation; }
 
 private:
@@ -87,8 +67,11 @@ private:
 
     sensor_vector const& motor_targets;
 
-
-    void learn_from_sample(void) {
+    void learn_from_input_sample(void) override {
+        /**TODO regarding the gradient descent on the motor controller weights:
+         * + do we handle the non-smooth transfer function (clip), or do we assume linearity?
+         * + do we handle the 'recurrent' motor connections as just ordinary inputs?
+         */
         auto const& inputs = core.input;
         VectorN const& predictions = core.activation;
         std::vector<VectorN>& weights = core.weights; // non const ref
@@ -103,7 +86,10 @@ private:
             }
         }
     }
+
+    void learn_from_experience(std::size_t skip_idx) override { assert(false && "Learning from experience is not implemented yet."); }
 };
 
+} // namespace learning
 
 #endif // MOTOR_PREDICTOR_H_INCLUDED

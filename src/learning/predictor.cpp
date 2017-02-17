@@ -1,12 +1,11 @@
 #include <learning/predictor.h>
 
-    double Predictor_Base::calculate_prediction_error(VectorN const& predictions) {
+    double Predictor_Base::calculate_prediction_error() {
+         auto const &predictions = get_prediction();
          assert(input.size() == predictions.size());
 
         /* sum of squared distances to input */
-        double error = .0;
-        for (std::size_t m = 0; m < input.size(); ++m)
-            error += square(input[m] - predictions[m]);
+        const double error = squared_distance(input, predictions);
 
         /** The prediction error is being normalized by the number
          *  of weights/inputs and the max. input range [-1,+1] so
@@ -26,7 +25,7 @@
     : Predictor_Base(input, learning_rate, random_weight_range, experience_size)
     , weights(input.size())
     {
-        dbg_msg("create pred");
+        dbg_msg("Initialize simple predictor.");
         initialize_from_input();
         predict(); // initialize prediction error
     }
@@ -69,30 +68,29 @@
 
     /* make the prediction based on actual weights
      */
-    double Predictor::predict(void)
-    {
-        assert(input.size() == weights.size());
-        return calculate_prediction_error(weights);
+    double Predictor::predict(void) {
+        dbg_msg("predict");
+        /* prediction is trivial for simple predictor*/
+        return calculate_prediction_error();
     }
 
     /* adapt the weights to the current
      * input sample and learn from experience
      */
-    void Predictor::adapt(void)
+    void Predictor_Base::adapt(void)
     {
-        assert(input.size() == weights.size());
-
+        dbg_msg("adapt");
         if (experience.size() == 1)
             learn_from_input_sample();
-        else {
-
+        else
+        {
             /** create random index to skip an arbitrary
              *  sample and replaced it by current input */
             std::size_t rand_idx = random_index(experience.size());
 
             learn_from_experience(rand_idx); // adapt without new sample
             predict();                       // refresh prediction error
-            learn_from_input_sample();         // adapt to new sample
+            learn_from_input_sample();       // adapt to new sample
 
             /** Insert current input into random position of experience list.
              *  This must be done after adaptation to guarantee a positive learning progress */

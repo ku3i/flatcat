@@ -44,9 +44,8 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
 
     /* initialize predictors */
     motors.execute_cycle();
-    Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
     pred.initialize_randomized();
-    REQUIRE( pred.get_weights().size() == 5 * (5 * 3 + 1) );
 
     /* adapt a 'few' cycles */
     for (unsigned i = 0; i < 1000; ++i) {
@@ -58,7 +57,7 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
     /* compare predictions with constant motor output */
     auto const& predictions = pred.get_prediction();
     for (auto& p : predictions)
-        dbg_msg("%+1.6f", p);
+        dbg_msg("%+e", p);
 
     REQUIRE( predictions.size() == 5 );
     REQUIRE( close(predictions[0], 0.4223, 0.01) );
@@ -76,10 +75,10 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
 //    Test_Motor_Space motors(robot.get_joints(), 0.01); /** with random */
 //    control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
 //    motors.execute_cycle();
-//    Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1 /**TODO*/, params};
+//    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1 /**TODO*/, params};
 //    pred.initialize_randomized();
 //
-//    const std::vector<double>& w = pred.get_weights();
+//    const std::vector<double>& w = pred.get_prediction();
 //    REQUIRE( w.size() == 3 );
 //
 //    for (unsigned i = 0; i < 1000; ++i) {
@@ -100,20 +99,20 @@ TEST_CASE( "motor prediction error must be constant without learning step", "[mo
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );
     pred.predict();
     double pred_err_start = pred.get_prediction_error();
-    dbg_msg("Prediction error start: %1.5f", pred_err_start);
+    dbg_msg("Prediction error start: %e", pred_err_start);
     REQUIRE( pred_err_start > 0.0 );
 
     for (unsigned i = 0; i < 13; ++i) {
         motors.execute_cycle();
         double pred_err_new = pred.predict();
         REQUIRE( pred_err_new == pred.get_prediction_error() );
-        dbg_msg("Prediction error %u: %1.5f %1.5f", i, pred_err_start, pred_err_new);
+        dbg_msg("Prediction error %u: %e %e", i, pred_err_start, pred_err_new);
         REQUIRE( close(pred_err_start, pred_err_new, 0.001) );
     }
 }
@@ -125,14 +124,14 @@ TEST_CASE( "motor prediction error must decrease after learning step", "[motor_p
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );
     pred.predict();
 
     double pred_err_start = pred.get_prediction_error();
-    dbg_msg("Prediction error start: %1.3f", pred_err_start);
+    dbg_msg("Prediction error start: %e", pred_err_start);
     REQUIRE( pred_err_start > 0.0 );
 
     for (unsigned i = 0; i < 42; ++i) {
@@ -141,7 +140,7 @@ TEST_CASE( "motor prediction error must decrease after learning step", "[motor_p
         pred.adapt();
         double pred_err_after = pred.predict();
         REQUIRE( pred_err_after == pred.get_prediction_error() );
-        dbg_msg("Prediction error %u: %1.5f %1.5f", i, pred_err_before, pred_err_after);
+        dbg_msg("Prediction error %u: %e %e", i, pred_err_before, pred_err_after);
         REQUIRE( pred_err_before > pred_err_after );
     }
 }
@@ -153,7 +152,7 @@ TEST_CASE( "motor prediction error is reset on (re-)initialization", "[motor_pre
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );

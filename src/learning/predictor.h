@@ -33,7 +33,7 @@ class Predictor_Base {
 
 protected:
 
-    double calculate_prediction_error(VectorN const& predictions);
+    double calculate_prediction_error();
 
     /* constants */
     const sensor_vector& input;
@@ -72,24 +72,30 @@ public:
         assert(in_range(experience_size,      1ul, 1000ul));
         assert(in_range(learning_rate,        0.0,   +1.0));
         assert(in_range(random_weight_range, -1.0,   +1.0));
+
+        experience.assign(experience.size(), VectorN(input.size(), .0) ); // zero initialize experience anyhow
     }
 
-    /* getter */
+    /* non-virtual */
     double get_prediction_error(void) const { return prediction_error; }
     std::vector<VectorN> const& get_experience(void) const { return experience; }
+    void adapt(void);
 
+    /* virtual */
     virtual ~Predictor_Base() = default;
 
     virtual void   copy(Predictor_Base const& other) = 0;
 
     virtual double predict(void) = 0;
-    virtual void   adapt  (void) = 0;
 
     virtual void initialize_randomized(void) = 0;
     virtual void initialize_from_input(void) = 0;
-    virtual VectorN const&  get_weights(void) const = 0;
+
     virtual VectorN const&  get_prediction(void) const = 0;
 
+private:
+    virtual void learn_from_input_sample(void) = 0;
+    virtual void learn_from_experience(std::size_t skip_idx) = 0;
 };
 
 
@@ -111,19 +117,17 @@ public:
 
     void copy(Predictor_Base const& other) override;
 
-    VectorN  const& get_weights   (void) const override { return weights; }
     VectorN  const& get_prediction(void) const override { return weights; }
 
     double predict(void) override;
-    void   adapt  (void) override;
 
     void initialize_randomized(void) override;
     void initialize_from_input(void) override;
 
 private:
 
-    void learn_from_input_sample(void);
-    void learn_from_experience(std::size_t skip_idx);
+    void learn_from_input_sample(void) override;
+    void learn_from_experience(std::size_t skip_idx) override;
 
     VectorN weights;
 

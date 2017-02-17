@@ -51,8 +51,8 @@ public:
                           fmin(2.0, expert[gmes.get_recipient()].learning_capacity));
 
         graph.update_node(gmes.get_winner(),
-                          expert[gmes.get_winner()].get_predictor().get_prediction()[0],
-                          expert[gmes.get_winner()].get_predictor().get_prediction()[1],
+                          expert[gmes.get_winner()].get_predictor().get_prediction()[0], /**TODO: this kind of drawing is only valid for simple predictor!*/
+                          expert[gmes.get_winner()].get_predictor().get_prediction()[1], /**TODO: maybe draw the average of all experience vectors */
                           expert[gmes.get_winner()].get_predictor().get_prediction()[2],
                           fmin(2.0, expert[gmes.get_winner()].learning_capacity));
 
