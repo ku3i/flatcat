@@ -103,9 +103,9 @@ public:
             plot_reward_bunch     [i].draw();
         }
 
-        const std::size_t cur_policy = sarsa.get_current_policy();
+        //const std::size_t cur_policy = sarsa.get_current_policy();
         glColor3f(1.0, 1.0, 1.0);
-        glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", cur_policy, sarsa.rewards.get_reward_name(cur_policy).c_str());
+        //glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", cur_policy, sarsa.rewards.get_reward_name(cur_policy).c_str());
         glprintf(-0.9, 0.75, 0.0, 0.03, "cur: %+.4f", sarsa.get_current_reward(sarsa.get_current_policy()));
 
         //TODO draw the eligibilities, draw the path

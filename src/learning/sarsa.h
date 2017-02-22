@@ -139,11 +139,12 @@ private:
     const std::vector<double> learning_rates;
 
     friend class SARSA_Graphics;
+    friend class Policy_Selector_Graphics;
 };
 
 class Policy_Selector
 {
-    SARSA&      sarsa;
+    SARSA&                sarsa;
     const std::size_t     number_of_policies;
           std::size_t     current_policy;
 
@@ -218,6 +219,8 @@ public:
         unsigned int seconds = (time_left / 100) % 60;
         unsigned int hsecs   = (time_left % 100);
         glColor3f(1.0,1.0,1.0);
+        glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", policy_selector.current_policy
+                                                 , policy_selector.sarsa.rewards.get_reward_name(policy_selector.current_policy).c_str());
         glprintf(-0.9, 0.90, 0.0, 0.03, "left: %02u:%02u [%c]" , seconds, hsecs, policy_selector.random_policy_mode? '~':'=');
     }
 };
