@@ -32,6 +32,7 @@ class Predictor_Base {
     Predictor_Base(const Predictor_Base& other) = delete;
 
 protected:
+    typedef VectorN vector_t;
 
     double calculate_prediction_error();
 
@@ -84,14 +85,14 @@ public:
     /* virtual */
     virtual ~Predictor_Base() = default;
 
-    virtual void   copy(Predictor_Base const& other) = 0;
+    virtual void copy(Predictor_Base const& other) = 0;
 
     virtual double predict(void) = 0;
 
     virtual void initialize_randomized(void) = 0;
     virtual void initialize_from_input(void) = 0;
 
-    virtual VectorN const&  get_prediction(void) const = 0;
+    virtual vector_t const& get_prediction(void) const = 0;
 
 private:
     virtual void learn_from_input_sample(void) = 0;
@@ -117,7 +118,7 @@ public:
 
     void copy(Predictor_Base const& other) override;
 
-    VectorN  const& get_prediction(void) const override { return weights; }
+    Predictor_Base::vector_t const& get_prediction(void) const override { return weights; }
 
     double predict(void) override;
 

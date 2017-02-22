@@ -36,7 +36,7 @@ public:
         enc = rhs.enc;
     };
 
-    VectorN  const& get_prediction(void) const override { return enc.get_outputs(); }
+    Predictor_Base::vector_t const& get_prediction(void) const override { return enc.get_outputs(); }
 
     double predict(void) override {
         enc.propagate(input);
@@ -44,6 +44,7 @@ public:
     };
 
     void initialize_randomized(void) override {
+        dbg_msg("Initialize randomized state predictor.");
         enc.randomize_weight_matrix(random_weight_range);
         auto initial_experience = input.get();
         for (auto& w: initial_experience)

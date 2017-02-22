@@ -127,6 +127,33 @@ TEST_CASE( "prediction error is reset on (re-)initialization" )
 
 TEST_CASE( "state predictor construction", "[predictor]" )
 {
-    test_space inputs(0.01);
-    learning::State_Predictor pred(inputs, 0.01, 0.1, 3, 1);
+    test_space sensors(0.01);
+    learning::State_Predictor pred(sensors, 0.01, 0.1, /*experience buffer = */100, /*hidden size = */2);
 }
+
+TEST_CASE( "state predictor adapts" , "[predictor]")
+{
+    test_space sensors{0.0};
+    sensors.execute_cycle();
+    learning::State_Predictor pred{ sensors, 0.05, 0.01, 1, 2};
+    pred.initialize_randomized();
+    const std::vector<double>& w = pred.get_prediction();
+    REQUIRE( w.size() == 3 );
+    pred.predict();
+    pred.adapt();
+    double err = pred.get_prediction_error();
+
+    for (unsigned i = 0; i < 1000; ++i) {
+        sensors.execute_cycle();
+        pred.predict();
+        pred.adapt();
+        REQUIRE( err > pred.get_prediction_error() );
+        err = pred.get_prediction_error();
+        if (i%100 == 0)
+            dbg_msg("w0:%6.4f w1:%6.4f w2:%6.4f, error: %6.4f", w[0], w[1], w[2], err);
+    }
+    REQUIRE( close(w[0], 0.42, 0.001) );
+    REQUIRE( close(w[1], 0.37, 0.001) );
+    REQUIRE( close(w[2],-0.23, 0.001) );
+}
+

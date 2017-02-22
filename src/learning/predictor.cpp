@@ -69,7 +69,7 @@
     /* make the prediction based on actual weights
      */
     double Predictor::predict(void) {
-        dbg_msg("predict");
+        //dbg_msg("predict");
         /* prediction is trivial for simple predictor*/
         return calculate_prediction_error();
     }
@@ -79,7 +79,7 @@
      */
     void Predictor_Base::adapt(void)
     {
-        dbg_msg("adapt");
+        //dbg_msg("adapt");
         if (experience.size() == 1)
             learn_from_input_sample();
         else

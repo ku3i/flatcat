@@ -79,23 +79,23 @@ namespace constants {
     const unsigned subspace_num_datapoints = 200; // 2s of data at 100Hz
 }
 
-struct subspace_graphics : public Graphics_Interface
+struct motor_subspace_graphics : public Graphics_Interface
 {
-    subspace_graphics( robots::Joint_Model const& j0
-                     , robots::Joint_Model const& j1
-                     , Vector3 pos, float size )
+    motor_subspace_graphics( robots::Joint_Model const& j0
+                           , robots::Joint_Model const& j1
+                           , Vector3 pos, float size )
     : j0(j0)
     , j1(j1)
-    , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("foo"))
-    , axis_dt(pos.x + (2.0 + size)/2, pos.y + size/2, pos.z, 2.0-size, size, 1, std::string("bar"))
+    , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("xy"))
+    , axis_dt(pos.x + (2.0 + size)/2, pos.y + size/2, pos.z, 2.0-size, size, 1, std::string(j0.name + "/" + j1.name))
     , plot_xy(constants::subspace_num_datapoints, axis_xy, colors::magenta )
     , plot_j0(constants::subspace_num_datapoints, axis_dt, colors::cyan    )
     , plot_j1(constants::subspace_num_datapoints, axis_dt, colors::orange  )
     , plot_p0(constants::subspace_num_datapoints, axis_dt, colors::cyan_t  )
     , plot_p1(constants::subspace_num_datapoints, axis_dt, colors::orange_t)
     {
-        dbg_msg("Initialize subspace for joints:\n\t%2u: %s\n\t%2u: %s", j0.joint_id, j0.name.c_str()
-                                                                       , j1.joint_id, j1.name.c_str() );
+        dbg_msg("Initialize motor subspace for joints:\n\t%2u: %s\n\t%2u: %s", j0.joint_id, j0.name.c_str()
+                                                                             , j1.joint_id, j1.name.c_str() );
     }
 
     void draw(const pref&) const {
@@ -183,7 +183,7 @@ public:
     std::size_t        max_experts;
     std::size_t        winner;
 
-    std::vector<subspace_graphics> subspace;
+    std::vector<motor_subspace_graphics> subspace;
 
 };
 

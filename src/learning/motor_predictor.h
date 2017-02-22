@@ -58,7 +58,7 @@ public:
 
     void initialize_from_input(void) override { assert(false && "one shot learning not supported."); }
 
-    VectorN const& get_prediction(void) const override { return core.activation; }
+    Predictor_Base::vector_t const& get_prediction(void) const override { return core.activation; }
 
 private:
     robots::Robot_Interface const&          robot;

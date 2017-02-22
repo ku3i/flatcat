@@ -1,18 +1,24 @@
 #ifndef AUTOENCODER_H_INCLUDED
 #define AUTOENCODER_H_INCLUDED
 
+/** TODO make use of this #include <armadillo> */
+
 #include <common/modules.h>
 #include <common/static_vector.h>
 #include <control/sensorspace.h>
 
-/** TODO: make use nice linear algebra libraries such as Armadillo or Eigen.
- */
 
 namespace learning {
+
+inline double tanh_(double x) { return (1.0 + x) * (1.0 - x); }
+
 
 class Autoencoder {
     typedef VectorN vector_t;
     typedef copyable_static_vector<copyable_static_vector<double>> matrix_t;
+
+    //typedef arma::vec vector_t;
+    //typedef arma::mat matrix_t;
 
 public:
     Autoencoder( const std::size_t input_size
@@ -32,6 +38,7 @@ public:
         assert(outputs.size() == input_size);
 
         randomize_weight_matrix(random_weight_range);
+
     }
 
 
@@ -50,7 +57,7 @@ public:
         /* decoder*/
         for (std::size_t j = 0; j < outputs.size(); ++j) {
             double act = 0.;
-            for (std::size_t i = 0; i < hidden.size(); ++i) /**TODO use matrix*vector multiplication of external LA lib*/
+            for (std::size_t i = 0; i < hidden.size(); ++i)
                 act += weights[i][j] * hidden[i];
             outputs[j] = tanh(act);
         }
@@ -81,7 +88,7 @@ public:
         */
 
         for (std::size_t j = 0; j < outputs.size(); ++j)
-            delta[j] = (inputs[j] - outputs[j]) * (1. + outputs[j]) * (1. - outputs[j]);
+            delta[j] = (inputs[j] - outputs[j]) * tanh_(outputs[j]);
 
         for (std::size_t i = 0; i < hidden.size(); ++i)
         {
@@ -89,7 +96,7 @@ public:
             for (std::size_t j = 0; j < outputs.size(); ++j)
                 error_i += delta[j] * weights[i][j];
 
-            const double delta_i = error_i * (1. + hidden[i]) * (1. - hidden[i]);
+            const double delta_i = error_i * tanh_(hidden[i]);
             for (std::size_t j = 0; j < outputs.size(); ++j)
                 weights[i][j] += learning_rate * (delta_i * inputs[j] + delta[j] * hidden[i]);
 

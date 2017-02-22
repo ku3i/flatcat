@@ -78,11 +78,11 @@ TEST_CASE( "auto encoder learning", "[autoencoder]")
     for (auto& j: robot.set_joints())
         j.s_ang = 1.0;
 
-    const double learning_rate = 0.01;
+    const double learning_rate = 0.02;
     learning::Autoencoder autoenc(inputs.size(), 3, 0.1);
     REQUIRE ( squared_distance(inputs, autoenc.get_outputs()) == .0 );
 
-    for (std::size_t trials = 0; trials < 10; ++trials) {
+    for (std::size_t trials = 0; trials < 20; ++trials) {
         inputs.execute_cycle();
         autoenc.propagate(inputs);
         double err0 = squared_distance(inputs, autoenc.get_outputs());
