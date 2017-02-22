@@ -53,6 +53,7 @@
 			<Add library="glut" />
 			<Add library="asound" />
 			<Add library="pthread" />
+			<Add library="armadillo" />
 		</Linker>
 		<Unit filename="src/common/application_interface.h" />
 		<Unit filename="src/common/basic.cpp" />
