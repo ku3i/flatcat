@@ -37,8 +37,8 @@ const GLubyte LineColorMix1[4][4] = {{255,   0,   0, 255},
                                      {255,   0,   0, 128},
                                      {255,   0,   0,  64}};
 
-void set_color(Color4 c);
-void set_color(Color4 c, float a);
+inline void set_color(Color4 c)          { glColor4d(c.r, c.g, c.b, c.a); }
+inline void set_color(Color4 c, float a) { glColor4d(c.r, c.g, c.b,   a); }
 
 
 struct Point

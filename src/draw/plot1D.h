@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <draw/axes.h>
 #include <draw/draw.h>
+#include <draw/color_table.h>
 #include <common/modules.h>
 #include <common/log_messages.h>
 #include <basic/color.h>
@@ -23,12 +24,18 @@ public:
     , decrement(0.001)
     { }
 
+    virtual ~plot1D() = default;
+
     void draw(void) const;
     void add_sample(const float s);
     void reset(void) { std::fill(signal.begin(), signal.end(), .0); }
 
-private:
+protected:
     void increment_pointer(void) { ++pointer; pointer %= number_of_samples; }
+
+    void auto_scale     (void) const;
+    void draw_statistics(void) const;
+    void draw_line_strip(void) const;
 
     const unsigned int number_of_samples;
     unsigned int pointer;
@@ -39,4 +46,29 @@ private:
     const float decrement;
 };
 
+
+class colored_plot1D : public plot1D {
+public:
+    colored_plot1D( unsigned int number_of_samples
+                  , axes& a
+                  , ColorTable const& colortable )
+    : plot1D(number_of_samples, a)
+    , colors(number_of_samples)
+    , colortable(colortable)
+    {}
+
+    void add_colored_sample(float s, unsigned color_index) {
+        add_sample(s),
+        colors.at(pointer) = color_index;
+    }
+
+    void draw_colored(void) const;
+
+private:
+    void draw_colored_line_strip(void) const;
+
+    std::vector<unsigned> colors;
+    ColorTable const& colortable;
+
+};
 #endif /*plot1D_H*/

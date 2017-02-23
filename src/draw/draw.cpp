@@ -2,9 +2,6 @@
 
 #include "draw.h"
 
-void set_color(Color4 c)          { glColor4d(c.r, c.g, c.b, c.a); }
-void set_color(Color4 c, float a) { glColor4d(c.r, c.g, c.b,   a); }
-
 void draw_line(const GLfloat x[3], const GLfloat y[3])
 {
    glBegin(GL_LINE_STRIP);

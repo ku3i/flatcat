@@ -2,7 +2,10 @@
 #define COLOR_TABLE_H_INCLUDED
 
 #include <vector>
-#include "../../simloidTCP/src/basic/color.h"
+#include <random>
+#include <algorithm>
+#include <basic/color.h>
+
 
 class ColorTable
 {
@@ -12,7 +15,7 @@ class ColorTable
     float get(unsigned int x) { return (x * 1.0)/(num_variations-1); }
 
 public:
-    ColorTable(unsigned int num_variations)
+    ColorTable(unsigned int num_variations, bool initialize_randomized = false)
     : colors()
     , num_variations(num_variations)
     , max_colors(num_variations * num_variations * num_variations)
@@ -26,10 +29,15 @@ public:
                     colors.emplace_back(get(r), get(g), get(b), 1.0);
                     dbg_msg("%2u: %1.2f %1.2f %1.2f",i++, get(r), get(g), get(b));
                 }
-
+        if (initialize_randomized) randomize();
     }
 
     const Color4& get_color(unsigned int index) const { return colors[index % max_colors]; }
+
+    void randomize() {
+        auto engine = std::default_random_engine{};
+        std::shuffle(std::begin(colors), std::end(colors), engine);
+    }
 };
 
 #endif // COLOR_TABLE_H_INCLUDED

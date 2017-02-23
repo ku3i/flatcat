@@ -20,6 +20,7 @@
 #include <draw/plot3D.h>
 #include <draw/network3D.h>
 #include <draw/graphics.h>
+#include <draw/color_table.h>
 
 
 namespace learning {
@@ -85,7 +86,8 @@ struct sensor_subspace_graphics : public Graphics_Interface
 {
     sensor_subspace_graphics( robots::Joint_Model const& j0
                             , robots::Joint_Model const& j1
-                            , Vector3 pos, float size )
+                            , Vector3 pos, float size
+                            , ColorTable const& colortable)
     : j0(j0)
     , j1(j1)
     , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("xy"))
@@ -93,8 +95,8 @@ struct sensor_subspace_graphics : public Graphics_Interface
     , plot_xy(state_layer_constants::subspace_num_datapoints, axis_xy, colors::magenta )
     , plot_j0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::cyan    )
     , plot_j1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::orange  )
-    , plot_p0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::cyan_t  )
-    , plot_p1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::orange_t)
+    , plot_p0(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
+    , plot_p1(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
     {
         dbg_msg("Initialize subspace for joints:\n\t%2u: %s\n\t%2u: %s", j0.joint_id, j0.name.c_str()
                                                                        , j1.joint_id, j1.name.c_str() );
@@ -107,16 +109,16 @@ struct sensor_subspace_graphics : public Graphics_Interface
         axis_dt.draw();
         plot_j0.draw(); // signals
         plot_j1.draw();
-        plot_p0.draw(); // predictions
-        plot_p1.draw();
+        plot_p0.draw_colored(); // predictions
+        plot_p1.draw_colored();
     }
 
-    void execute_cycle(float s0, float s1) {
+    void execute_cycle(float s0, float s1, unsigned expert_id) {
         plot_xy.add_sample(j0.s_ang, j1.s_ang); // TODO: add velocities
         plot_j0.add_sample(j0.s_ang);
         plot_j1.add_sample(j1.s_ang);
-        plot_p0.add_sample(s0);
-        plot_p1.add_sample(s1);
+        plot_p0.add_colored_sample(s0, expert_id);
+        plot_p1.add_colored_sample(s1, expert_id);
     }
 
     const robots::Joint_Model& j0;
@@ -127,7 +129,7 @@ struct sensor_subspace_graphics : public Graphics_Interface
 
     plot2D plot_xy;
     plot1D plot_j0, plot_j1; // joint sensor values
-    plot1D plot_p0, plot_p1; // predictions
+    colored_plot1D plot_p0, plot_p1; // predictions
 
 };
 
@@ -141,6 +143,7 @@ public:
     , max_experts(state_layer.gmes.get_max_number_of_experts())
     , winner()
     , subspace()
+    , colortable(4, /*randomized*/true)
     {
         /** TODO
             + also for the rest of the joints
@@ -154,7 +157,7 @@ public:
             if (j0.is_symmetric()) {
                 robots::Joint_Model const& j1 = robot.get_joints()[j0.symmetric_joint];
                 pos.y -= size;
-                subspace.emplace_back(j1, j0, pos, size);
+                subspace.emplace_back(j1, j0, pos, size, colortable);
             }
         }
     }
@@ -176,7 +179,7 @@ public:
         for (auto& s: subspace) {
             auto s0 = predictions.at(s.j0.joint_id); /**TODO: how to access the velocities*/
             auto s1 = predictions.at(s.j1.joint_id);
-            s.execute_cycle(s0, s1);
+            s.execute_cycle(s0, s1, winner);
         }
     };
 
@@ -186,6 +189,7 @@ public:
     std::size_t        winner;
 
     std::vector<sensor_subspace_graphics> subspace;
+    ColorTable                            colortable;
 
 };
 
