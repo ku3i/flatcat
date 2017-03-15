@@ -63,7 +63,7 @@ public:
             subspace_portrait.emplace_back(num_datapoints, subspace_axes[i], colors::white);
 
         }
-        assert(robot.get_number_of_accel_sensors() >= 1); //TODO make applicable for more than one sensor
+       //TODO: assert(robot.get_number_of_accel_sensors() >= 1); //TODO make applicable for more than one sensor
     }
 
     void draw(const pref& p) const {
@@ -91,9 +91,11 @@ public:
             subspace_portrait[i].add_sample(joints[i].s_ang,
                                             joints[i].s_vel * constants::vel_amp);
         }
-        plot_accel_x.add_sample(accels[0].a.x);
-        plot_accel_y.add_sample(accels[0].a.y);
-        plot_accel_z.add_sample(accels[0].a.z);
+        if (accels.size() > 0) {
+            plot_accel_x.add_sample(accels[0].a.x);
+            plot_accel_y.add_sample(accels[0].a.y);
+            plot_accel_z.add_sample(accels[0].a.z);
+        }
     }
 
     const robots::Jointvector_t& joints;

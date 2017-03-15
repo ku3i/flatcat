@@ -6,6 +6,10 @@
 #include <draw/axes.h>
 #include <draw/plot2D.h>
 
+/**TODO:
+ * make position of that graphic changeable
+ */
+
 namespace robots {
 namespace constants {
     const double bsize = 0.01;
@@ -34,20 +38,20 @@ public:
         double bodyvel_left    = simloid.get_avg_velocity_left();
 
         glColor3f(1.0, 1.0, 1.0);
-        for (std::size_t i = 0; i < bodies.size(); ++i)
+        for (auto const& b : bodies)
         {
-            draw_rect( (bodies[i].position.x - bodypos.x)
-                     ,-(bodies[i].position.y - bodypos.y)
+            draw_rect( (b.position.x - bodypos.x)
+                     , (b.position.y - bodypos.y)
                      , constants::bsize, constants::bsize);
         }
 
         /* velocity vector */
         glColor3f(1.0, 0.75, 0.0);
         bodyvel_absolute.clip(0.5);
-        draw_line(0.0, 0.0, bodyvel_absolute.x, -bodyvel_absolute.y);
+        draw_line(0.0, 0.0, bodyvel_absolute.x, bodyvel_absolute.y);
 
         glColor3f(0.0, 1.0, 1.0);
-        draw_line(0.0, 0.0, bodyvel_left, bodyvel_forward);
+        draw_line(0.0, 0.0, bodyvel_left, -bodyvel_forward);
 
         axis_position.draw();
         plot_position.draw();
@@ -55,9 +59,9 @@ public:
 
     void draw_body_rotation(void) const
     {
-        const double rot_norm  = simloid.get_avg_rotation();
+        const double rot_norm  = -simloid.get_avg_rotation();
         const double rot_inf   = simloid.get_avg_rotation_inf_ang();
-        const double rot_speed = clip(simloid.get_avg_rotational_speed(), 1.0)/2;
+        const double rot_speed = -clip(simloid.get_avg_rotational_speed(), 1.0)/2;
 
         const float sin_rot = sin(rot_norm)/2;
         const float cos_rot = cos(rot_norm)/2;

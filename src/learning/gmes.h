@@ -12,6 +12,7 @@
 #include <learning/gmes_constants.h>
 #include <learning/q_function.h>
 #include <learning/payload.h>
+#include <learning/learning_machine_interface.h>
 /* first object oriented implementation of GMES
  * 23.02.2015 (Elmar ist heute 16 Monate alt geworden) */
 
@@ -30,7 +31,7 @@ class GMES_Graphics;
 class Payload_Graphics;
 class Force_Field;
 
-class GMES : public control::Statemachine_Interface { /* Growing_Multi_Expert_Structure */
+class GMES : public control::Statemachine_Interface, public learning::Learning_Machine_Interface { /* Growing_Multi_Expert_Structure */
     GMES(const GMES& other) = delete; // non construction-copyable
 
 public:
@@ -38,7 +39,8 @@ public:
 
     GMES( Expert_Vector& expert
         , double learning_rate = gmes_constants::global_learning_rate
-        , bool one_shot_learning = true );
+        , bool one_shot_learning = true
+        , std::size_t number_of_initial_experts = gmes_constants::number_of_initial_experts );
 
     ~GMES();
 
@@ -49,6 +51,7 @@ public:
     std::size_t get_number_of_experts     (void) const { return number_of_experts;     }
     std::size_t get_max_number_of_experts (void) const { return expert.size();         }
     std::size_t get_winner                (void) const { return winner;                }
+    std::size_t get_state                 (void) const { return winner;                }
     std::size_t get_recipient             (void) const { return recipient;             }
     std::size_t get_to_insert             (void) const { return to_insert;             }
 
@@ -58,7 +61,7 @@ public:
     VectorN const& get_activations        (void) const { return activations;           }
 
 
-    void enable_learning(bool enable) { learning_enabled = enable; }
+    void enable_learning(bool enable) { sts_msg("GMES Learning: %s", enable? "ENABLED":"DISABLED"); learning_enabled = enable; }
 
     void execute_cycle(void);
     void update_activations(void);

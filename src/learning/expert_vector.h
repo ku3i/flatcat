@@ -60,6 +60,7 @@ public:
                  , const std::size_t         experience_size )
     : Expert_Vector(max_number_of_experts, payloads)
     {
+        assert(local_learning_rate > 0.);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
             experts.emplace_back( Predictor_ptr( new Predictor(input, local_learning_rate, random_weight_range, experience_size) )
                                 , max_number_of_experts );
@@ -74,6 +75,7 @@ public:
                  , const std::size_t         hidden_size )
     : Expert_Vector(max_number_of_experts, payloads)
     {
+        assert(local_learning_rate > 0.);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
             experts.emplace_back( Predictor_ptr( new learning::State_Predictor(input, local_learning_rate, gmes_constants::random_weight_range, experience_size, hidden_size) )
                                 , max_number_of_experts );
@@ -89,6 +91,7 @@ public:
                  , robots::Robot_Interface const& robot )
     : Expert_Vector(max_number_of_experts, payloads)
     {
+        assert(local_learning_rate > 0.);
         assert(ctrl_params.size() == max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
             experts.emplace_back( Predictor_ptr( new learning::Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i)))

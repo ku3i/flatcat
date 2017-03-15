@@ -2,7 +2,8 @@
 
     GMES::GMES( Expert_Vector& expert
               , double learning_rate
-              , bool one_shot_learning )
+              , bool one_shot_learning
+              , std::size_t number_of_initial_experts )
     : expert(expert)
     , Nmax(expert.size()) /** TODO: check usage of Nmax */
     , min_prediction_error(.0)
@@ -18,10 +19,11 @@
     , activations(Nmax)
     , new_node(false)
     {
-        assert(in_range(gmes_constants::number_of_initial_experts, std::size_t{1}, Nmax));
-        for (std::size_t n = 0; n < gmes_constants::number_of_initial_experts; ++n)
+        assert(in_range(number_of_initial_experts, std::size_t{1}, Nmax));
+        for (std::size_t n = 0; n < number_of_initial_experts; ++n)
             expert[n].create_randomized();
         sts_msg("Created GMES with %u experts and learning rate %.4f", Nmax, learning_rate);
+        number_of_experts = count_existing_experts();
     }
 
     GMES::~GMES() { dbg_msg("Destroying GMES."); }
@@ -39,31 +41,35 @@
         /* determine new winner */
         winner = determine_winner();
 
-        /* if needed, insert expert before adaptation takes place */
-        insert_expert_on_demand();
+        if (learning_enabled) {
+            /* if needed, insert expert before adaptation takes place */
+            insert_expert_on_demand();
 
-        /* adapt weights of winner */
-        expert[winner].adapt_weights();
+            /* adapt weights of winner */
+            expert[winner].adapt_weights();
 
-        /* estimate learning progress: L = -dE/dt */
-        estimate_learning_progress();
+            /* estimate learning progress: L = -dE/dt */
+            estimate_learning_progress();
 
-        /* shift learning capacity proportional to progress in learning */
-        adjust_learning_capacity();
+            /* shift learning capacity proportional to progress in learning */
+            adjust_learning_capacity();
 
-        /* refreshes transitions according to adaptation */
-        refresh_transitions();
+            /* refreshes transitions according to adaptation */
+            refresh_transitions();
 
-        /* count experts */
-        number_of_experts = count_existing_experts(); /** could be a member method of experts class */
+            /* count experts */
+            number_of_experts = count_existing_experts(); /** could be a member method of experts class */
 
-        /* assert learning_capacity does not leak */
-        check_learning_capacity();
+            /* assert learning_capacity does not leak */
+            check_learning_capacity();
 
-        /* choose next expert to insert
-         * if all available experts are in use,
-         * find and take the one with max. learning capacity */
-        to_insert = (number_of_experts < Nmax) ? number_of_experts : arg_max_capacity();
+            /* choose next expert to insert
+             * if all available experts are in use,
+             * find and take the one with max. learning capacity */
+            to_insert = (number_of_experts < Nmax) ? number_of_experts : arg_max_capacity();
+
+        } else /* learning_disabled */
+            learning_progress = .0;
 
         update_activations();
     }

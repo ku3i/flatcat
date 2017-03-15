@@ -166,8 +166,10 @@
 		<Unit filename="src/learning/forcefield.h" />
 		<Unit filename="src/learning/gmes.cpp" />
 		<Unit filename="src/learning/gmes.h" />
+		<Unit filename="src/learning/gmes_action_module.h" />
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />
+		<Unit filename="src/learning/learning_machine_interface.h" />
 		<Unit filename="src/learning/motor_layer.h" />
 		<Unit filename="src/learning/motor_predictor.h" />
 		<Unit filename="src/learning/payload.h" />

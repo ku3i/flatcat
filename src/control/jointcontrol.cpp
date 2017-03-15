@@ -67,7 +67,7 @@ Jointcontrol::integrate_accels(void)
 
 
 void
-Jointcontrol::loop(void)
+Jointcontrol::execute_cycle(void)
 {
     integrate_accels();
     core.prepare_inputs(robot);

@@ -20,6 +20,19 @@ void vbar(float px, float py, float dx, float dy, float value, float max_value)
     fill_rect(px, py, dx, dy*frac);
 }
 
+void block(float px, float py, float sx, float sy, float value, float max_value)
+{
+    float frac = clip(fabs(value/max_value), 0.f, 1.f);
+
+    if (value >= 0.f) glColor4f(.0f, .5f, 1.f, frac);
+    else              glColor4f(1.f, .5f, .0f, frac);
+
+    draw_fill_rect(px, py, sx, sy);
+    glColor4f(.9f, .9f, .9f, .5f);
+    draw_rect(px, py, sx, sy);
+
+}
+
 }
 
 

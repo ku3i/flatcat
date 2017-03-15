@@ -29,6 +29,7 @@ public:
 
     template<typename... Args>
     explicit static_vector(std::size_t number_of_elements, const Args&... args) : content() {
+//        dbg_msg("Creating static vector of size: %u", number_of_elements);
         content.reserve(number_of_elements);
         for (std::size_t index = 0; index < number_of_elements; ++index)
             content.emplace_back(/*index, */args...);
@@ -47,6 +48,8 @@ public:
     std::size_t get_argmin(void) const { return  std::distance(content.begin(), std::min_element(content.begin(), content.end())); }
 
     void copy(std::size_t dst, std::size_t src) override final { content.at(dst) = content.at(src); }
+
+    void zero(void) { std::fill(content.begin(), content.end(), .0); }
 
 protected:
     std::vector<element_t> content;

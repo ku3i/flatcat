@@ -8,6 +8,8 @@
 #include <learning/action_module.h>
 #include <learning/payload.h>
 
+namespace learning {
+
 class Epsilon_Greedy : public Action_Selection_Base
 {
 
@@ -25,15 +27,21 @@ private:
     void update_distribution(const std::size_t greedy_action)
     {
         assert(actions.exists(greedy_action));
-        assert(actions.get_number_of_actions_available() > 1);
+        selection_probabilities.zero(); // set all zeros
 
-        const double non_greedy_portion = exploration_rate / (actions.get_number_of_actions_available() - 1);
+        if (actions.get_number_of_actions_available() > 1) {
+            const double non_greedy_portion = exploration_rate / (actions.get_number_of_actions_available() - 1);
 
-        for (std::size_t i = 0; i < selection_probabilities.size(); ++i)
-            if (actions.exists(i) and (i != greedy_action))
-                selection_probabilities[i] = non_greedy_portion;
+            for (std::size_t i = 0; i < selection_probabilities.size(); ++i)
+                if (actions.exists(i) and (i != greedy_action))
+                    selection_probabilities[i] = non_greedy_portion;
 
-        selection_probabilities[greedy_action] = 1.0 - exploration_rate;
+            selection_probabilities[greedy_action] = 1.0 - exploration_rate;
+        }
+        else if (actions.get_number_of_actions_available() == 1) {
+            selection_probabilities[greedy_action] = 1.0;
+        }
+        else assert(false and "no actions available");
     }
 
 public:
@@ -45,5 +53,7 @@ public:
         return select_from_distribution(selection_probabilities);
     }
 };
+
+} // namespace learning
 
 #endif // EPSILON_GREEDY_H_INCLUDED

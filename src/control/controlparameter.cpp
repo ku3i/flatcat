@@ -42,6 +42,18 @@ namespace control {
     , mirrored(mirrored)
     {}
 
+    void Control_Parameter::set_from_matrix(matrix_t const& weights)
+    {
+        assert(symmetric == false and mirrored == false);
+        assert(weights.size() > 0 and weights[0].size() > 0);
+        assert(parameter.size() == weights.size() * weights[0].size());
+
+        std::size_t p = 0;
+        for (auto const& wi : weights)
+            for (auto const& wij : wi)
+                parameter[p++] = wij;
+        assert( p == parameter.size());
+    }
 
     Control_Parameter::Control_Parameter(const Control_Parameter& other)
     : parameter(other.parameter)
@@ -61,5 +73,9 @@ namespace control {
         return *this;
     }
 
+    void Control_Parameter::print() const {
+        for ( auto const& p : parameter ) printf("% 5.2f ", p);
+        printf("\n");
+    }
 
 } // namespace control

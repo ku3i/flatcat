@@ -13,6 +13,13 @@
 #include "vector_n.h"
 #include <common/log_messages.h>
 
+/* tanh() on a vector_t */
+template <typename Vector_t>
+void vector_tanh(Vector_t& vec) { for (auto& v : vec) v = tanh(v); }
+
+/* TODO: find a better name, this one is actually wrong */
+inline double tanh_(double x) { return (1.0 + x) * (1.0 - x); }
+
 /* sigmoid function */
 double sigmoid(double x);
 
@@ -60,6 +67,9 @@ double random_value_norm(const double m, const double s, const double min, const
 
 /* zero mean normal distributed random value with max. 3 sigma */
 inline double rand_norm_zero_mean(double sigma) { return random_value_norm(0.0, sigma, -3*sigma, 3*sigma); }
+
+/* random sign */
+inline int rand_sign(void) { return (random_index(2) == 0) ? -1 : 1; }
 
 /* returns a random vector of size N with values in [a,b]*/
 std::vector<double> random_vector(std::size_t N, double a, double b);
@@ -125,7 +135,9 @@ inline void test_range(std::size_t value, std::size_t lower, std::size_t upper, 
     if (not in_range(value, lower, upper))
         err_msg(__FILE__, __LINE__, "%s: value %lu out of range [%lu %lu].\n", msg, value, lower, upper);
 }
-inline void test_range(const std::vector<double>& values, double lower, double upper, const char* msg)
+
+template <typename Vector_t>
+inline void test_range(Vector_t const& values, double lower, double upper, const char* msg)
 {
     for (std::size_t i = 0; i < values.size(); ++i)
         if (not in_range(values[i], lower, upper))

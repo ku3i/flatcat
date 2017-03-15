@@ -25,8 +25,8 @@ pole::reset_state(bool tilted)
 {
     theta_dot = 0.0;
     if (tilted)
-        theta = M_PI + random_value( -pole_constants::five_deg
-                                   , +pole_constants::five_deg);
+        theta = M_PI + rand_sign() * random_value( deg_to_rad(2.)
+                                                 , deg_to_rad(5.) );
     else
         theta = M_PI;
 }

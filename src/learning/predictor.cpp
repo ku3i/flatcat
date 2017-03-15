@@ -1,8 +1,11 @@
 #include <learning/predictor.h>
 
     double Predictor_Base::calculate_prediction_error() {
-         auto const &predictions = get_prediction();
-         assert(input.size() == predictions.size());
+        auto const &predictions = get_prediction();
+        assert(input.size() == predictions.size());
+
+        //test_range(input, -1.0, 1.0, "input");
+        //test_range(predictions, -1.0, 1.0, "predictions");
 
         /* sum of squared distances to input */
         const double error = squared_distance(input, predictions);

@@ -25,7 +25,8 @@ namespace RL {
     typedef std::size_t Action;
 }
 
-/* TODO: überprüfe, ob für die off-policies Q-learning bessere ergebnisse liefert als sarsa */
+/** TODO: überprüfe, ob für die off-policies Q-learning bessere Ergebnisse liefert als SARSA,
+ *  Antwort: Möglicherweise gibt es Probleme den Max-Operator zusammen mit nichtstationären Aktionen zu verwenden. */
 class SARSA : public learning::RL_Interface {
 public:
 
@@ -142,7 +143,7 @@ private:
     friend class Policy_Selector_Graphics;
 };
 
-class Policy_Selector
+class Policy_Selector /**TODO: move to separate file */
 {
     SARSA&                sarsa;
     const std::size_t     number_of_policies;
@@ -181,7 +182,10 @@ public:
     }
 
     void select_policy(std::size_t new_policy) {
-        assert(current_policy < number_of_policies);
+        if (new_policy >= number_of_policies) {
+            dbg_msg("No such policy: %u", new_policy);
+            return;
+        }
         current_policy = new_policy;
         sarsa.select_policy(current_policy);
         cycles = 0;

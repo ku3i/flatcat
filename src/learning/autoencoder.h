@@ -10,9 +10,6 @@
 
 namespace learning {
 
-inline double tanh_(double x) { return (1.0 + x) * (1.0 - x); }
-
-
 class Autoencoder {
     typedef VectorN vector_t;
     typedef copyable_static_vector<copyable_static_vector<double>> matrix_t;
@@ -29,7 +26,7 @@ public:
     , delta(outputs.size())
     , weights(hidden.size(), input_size)
     {
-        dbg_msg("Creating Autoencoder with %u inputs and %u hidden units.", input_size, hidden_size);
+//        dbg_msg("Creating Autoencoder with %u inputs and %u hidden units.", input_size, hidden_size);
         assert(hidden_size > 0);
         assert(input_size > hidden_size);
 
@@ -38,7 +35,6 @@ public:
         assert(outputs.size() == input_size);
 
         randomize_weight_matrix(random_weight_range);
-
     }
 
 

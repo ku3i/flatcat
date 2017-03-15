@@ -20,7 +20,9 @@ public:
     State_Payload(const Action_Module_Interface& actions, std::size_t number_of_policies, double q_initial)
     : policies(number_of_policies, actions, q_initial)
     , eligibility_trace(actions.get_number_of_actions())
-    {}
+    {
+//        dbg_msg("Creating State Payloads");
+    }
 
     State_Payload& operator=(const State_Payload& other) {
         assert(this != &other); // no self-assignment

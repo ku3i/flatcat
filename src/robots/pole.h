@@ -26,9 +26,9 @@ namespace pole_constants
     const double dt        = 0.001; /* step size */
     const double max_x     = 10.0;  /* meters */
     const double friction  = 0.5;
-
-    const double five_deg  = 0.087263889;
 }
+
+inline double deg_to_rad(double deg) { return deg*M_PI/180.0; }
 
 class pole : public Robot_Interface
 {

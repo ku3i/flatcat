@@ -13,6 +13,7 @@
 #include <learning/gmes.h>
 #include <learning/competitive_motor_layer.h>
 #include <learning/competitive_motor_layer_graphics.h>
+#include <learning/learning_machine_interface.h>
 
 /** TODO:
  * Think of having intermediate 'terminal' states, i.e. that switch to a specific policy and
@@ -62,15 +63,15 @@ public:
 class walking_reward_space : public reward_base
 {
 public:
-    walking_reward_space( const GMES&            gmes
-                        , const robots::Simloid& robot )
+    walking_reward_space( learning::Learning_Machine_Interface const& learner
+                        , robots::Simloid                      const& robot )
     : reward_base(16)
     {
-        rewards.emplace_back("intrinsically motivated", [&gmes ](){ return gmes.get_learning_progress(); }); /**TODO add joint-level gmes*/
-        rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("walking backwards"      , [&robot](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("turning left"           , [&robot](){ return +robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("turning right"          , [&robot](){ return -robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
+        rewards.emplace_back("intrinsically motivated", [&learner](){ return learner.get_learning_progress(); }); /**TODO add joint-level gmes*/
+        rewards.emplace_back("walking forwards"       , [&robot  ](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
+        rewards.emplace_back("walking backwards"      , [&robot  ](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
+        rewards.emplace_back("turning left"           , [&robot  ](){ return +robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
+        rewards.emplace_back("turning right"          , [&robot  ](){ return -robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
 
         switch(robot.robot_ID){
         case 10:
@@ -93,6 +94,8 @@ public:
     }
 };
 
+
+/**TODO remove*/
 class self_adjusting_motor_space : public Action_Module_Interface
 {
     control::Jointcontrol              control;
@@ -149,7 +152,7 @@ public:
             /* apply new weights */
             control.set_control_parameter(motor_layer.get_mutated_weights());
         }
-        control.loop();
+        control.execute_cycle();
     }
 
     std::size_t get_number_of_actions          (void) const { return motor_layer.get_number_of_motor_units();           }
@@ -162,6 +165,7 @@ public:
 
 #include <draw/draw.h>
 
+/**TODO refactor and move to gmes_action_module*/
 class self_adjusting_motor_space_graphics : public Graphics_Interface {
     const self_adjusting_motor_space& space;
     CompetitiveMotorLayer_Graphics    motor_layer_graphics;

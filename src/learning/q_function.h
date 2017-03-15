@@ -19,6 +19,7 @@ public:
     : actions(actions)
     , qvalues(actions.get_number_of_actions())
     {
+//        dbg_msg("Creating Policies.");
         assert(actions.get_number_of_actions() >= 1);
         for (std::size_t i = 0; i < qvalues.size(); ++i)
             qvalues[i] = initial;

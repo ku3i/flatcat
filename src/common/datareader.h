@@ -210,7 +210,7 @@ public:
     uint_t read_unsigned(const key_t& key, const uint_t default_value = uint_t()) {
         uint_t result;
         if (not read(key, result)) {
-            wrn_msg("Cannot read unsigned '%s'", key.c_str());
+            wrn_msg("Cannot read unsigned '%s'. Taking default: %u", key.c_str(), default_value);
             return default_value;
         }
         return result;
@@ -219,7 +219,7 @@ public:
     sint_t read_signed(const key_t& key, const sint_t default_value = sint_t()) {
         sint_t result;
         if (not read(key, result)) {
-            wrn_msg("Cannot read signed '%s'", key.c_str());
+            wrn_msg("Cannot read signed '%s'. Taking default: %d", key.c_str(), default_value);
             return default_value;
         }
         return result;
@@ -228,7 +228,7 @@ public:
     float_t read_float(const key_t& key, const float_t default_value = float_t()) {
         float_t result;
         if (not read(key, result)) {
-            wrn_msg("Cannot read float '%s'", key.c_str());
+            wrn_msg("Cannot read float '%s'. Taking default: %f", key.c_str(), default_value);
             return default_value;
         }
         return result;
@@ -237,7 +237,7 @@ public:
     string_t read_string(const key_t& key, const string_t default_value = string_t()) {
         string_t result;
         if (not read(key, result)) {
-            wrn_msg("Cannot read string '%s'", key.c_str());
+            wrn_msg("Cannot read string '%s'. Taking default: %s", key.c_str(), default_value.c_str());
             return default_value;
         }
         return result;
@@ -246,7 +246,7 @@ public:
     vector_t read_vector(const key_t& key, const vector_t default_value = vector_t()) {
         vector_t result;
         if (not read(key, result)) {
-            wrn_msg("Cannot read vector '%s'", key.c_str());
+            wrn_msg("Cannot read vector '%s'.", key.c_str());
             return default_value;
         }
         return result;

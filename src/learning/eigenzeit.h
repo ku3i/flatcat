@@ -4,6 +4,8 @@
 #include <common/log_messages.h>
 #include <control/statemachine.h>
 
+namespace learning {
+
 /** Eigenzeit.h
  ** The concept of eigenzeit constitutes a mechanism for translating the inherent time step (cycle)
  ** of usually 10ms (100Hz) into a 'time' or cycle which only depends on gmes' state changes. Eigenzeit
@@ -47,5 +49,7 @@ public:
     Eigenzeit_Graphics(const Eigenzeit& eigenzeit) : eigenzeit(eigenzeit) {}
     void draw(const pref& p) const { /*TODO*/ }
 };
+
+} // namespace learning
 
 #endif // EIGENZEIT_H_INCLUDED

@@ -21,13 +21,13 @@ public:
     , max_colors(num_variations * num_variations * num_variations)
     {
         assert(num_variations > 1);
-        unsigned int i=0;
+        //unsigned int i=0;
         colors.reserve(max_colors);
         for (unsigned int r = num_variations; r-- > 0; )
             for (unsigned int g = num_variations; g-- > 0; )
                 for (unsigned int b = num_variations; b-- > 0; ) {
                     colors.emplace_back(get(r), get(g), get(b), 1.0);
-                    dbg_msg("%2u: %1.2f %1.2f %1.2f",i++, get(r), get(g), get(b));
+//                    dbg_msg("%2u: %1.2f %1.2f %1.2f",i++, get(r), get(g), get(b));
                 }
         if (initialize_randomized) randomize();
     }

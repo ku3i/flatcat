@@ -10,6 +10,7 @@
 #include <learning/gmes.h>
 #include <learning/payload.h>
 #include <learning/state_predictor.h>
+#include <learning/learning_machine_interface.h>
 
 /* graphics */
 #include <draw/draw.h>
@@ -28,8 +29,8 @@ namespace learning {
 
 namespace state_layer_constants {
     const double number_of_experts    = 20;
-    const double local_learning_rate  = 0.02;
-    const double gmes_learning_rate   = 1.0;//10.0;
+    const double learning_rate        = 0.02;
+    const double growth_rate          = 1.0;//10.0;
     const std::size_t experience_size = 100;
     const std::size_t hidden_size     = 6;
 
@@ -51,18 +52,24 @@ public:
     }
 };
 
-class State_Layer {
+class State_Layer : public control::Statemachine_Interface, public learning::Learning_Machine_Interface {
 public:
     State_Layer( robots::Robot_Interface const& robot
+               , static_vector_interface& payloads
                , std::size_t max_num_state_experts = state_layer_constants::number_of_experts
+               , double learning_rate = state_layer_constants::learning_rate
+               , double growth_rate = state_layer_constants::growth_rate
                , std::size_t experience_size = state_layer_constants::experience_size )
     : max_num_state_experts(max_num_state_experts)
-    , payloads(max_num_state_experts)
+    , payloads(payloads)
     , statespace(robot.get_joints())
-    , experts(max_num_state_experts, payloads, statespace, state_layer_constants::local_learning_rate, experience_size, state_layer_constants::hidden_size)
-    , gmes(experts, state_layer_constants::gmes_learning_rate, /* one shot learning = */false)
+    , experts(max_num_state_experts, payloads, statespace, learning_rate, experience_size, state_layer_constants::hidden_size)
+    , gmes(experts, growth_rate, /* one shot learning = */false)
     {
         dbg_msg("Creating new competitive state layer.");
+        assert(payloads.size() == max_num_state_experts); /**TODO: re-factor that, move payloads<template> to state_layer*/
+        assert(learning_rate > 0.);
+        assert(growth_rate > 0.);
     }
 
     void execute_cycle(void) {
@@ -70,8 +77,16 @@ public:
         gmes.execute_cycle();
     }
 
+    bool has_state_changed(void) const override { return gmes.has_state_changed(); };
+    std::size_t  get_state(void) const override { return gmes.get_state(); }
+
+    double get_learning_progress(void) const override { return gmes.get_learning_progress(); }
+
+    void enable_learning(bool b) override { gmes.enable_learning(b); }
+    void toggle_learning(void) { gmes.enable_learning(not gmes.is_learning_enabled()); }
+
     std::size_t                  max_num_state_experts;
-    static_vector<Empty_Payload> payloads;
+    static_vector_interface&     payloads;
     State_Space                  statespace;
     Expert_Vector                experts;
     GMES                         gmes;

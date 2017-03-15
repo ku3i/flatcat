@@ -5,6 +5,7 @@
 #include <robots/joint.h>
 #include <control/jointcontrol.h>
 #include <control/control_vector.h>
+#include <control/controlparameter.h>
 #include <control/sensorspace.h>
 #include <learning/expert.h>
 #include <learning/gmes.h>
@@ -24,10 +25,10 @@
 
 namespace learning {
 
-namespace constants {
-    const double number_of_experts    = 20;
-    const double local_learning_rate  = 0.01;
-    const double gmes_learning_rate   = 1.0;//10.0;
+namespace motor_layer_constants {
+    const double number_of_experts    = 19;
+    const double learning_rate        = 0.01;
+    const double growth_rate          = 1.0;//10.0;
     const std::size_t experience_size = 100;
 }
 
@@ -38,24 +39,33 @@ public:
     : sensor_vector(joints.size())
     {
         for (robots::Joint_Model const& j : joints)
-            sensors.emplace_back(j.name, [&j](){ return j.motor.get() + rand_norm_zero_mean(0.01); });
+            sensors.emplace_back(j.name, [&j](){ return clip(j.motor.get() + rand_norm_zero_mean(0.01), 1.0); });
     }
 };
 
 
-class Motor_Layer {
+class Motor_Layer : public learning::Learning_Machine_Interface {
 public:
     Motor_Layer( robots::Robot_Interface const& robot
-               , std::size_t max_num_motor_experts = constants::number_of_experts
-               , std::size_t experience_size = constants::experience_size )
-    : max_num_motor_experts(max_num_motor_experts)
-    , params(control::param_factory(robot, max_num_motor_experts, "", {0.,0.,0.}))
+               , std::size_t max_num_motor_experts = motor_layer_constants::number_of_experts
+               , const double learning_rate = motor_layer_constants::learning_rate
+               , const double growth_rate = motor_layer_constants::growth_rate
+               , std::size_t experience_size = motor_layer_constants::experience_size
+               , std::string const& initial_parameter_folder = ""
+               , control::Minimal_Seed_t seed = {0.,0.,0.}
+               , std::size_t num_initial_experts = 1)
+    : params(control::param_factory(robot, max_num_motor_experts, initial_parameter_folder, seed))
     , payloads(max_num_motor_experts)
     , motorspace(robot.get_joints())
-    , experts(max_num_motor_experts, payloads, motorspace, constants::local_learning_rate, experience_size, params, robot)
-    , gmes(experts, constants::gmes_learning_rate, /* one shot learning = */false)
+    , experts(max_num_motor_experts, payloads, motorspace, learning_rate, experience_size, params, robot)
+    , gmes(experts, growth_rate, /* one shot learning = */false, num_initial_experts)
     {
-        dbg_msg("Creating new competitive motor layer.");
+        dbg_msg("Creating motor layer with max. %u experts and growth rate: %1.4f", max_num_motor_experts, growth_rate);
+        if (initial_parameter_folder != "")
+            dbg_msg("Reading initial parameters from '%s'", initial_parameter_folder.c_str());
+
+        assert(learning_rate > 0.);
+        assert(growth_rate > 0.);
     }
 
     void execute_cycle(void) {
@@ -63,8 +73,25 @@ public:
         gmes.execute_cycle();
     }
 
-    std::size_t                  max_num_motor_experts;
-    control::Control_Vector      params;
+    void enable_learning(bool b) override { gmes.enable_learning(b); }
+    void toggle_learning(void)   { gmes.enable_learning(not gmes.is_learning_enabled()); }
+    double get_learning_progress(void) const override { return gmes.get_learning_progress(); }
+
+    /** This is somewhat ugly. But the only way I have figured out to do that. */
+    const control::Control_Parameter& get_controller_weights(std::size_t id) const {
+//        dbg_msg("Fetching controller weights.");
+        Predictor_Base const& other = experts[id].get_predictor();
+        Motor_Predictor const& motor_pred = dynamic_cast<Motor_Predictor const&>(other);
+        return motor_pred.get_controller_weights();
+    }
+
+
+    std::size_t get_max_number_of_experts() const { return experts.size(); }
+    std::size_t get_cur_number_of_experts() const { return gmes.get_number_of_experts(); }
+
+    bool has_expert(std::size_t id) const { return experts[id].does_exists(); }
+
+    control::Control_Vector      params; /**TODO: check if this can be removed, finally */
     static_vector<Empty_Payload> payloads;
     Motor_Space                  motorspace;
     Expert_Vector                experts;

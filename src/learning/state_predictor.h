@@ -25,7 +25,7 @@ public:
     : Predictor_Base(inputs, learning_rate, random_weight_range, experience_size)
     , enc(inputs.size(), hidden_layer_size, random_weight_range )
     {
-        dbg_msg("Initialize State Predictor using Auto-encoder.");
+//        dbg_msg("Initialize State Predictor using Auto-encoder.");
     }
 
     virtual ~State_Predictor() = default;
@@ -44,7 +44,7 @@ public:
     };
 
     void initialize_randomized(void) override {
-        dbg_msg("Initialize randomized state predictor.");
+//        dbg_msg("Initialize randomized state predictor.");
         enc.randomize_weight_matrix(random_weight_range);
         auto initial_experience = input.get();
         for (auto& w: initial_experience)

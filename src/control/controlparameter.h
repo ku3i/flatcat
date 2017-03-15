@@ -15,6 +15,7 @@ namespace control {
 class Control_Parameter : public noncopyable
 {
 public:
+    typedef std::vector<std::vector<double>> matrix_t;
 
     explicit Control_Parameter( const std::string& filename
                               , std::size_t number_of_params
@@ -26,6 +27,8 @@ public:
     explicit Control_Parameter( const std::vector<double>& parameter
                               , bool symmetric = false
                               , bool mirrored = false );
+
+    void set_from_matrix( matrix_t const& weights );
 
     explicit Control_Parameter() : parameter(), symmetric(), mirrored() { assert(false and "Should not be used."); }
 
@@ -44,6 +47,8 @@ public:
 
     bool is_symmetric(void) const { return symmetric; }
     bool is_mirrored (void) const { return mirrored;  }
+
+    void print() const;
 
 private:
 

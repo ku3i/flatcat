@@ -31,6 +31,7 @@ struct Minimal_Seed_t {
 
     Minimal_Seed_t(double pgain, double damping, double motor_self) : pgain(pgain), damping(damping), motor_self(motor_self) {}
 
+    std::vector<double> get_vector() const { return {pgain, damping, motor_self}; }
     double pgain;
     double damping;
     double motor_self;
@@ -56,7 +57,7 @@ class Jointcontrol
 public:
     Jointcontrol(robots::Robot_Interface& robot);
 
-    void loop(void);
+    void execute_cycle(void);
     void reset(void);
 
     void switch_symmetric(bool switched);

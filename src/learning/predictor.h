@@ -5,6 +5,7 @@
 #include <common/modules.h>
 #include <common/vector_n.h>
 #include <common/log_messages.h>
+#include <common/static_vector.h>
 #include <control/sensorspace.h>
 
 /** Notes regarding normalizing the prediction error
@@ -100,7 +101,7 @@ private:
 };
 
 
-
+/** simple predictor */
 class Predictor : public Predictor_Base {
 
     Predictor(const Predictor& other) = delete;
