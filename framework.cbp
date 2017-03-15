@@ -95,6 +95,7 @@
 		<Unit filename="src/common/stopwatch.h" />
 		<Unit filename="src/common/vector2.h" />
 		<Unit filename="src/common/vector_n.h" />
+		<Unit filename="src/common/view_manager.h" />
 		<Unit filename="src/common/visuals.h" />
 		<Unit filename="src/control/behavior_state_machine.h" />
 		<Unit filename="src/control/behavior_switcher.h" />

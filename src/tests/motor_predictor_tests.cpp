@@ -159,7 +159,7 @@ TEST_CASE( "motor prediction error is reset on (re-)initialization", "[motor_pre
     pred.predict();
 
     REQUIRE( pred.get_prediction_error() >  0.0 );
-    pred.initialize_from_input();
+    //not supported pred.initialize_from_input();
     REQUIRE( pred.get_prediction_error() == 0.0 );
     motors.execute_cycle();
     pred.predict();

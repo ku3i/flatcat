@@ -25,7 +25,7 @@ TEST_CASE( "Epsilon Greedy" , "[learning]") {
     const no_actions actions;
     static_vector<State_Payload> states(num_states, actions, num_policies, 0.0);
 
-    Epsilon_Greedy greedy(states, actions, 0.01);
+    learning::Epsilon_Greedy greedy(states, actions, 0.01);
 
     const unsigned avail_actions = actions.get_number_of_actions_available();
     const unsigned rand_idx = random_index(avail_actions);
@@ -46,14 +46,14 @@ TEST_CASE( "Epsilon Greedy" , "[learning]") {
     check_probabilities(selection_probabilities);
 
     /* check distribution of selected actions */
-    auto test_selection = [&](Epsilon_Greedy g, unsigned state_id, unsigned policy_id, unsigned action_id) {
+    auto test_selection = [&](learning::Epsilon_Greedy g, unsigned state_id, unsigned policy_id, unsigned action_id) {
         states[state_id].policies[policy_id].qvalues[action_id] = 1.0; // set Q-value
         unsigned result = g.select_action(state_id, policy_id);
         states[state_id].policies[policy_id].qvalues[action_id] = 0.0; // clear it
         return result;
     };
 
-    auto check_distribution = [&](Epsilon_Greedy g, unsigned state_id, unsigned policy_id, unsigned action_id, double expected) {
+    auto check_distribution = [&](learning::Epsilon_Greedy g, unsigned state_id, unsigned policy_id, unsigned action_id, double expected) {
         REQUIRE( state_id < states.size() );
         REQUIRE( policy_id < states[0].policies.size() );
         REQUIRE( action_id < states[0].policies[0].qvalues.size() );
@@ -65,9 +65,9 @@ TEST_CASE( "Epsilon Greedy" , "[learning]") {
         REQUIRE( close(100.0*counter/total, expected, 2.0) ); // values in 2% tolerance
     };
 
-    Epsilon_Greedy greedy_10(states, actions, 0.10);
-    Epsilon_Greedy greedy_40(states, actions, 0.40);
-    Epsilon_Greedy greedy_70(states, actions, 0.70);
+    learning::Epsilon_Greedy greedy_10(states, actions, 0.10);
+    learning::Epsilon_Greedy greedy_40(states, actions, 0.40);
+    learning::Epsilon_Greedy greedy_70(states, actions, 0.70);
 
     check_distribution(greedy_10, 0,0,0, 90.0); check_probabilities(greedy_10.get_distribution());
     check_distribution(greedy_10, 1,2,3,  0.0); check_probabilities(greedy_10.get_distribution()); // action not available
