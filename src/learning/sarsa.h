@@ -94,7 +94,10 @@ public:
         current_state = new_state;
 
         /* action selection (e.g.Epsilon Greedy or Boltzmann)  */
-        current_action = action_selection.select_action(current_state, current_policy);
+        if (not random_actions)
+            current_action = action_selection.select_action(current_state, current_policy);
+        else
+            current_action = action_selection.select_randomized();
 
         /* Q-learning (SARSA) */
         assert(deltaQ.size() == number_of_policies);
@@ -119,6 +122,10 @@ public:
                     states[s].policies[pi].qvalues[a] += learning_rates[pi] * deltaQ[pi] * states[s].eligibility_trace[a].get();
     }
 
+    void toggle_random_actions(void) {
+        random_actions = not random_actions;
+        sts_msg("Random actions: %s", random_actions? "ON":"OFF"); }
+
 private:
 
     static_vector<State_Payload>& states;
@@ -139,6 +146,8 @@ private:
 
     const std::vector<double> learning_rates;
 
+    bool random_actions = false;
+
     friend class SARSA_Graphics;
     friend class Policy_Selector_Graphics;
 };
@@ -153,6 +162,16 @@ class Policy_Selector /**TODO: move to separate file */
     uint64_t              cycles;
     bool                  random_policy_mode;
 
+    struct policy_profile {
+        std::vector<std::size_t> items;
+        std::size_t              current;
+        bool                     play;
+
+        policy_profile() : items(), current(), play() {}
+    } profile;
+
+
+
 public:
     Policy_Selector(SARSA& sarsa, const std::size_t number_of_policies, bool random_policy_mode = true, uint64_t default_duration_s = 10)
     : sarsa(sarsa)
@@ -161,13 +180,14 @@ public:
     , policy_trial_duration(number_of_policies, default_duration_s * 100) /* make constant in setup */
     , cycles(0)
     , random_policy_mode(random_policy_mode)
+    , profile()
     {
         dbg_msg("Creating Policy Selector with %u policies.", number_of_policies);
     }
 
     void toggle_random_policy_mode(void) {
         random_policy_mode = !random_policy_mode;
-        sts_msg("Random Policy Mode: %s", random_policy_mode ? "on" : "off");
+        sts_msg("Random Policy Mode: %s", random_policy_mode ? "ON" : "OFF");
     }
 
     void select_random_policy(void) {
@@ -192,12 +212,33 @@ public:
     }
 
     void execute_cycle(void) {
-        if (random_policy_mode) {
-            ++cycles;
-            if (cycles >= policy_trial_duration[current_policy])
-                select_random_policy();
+
+        ++cycles;
+        if (cycles < policy_trial_duration[current_policy]) return;
+
+        if (profile.play)
+        {
+            if (profile.items.size() > 0) {
+                select_policy(profile.items.at(profile.current++));
+                if (profile.current >= profile.items.size())
+                    profile.current = 0;
+            }
+            else profile.play = false;
         }
+        else if (random_policy_mode)
+        {
+            select_random_policy();
+        }
+        else
+            cycles = 0;
     }
+
+    void set_profile(std::vector<std::size_t> p) { profile.items = p; profile.current = 0; }
+    void toggle_playing_profile(void) {
+        profile.play = not profile.play;
+        sts_msg("Policy Profile Mode: %s", profile.play ? "ON" : "OFF");
+    }
+
 
     void set_policy_trial_duration(std::size_t index, uint64_t duration) {
         assert(index < policy_trial_duration.size());
@@ -218,14 +259,15 @@ class Policy_Selector_Graphics : public Graphics_Interface {
 public:
     Policy_Selector_Graphics(const Policy_Selector& policy_selector) : policy_selector(policy_selector) {}
 
-    void draw(const pref& p) const {
+    void draw(const pref& /*p*/) const {
         unsigned int time_left = policy_selector.get_trial_time_left();
         unsigned int seconds = (time_left / 100) % 60;
         unsigned int hsecs   = (time_left % 100);
         glColor3f(1.0,1.0,1.0);
         glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", policy_selector.current_policy
                                                  , policy_selector.sarsa.rewards.get_reward_name(policy_selector.current_policy).c_str());
-        glprintf(-0.9, 0.90, 0.0, 0.03, "left: %02u:%02u [%c]" , seconds, hsecs, policy_selector.random_policy_mode? '~':'=');
+        glprintf(-0.9, 0.90, 0.0, 0.03, "left: %02u:%02u [%c]" , seconds, hsecs, policy_selector.profile.play ? '+' :
+                                                                                 policy_selector.random_policy_mode ? '~' : '=');
     }
 };
 #endif // SARSA_H_INCLUDED
