@@ -21,14 +21,13 @@ public:
 
     virtual ~reward_base() {}
 
-    const double       get_current_reward(std::size_t index) const { assert(index < rewards.size()); return rewards[index].current; }
-    const double       get_last_reward   (std::size_t index) const { assert(index < rewards.size()); return rewards[index].last;    }
+    double             get_current_reward(std::size_t index) const { assert(index < rewards.size()); return rewards[index].current; }
+    double             get_last_reward   (std::size_t index) const { assert(index < rewards.size()); return rewards[index].last;    }
     const std::string& get_reward_name   (std::size_t index) const { assert(index < rewards.size()); return rewards[index].name;    }
-    const std::size_t  get_number_of_policies(void)          const { return rewards.size(); }
+    std::size_t        get_number_of_policies(void)          const { return rewards.size(); }
 
-    const double get_aggregated_last_reward(std::size_t index) const {
-        assert(index < rewards.size());
-        return aggregated_rewards[index].get_avg_value();
+    double get_aggregated_last_reward(std::size_t index) const {
+        return aggregated_rewards.at(index).get_avg_value();
     }
 
     void clear_aggregations(void) {

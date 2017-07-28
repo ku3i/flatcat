@@ -103,7 +103,7 @@ private:
         params_changed = true; /**TODO: move to learn_from_experience, if supported */
     }
 
-    void learn_from_experience(std::size_t skip_idx) override { assert(false && "Learning from experience is not implemented yet."); }
+    void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); }
 };
 
 } // namespace learning

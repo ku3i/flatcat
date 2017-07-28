@@ -56,7 +56,7 @@ public:
         dbg_msg("Creating Sarsa Graphics.");
     }
 
-    void execute_cycle(uint64_t cycle, bool state_changed)
+    void execute_cycle(uint64_t /*cycle*/, bool state_changed)
     {
 
         for (std::size_t i = 0; i < num_policies; ++i)
@@ -90,7 +90,7 @@ public:
         }
     }
 
-    void draw(const pref& p) const
+    void draw(const pref& /*p*/) const
     {
         for (std::size_t i = 0; i < num_policies; ++i) {
             axis_reward_systemstep[i].draw();

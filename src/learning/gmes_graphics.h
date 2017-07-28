@@ -37,7 +37,7 @@ public:
         sts_msg("Created GMES Graphics Extension");
     }
 
-    void execute_cycle(uint64_t cycle)
+    void execute_cycle(uint64_t /*cycle*/)
     {
         assert(input.size() == 3);
         plot.add_sample((float) input[0], (float) input[1], (float) input[2]);
@@ -77,7 +77,7 @@ public:
 
         glColor4f(1.0, 1.0, 1.0, 1.0);
         glprintf(0.8, -0.7, 0.0, 0.03, "%u/%u", gmes.get_number_of_experts(), gmes.get_max_number_of_experts());
-        glprintf(0.8, -0.8, 0.0, 0.03, "%u"   , gmes.get_to_insert());
+        //glprintf(0.8, -0.8, 0.0, 0.03, "%u"   , gmes.get_to_insert());
 
         glLineWidth(2.0f);
         glColor4f(1.0, 1.0, 1.0, 0.2);

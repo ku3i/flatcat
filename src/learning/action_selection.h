@@ -30,9 +30,22 @@ public:
 
     virtual ~Action_Selection_Base() = default;
     virtual std::size_t select_action( std::size_t current_state, std::size_t current_policy) = 0;
+
+    std::size_t select_randomized(void) {
+        selection_probabilities.zero(); // set all zeros
+        const double portion = 1.0 / actions.get_number_of_actions_available();
+
+        for (std::size_t i = 0; i < selection_probabilities.size(); ++i)
+            if (actions.exists(i))
+                selection_probabilities[i] = portion;
+
+        return select_from_distribution(selection_probabilities); // uniform, only available actions
+    }
+
+    std::size_t select_from_distribution(const Action_Selection_Base::Vector_t& distribution);
 };
 
-std::size_t select_from_distribution(const Action_Selection_Base::Vector_t& distribution);
+
 void print_distribution(const Action_Selection_Base::Vector_t& distribution);
 
 

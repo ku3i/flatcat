@@ -47,7 +47,7 @@ class Eigenzeit_Graphics : public Graphics_Interface {
     const Eigenzeit& eigenzeit;
 public:
     Eigenzeit_Graphics(const Eigenzeit& eigenzeit) : eigenzeit(eigenzeit) {}
-    void draw(const pref& p) const { /*TODO*/ }
+    void draw(const pref& /*p*/) const { /*TODO*/ }
 };
 
 } // namespace learning

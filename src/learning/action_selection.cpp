@@ -15,7 +15,7 @@ print_distribution(const Action_Selection_Base::Vector_t& distribution)
  *  The given distribution must sum up to 1.
  */
 std::size_t
-select_from_distribution(const Action_Selection_Base::Vector_t& distribution)
+Action_Selection_Base::select_from_distribution(const Action_Selection_Base::Vector_t& distribution)
 {
     const double x = random_value(0.0, 1.0);
     double sum = 0.0;

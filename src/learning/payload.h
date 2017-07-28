@@ -11,7 +11,7 @@ class Empty_Payload
 {
 public:
     Empty_Payload() {}
-    Empty_Payload& operator=(const Empty_Payload& other) { return *this; };
+    Empty_Payload& operator=(const Empty_Payload& /*other*/) { return *this; };
 };
 
 class State_Payload
@@ -74,7 +74,7 @@ public:
     , num_policies(payloads[0].policies.size())
     , num_states(payloads.size())
     {}
-    void draw(const pref& p) const {
+    void draw(const pref& /*p*/) const {
         for (std::size_t i = 0; i < num_policies; ++i)
             for (std::size_t s = 0; s < std::min(10ul,num_states); ++s)
                 draw::vec3(i*0.6, 0.0 - s*0.06, 0.05, 0.5, payloads[s].policies[i].qvalues);

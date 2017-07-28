@@ -18,7 +18,7 @@ public:
     std::size_t get_current_state (void) const { return 0; }
     std::size_t get_current_action(void) const { return 0; }
     std::size_t get_current_policy(void) const { return 0; }
-    bool positive_current_delta(std::size_t policy) const { return false; }
+    bool positive_current_delta(std::size_t /*policy*/) const { return false; }
 };
 
 } // namespace learning

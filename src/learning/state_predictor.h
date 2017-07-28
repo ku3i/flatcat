@@ -58,7 +58,7 @@ public:
 private:
 
     void learn_from_input_sample(void) override { enc.adapt(input, learning_rate); };
-    void learn_from_experience(std::size_t skip_idx) override { assert(false && "Learning from experience is not implemented yet."); };
+    void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); };
 
     Autoencoder enc;
 
