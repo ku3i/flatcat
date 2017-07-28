@@ -1,16 +1,22 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | July 2017                       |
+ +---------------------------------*/
+
 #ifndef SOCKET_CLIENT_H
 #define SOCKET_CLIENT_H
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "./basic.h"
-#include "./globalflag.h"
-#include "./log_messages.h"
+#include <common/globalflag.h>
+#include <common/log_messages.h>
 
 namespace constants {
     const unsigned seconds_us   = 1000*1000;

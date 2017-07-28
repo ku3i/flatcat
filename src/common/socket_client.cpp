@@ -72,7 +72,7 @@ void
 Socket_Client::send(const char* format, ...) const
 {
     static char buffer[constants::msglen];
-    bzero(buffer, constants::msglen);
+    memset(buffer, 0, constants::msglen);
 
     va_list args;
     va_start(args, format);
