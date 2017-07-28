@@ -9,7 +9,7 @@ std::string read_options(int argc, char **argv, const char* default_path);
 
 class Settings_Base {
 
-    const std::string&   filename;
+    const std::string    filename;
     file_io::Data_Reader settings_file;
 
 public:

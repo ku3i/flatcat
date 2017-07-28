@@ -29,7 +29,7 @@ thread_gtk_main(void)
 }
 
 void
-on_button_start_clicked(GtkObject *object, gpointer user_data)
+on_button_start_clicked(GtkObject *object, gpointer /*user_data*/)
 {
     do_pause.toggle();
 

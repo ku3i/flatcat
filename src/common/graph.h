@@ -63,7 +63,7 @@ class Graph
         Vertices *V;
         int N, K;
         int **edge;         // N x K Edges
-        int *neighbours;    // current number of neigbours of vertex n
+        int *neighbours;    // current number of neighbors of vertex n
         int index;
         void check_index(int n, const char* s);
         int get_free_connection(int n);

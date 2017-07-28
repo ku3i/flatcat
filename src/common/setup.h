@@ -26,9 +26,9 @@ void init_controls(void);
 void signal_terminate_handler(int signum);
 int  process_application(void *data);
 
-void ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Base &app);
-void draw_screen(const double &fps, const Application_Base &app, const Event_Manager &em);
-void fps_controller(double &fps, const double &sp_fps);
+void ui_main_loop(GlobalFlag& do_quit, const GlobalFlag& do_drawing, Event_Manager& em, const Application_Base& app);
+void draw_screen(const double& fps, const Application_Base& app);
+void fps_controller(double& fps, const double& sp_fps);
 void quit(void);
 
 

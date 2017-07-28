@@ -262,11 +262,11 @@ public:
         return result;
     }
 
-    void write(const std::string& key, const   uint_t& value) { }
-    void write(const std::string& key, const   sint_t& value) { }
-    void write(const std::string& key, const  float_t& value) { }
-    void write(const std::string& key, const string_t& value) { }
-    void write(const std::string& key, const vector_t& value) { }
+//    void write(const std::string& key, const   uint_t& value) { }
+//    void write(const std::string& key, const   sint_t& value) { }
+//    void write(const std::string& key, const  float_t& value) { }
+//    void write(const std::string& key, const string_t& value) { }
+//    void write(const std::string& key, const vector_t& value) { }
 
 };
 

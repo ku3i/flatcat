@@ -82,7 +82,7 @@ ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &e
         em.process_events();
 
         if (do_drawing.status())
-            draw_screen(fps, app, em);
+            draw_screen(fps, app);
 
         fps_controller(fps, visuals_defaults::frames_per_second); // delay to reach stable 25 f/s
 
@@ -244,7 +244,7 @@ init_controls()
 }
 
 void
-draw_screen(const double &fps, const Application_Base &app, const Event_Manager &em)
+draw_screen(const double& fps, const Application_Base& app)
 {
     /* Clear the color and depth buffers. */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
