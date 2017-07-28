@@ -21,7 +21,7 @@ process_application(void *data)
     auto cur_time = std::chrono::high_resolution_clock::now();
     auto lst_time = cur_time;
 
-    Application_Interface *a = static_cast<Application_Interface *>(data);
+    Application_Base *a = static_cast<Application_Base *>(data);
     sts_msg("Setting up application.");
     do_drawing.enable(); // enable drawing
 
@@ -72,7 +72,7 @@ fps_controller(double &fps, const double &sp_fps)
 }
 
 void
-ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Interface &app)
+ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Base &app)
 {
     sts_msg("Entering UI main loop.");
     double fps = 0.0;
@@ -187,7 +187,7 @@ init_OpenGL(const std::size_t window_width, const std::size_t window_height)
     glEnable(GL_CULL_FACE);
 
     /* Set the clear color. */
-    glClearColor(0.05, 0.0, 0.1, 0.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);//glClearColor(0.05, 0.0, 0.1, 0.0);
 
     /* Setup our view port. */
     glViewport(0, 0, window_width, window_height);
@@ -244,7 +244,7 @@ init_controls()
 }
 
 void
-draw_screen(const double &fps, const Application_Interface &app, const Event_Manager &em)
+draw_screen(const double &fps, const Application_Base &app, const Event_Manager &em)
 {
     /* Clear the color and depth buffers. */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -270,9 +270,11 @@ draw_screen(const double &fps, const Application_Interface &app, const Event_Man
         draw_grid2D(1.0, 5);
     }
 
-    glColor3f(1.0, 1.0, 1.0);
-    unsigned long long cycles = app.get_cycle_count();
-    glprintf(-1.0,-1.0, 0.0, .025, "%s (%lu), %d fps %1.2fx", get_time_from_cycle_counter(cycles).c_str(), cycles, (int) round(fps), speed_factor);
+    if (screen.show_fps) {
+        glColor3f(1.0, 1.0, 1.0);
+        unsigned long long cycles = app.get_cycle_count();
+        glprintf(-1.0,-1.0, 0.0, .025, "%s (%lu), %d fps %1.2fx", get_time_from_cycle_counter(cycles).c_str(), cycles, (int) round(fps), speed_factor);
+    }
 
     SDL_GL_SwapWindow(window); // swap the buffers
 }

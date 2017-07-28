@@ -12,7 +12,7 @@
 #include <common/basic.h>
 #include <common/event_manager.h>
 #include <common/stopwatch.h>
-#include <common/application_interface.h>
+#include <common/application_base.h>
 #include <common/visuals.h>
 #include <common/misc.h>
 #include <common/gui.h>
@@ -26,8 +26,8 @@ void init_controls(void);
 void signal_terminate_handler(int signum);
 int  process_application(void *data);
 
-void ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Interface &app);
-void draw_screen(const double &fps, const Application_Interface &app, const Event_Manager &em);
+void ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Base &app);
+void draw_screen(const double &fps, const Application_Base &app, const Event_Manager &em);
 void fps_controller(double &fps, const double &sp_fps);
 void quit(void);
 

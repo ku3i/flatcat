@@ -46,6 +46,13 @@ on_button_pressed_CARET(void)
 }
 
 void
+on_button_pressed_F(void)
+{
+    screen.show_fps = not screen.show_fps;
+    sts_msg("Statistics: %s", screen.show_fps ? "ON":"OFF");
+}
+
+void
 on_button_pressed_PAGEUP(void)
 {
     if (!screen.rotate_view)
@@ -99,6 +106,12 @@ Event_Manager::on_left_mouse_button_released(void)
     screen.y_angle += screen.y_angle_disp;
     screen.x_angle_disp = 0.0f;
     screen.y_angle_disp = 0.0f;
+
+    /* snap to grid */
+    screen.x_angle = screen.snap*round(screen.x_angle/screen.snap);
+    screen.y_angle = screen.snap*round(screen.y_angle/screen.snap);
+
+    sts_msg("New pos: % 5.2f, % 5.2f", screen.x_angle, screen.y_angle);
 }
 
 void
@@ -172,6 +185,7 @@ Event_Manager::handle_key_pressed(SDL_Keysym &keysym)
         case SDLK_UP:        break;
         case SDLK_F1:        break; */
         case SDLK_CARET:     on_button_pressed_CARET();     break;
+        case SDLK_f:         on_button_pressed_F();         break;
         /*
         case SDLK_0:         break;
         case SDLK_2:         break;

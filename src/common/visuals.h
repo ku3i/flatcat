@@ -33,6 +33,8 @@ struct Visuals
     , zdist(visuals_defaults::zdist)
     , rotate_view(true)
     , rot_factor(visuals_defaults::rot_factor)
+    , show_fps(true)
+    , snap(1.0)
     {
         sts_msg("Initialized settings for visuals.");
     }
@@ -49,6 +51,8 @@ struct Visuals
         mdy = .0f;
     }
 
+    void set_background_color(Color4 color) { glClearColor(color.r, color.g, color.b, color.a); }
+
     unsigned int window_size_x;
     unsigned int window_size_y;
     float mdy;
@@ -64,6 +68,8 @@ struct Visuals
     float zdist;
     bool  rotate_view;
     int   rot_factor;
+    bool  show_fps;
+    float snap;
 };
 
 #endif // VISUALS_H_INCLUDED

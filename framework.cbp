@@ -15,6 +15,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-D__linux__" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -55,13 +56,15 @@
 			<Add library="pthread" />
 			<Add library="armadillo" />
 		</Linker>
-		<Unit filename="src/common/application_interface.h" />
+		<Unit filename="src/common/application_base.h" />
+		<Unit filename="src/common/autopause.h" />
 		<Unit filename="src/common/basic.cpp" />
 		<Unit filename="src/common/basic.h" />
 		<Unit filename="src/common/callbacks.cpp" />
 		<Unit filename="src/common/callbacks.h" />
 		<Unit filename="src/common/config.cpp" />
 		<Unit filename="src/common/config.h" />
+		<Unit filename="src/common/datalogger.h" />
 		<Unit filename="src/common/datareader.h" />
 		<Unit filename="src/common/event_manager.cpp" />
 		<Unit filename="src/common/event_manager.h" />
@@ -199,6 +202,10 @@
 		<Unit filename="src/robots/simloid.h" />
 		<Unit filename="src/robots/simloid_graphics.h" />
 		<Unit filename="src/robots/spinalcord_watch.h" />
+		<Unit filename="src/serial/rs232.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/serial/rs232.h" />
 		<Unit filename="src/tests/autoencoder_tests.cpp">
 			<Option target="tests" />
 		</Unit>
