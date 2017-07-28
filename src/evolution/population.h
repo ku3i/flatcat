@@ -27,8 +27,8 @@ public:
     const Individual& get_best_individual(void) const { return individuals.front(); }
     const Individual& get_last_individual(void) const { return individuals.back (); }
 
-    const std::size_t get_size           (void) const { return individuals.size();           }
-    const std::size_t get_individual_size(void) const { return individuals[0].genome.size(); }
+    std::size_t get_size           (void) const { return individuals.size();           }
+    std::size_t get_individual_size(void) const { return individuals[0].genome.size(); }
 
           Individual& operator[] (std::size_t index)       { assert(index < individuals.size()); return individuals[index]; }
     const Individual& operator[] (std::size_t index) const { assert(index < individuals.size()); return individuals[index]; }

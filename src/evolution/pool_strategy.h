@@ -205,7 +205,7 @@ public:
 
         double sum_fitness = .0;
 
-        mutation_stats = statistics_t{};
+        mutation_stats = statistics_t();
 
         for (std::size_t i = 0; i < population.get_size(); ++i) {
             if (population[i].fitness.get_number_of_evaluations() > 0)

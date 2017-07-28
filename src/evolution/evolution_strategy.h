@@ -32,8 +32,8 @@ public:
     , csv_population(project_folder_path + "/population.log", population.get_size(), population.get_individual_size())
     , csv_mutation  (project_folder_path + "/mutation.log"  , population.get_size(), 1)
     , csv_fitness   (project_folder_path + "/fitness.log"   , population.get_size(), 1)
-    , fitness_stats{}
-    , mutation_stats{}
+    , fitness_stats()
+    , mutation_stats()
     , verbose(verbose)
     {
         dbg_msg("created evolution policy (base).");
