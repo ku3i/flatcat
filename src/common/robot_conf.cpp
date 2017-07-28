@@ -24,7 +24,7 @@ Robot_Configuration::Robot_Configuration(Socket_Client &client)
     char tmp_name[256];
 
     sts_msg("Waiting for simloid's answer.");
-    const std::string server_message = client.recv(5*seconds_us);
+    const std::string server_message = client.recv(5*constants::seconds_us);
     sts_msg("Received and checking configuration.");
 
     if (0 == server_message.length())

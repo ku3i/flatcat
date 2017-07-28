@@ -210,8 +210,8 @@ init_controls()
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
         err_msg(__FILE__, __LINE__, "SDL joystick initialization failed: %s", SDL_GetError());
 
-    int num_buttons = 0;     // amount of control pad buttons
-    int num_axes = 0;        // amount of control pad axes pairs
+    int num_buttons = 0;     // number of control pad buttons
+    int num_axes = 0;        // number of control pad axes pairs
     SDL_Joystick *ctrl;
 
     /* initialize control pad */
@@ -283,7 +283,7 @@ void
 quit()
 {
     static bool q = false;
-    if (!q) // verhindere doppelten Aufruf
+    if (!q) // prevent second call
     {
         q = true;
         sts_msg("Sending signal to exit.");

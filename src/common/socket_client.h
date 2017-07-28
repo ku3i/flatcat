@@ -12,11 +12,10 @@
 #include "./globalflag.h"
 #include "./log_messages.h"
 
-#define DEFAULTPORT 7777
-#define MSGLEN 8192
-
-namespace{
-    const unsigned int seconds_us = 1000000;
+namespace constants {
+    const unsigned seconds_us   = 1000*1000;
+    const unsigned default_port = 7777;
+    const unsigned msglen       = 8192;
 }
 
 class Socket_Client

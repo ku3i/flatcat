@@ -36,6 +36,6 @@ std::string to_str(const std::vector<double>& vect)
 template <typename vector_t> void
 print(const vector_t& content) {
     for (std::size_t i = 0; i < content.size(); ++i)
-            std::cout << content[i] << " ";
+        std::cout << content[i] << " ";
     std::cout << std::endl;
 }

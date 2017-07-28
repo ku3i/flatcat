@@ -71,12 +71,12 @@ Socket_Client::close_connection(void)
 void
 Socket_Client::send(const char* format, ...) const
 {
-    static char buffer[MSGLEN];
-    bzero(buffer, MSGLEN);
+    static char buffer[constants::msglen];
+    bzero(buffer, constants::msglen);
 
     va_list args;
     va_start(args, format);
-    vsnprintf(buffer, MSGLEN, format, args);
+    vsnprintf(buffer, constants::msglen, format, args);
     va_end(args);
     if ((unsigned int) write(sockfd, buffer, strlen(buffer)) != strlen(buffer))
         err_msg(__FILE__, __LINE__, "Send incomplete.");
@@ -86,11 +86,11 @@ Socket_Client::send(const char* format, ...) const
 std::string
 Socket_Client::recv(unsigned int timeout_us = 0)
 {
-    char buffer[MSGLEN];
+    char buffer[constants::msglen];
     unsigned int time_spent_us = 0;
     unsigned int interval_us = 1;
 
-    int len = read(sockfd, buffer, MSGLEN);
+    int len = read(sockfd, buffer, constants::msglen);
 
     while ((-1 == len) && (time_spent_us < timeout_us) && !do_quit.status())
     {
@@ -100,7 +100,7 @@ Socket_Client::recv(unsigned int timeout_us = 0)
         if (interval_us < 4096)       // double the interval for next sleep
             interval_us *= 2;
 
-        len = read(sockfd, buffer, MSGLEN);
+        len = read(sockfd, buffer, constants::msglen);
     }
 
     if (0 == len) return "";

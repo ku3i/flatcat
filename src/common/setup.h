@@ -32,7 +32,7 @@ void fps_controller(double &fps, const double &sp_fps);
 void quit(void);
 
 
-/* get rid of that makros, prevents gtk from linking!*/
+/* get rid of that macros, prevents gtk from linking!*/
 
 #define DEFINE_GLOBALS()                                                                                    \
                                                                                                             \
