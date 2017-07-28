@@ -114,17 +114,17 @@ Simloid::set_robot_to_default_position(void)
     double sec = 2; // should be enough
     sts_msg("Setting robot to default joint position.");
 
-    char msg[MSGLEN];
+    char msg[constants::msglen];
     /* pass 100 time steps per second */
     for (unsigned i = 0; i < round(100.0 * sec); ++i)
     {
         read_sensor_data();
 
-        short n = snprintf(msg, MSGLEN, "PX");
+        short n = snprintf(msg, constants::msglen, "PX");
         for (auto& j: configuration.joint)
-            n += snprintf(msg + n, MSGLEN - n, " %lf", j.default_pos);
+            n += snprintf(msg + n, constants::msglen - n, " %lf", j.default_pos);
 
-        snprintf(msg + n, MSGLEN - n, "\nDONE\n");
+        snprintf(msg + n, constants::msglen - n, "\nDONE\n");
         client.send(msg);
     }
     read_sensor_data();
@@ -278,7 +278,7 @@ Simloid::read_sensor_data(void)
     static std::string srv_msg;
     unsigned charcount = 0;
 
-    srv_msg = client.recv(60*seconds_us);
+    srv_msg = client.recv(60*constants::seconds_us);
 
     if (0 == srv_msg.length())
     {
@@ -316,19 +316,19 @@ Simloid::read_sensor_data(void)
 void
 Simloid::write_motor_data(void)
 {
-    static char msg[MSGLEN];
-    unsigned n = snprintf(msg, MSGLEN, "UX");
+    static char msg[constants::msglen];
+    unsigned n = snprintf(msg, constants::msglen, "UX");
 
     for (auto& j: configuration.joint)
-        n += snprintf(msg + n, MSGLEN - n, " %lf", clip(j.motor.get()));
+        n += snprintf(msg + n, constants::msglen - n, " %lf", clip(j.motor.get()));
 
     auto const& bodies = configuration.bodies;
     for (unsigned i = 0; i < bodies.size(); ++i)
         if (bodies[i].force.length() > .0)
-            n += snprintf(msg + n, MSGLEN - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
-                                                                         bodies[i].force.y,
-                                                                         bodies[i].force.z);
-    snprintf(msg + n, MSGLEN - n, "\nDONE\n");
+            n += snprintf(msg + n, constants::msglen - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
+                                                                                    bodies[i].force.y,
+                                                                                    bodies[i].force.z);
+    snprintf(msg + n, constants::msglen - n, "\nDONE\n");
     client.send(msg);
 
     /* transfer motor data u(t) to u(t-1) */
