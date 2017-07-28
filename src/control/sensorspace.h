@@ -27,7 +27,7 @@ public:
     const std::string       name;
     std::function<double()> lambda;
 
-    const double operator() (void) const { return current; }
+    double operator() (void) const { return current; }
 
     double current;
     double last;
@@ -60,10 +60,10 @@ public:
         for (auto& s : sensors) s.execute_cycle();
     }
 
-    const std::size_t size(void) const { return sensors.size(); }
+    std::size_t size(void) const { return sensors.size(); }
 
-          double operator[] (std::size_t index)       { return sensors.at(index)(); }
-    const double operator[] (std::size_t index) const { return sensors.at(index)(); }
+    double operator[] (std::size_t index)       { return sensors.at(index)(); }
+    double operator[] (std::size_t index) const { return sensors.at(index)(); }
 
     VectorN get(void) const {
         VectorN result(sensors.size());

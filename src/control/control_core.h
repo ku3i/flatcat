@@ -85,7 +85,7 @@ public:
             joints[(is_switched ? joints[i].symmetric_joint : i)].motor.set( clip(activation[i], 1.0) );
     }
 
-    void apply_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
+    void apply_weights(robots::Robot_Interface const& /*robot*/, std::vector<double> const& params)
     {
 //        dbg_msg("Apply weights.");
         assert(params.size() == weights.size() * weights.at(0).size());
