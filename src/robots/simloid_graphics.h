@@ -1,3 +1,9 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | July 2017                       |
+ +---------------------------------*/
+
 #ifndef SIMLOID_GRAPHICS_H_INCLUDED
 #define SIMLOID_GRAPHICS_H_INCLUDED
 
@@ -84,7 +90,7 @@ public:
 
     }
 
-    void draw(const pref& p) const {
+    void draw(const pref& /*p*/) const {
         glPushMatrix();
         glTranslatef(0.0, 2.0, 0.); /**TODO make dependent on pref p */
 

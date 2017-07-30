@@ -1,3 +1,9 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | July 2017                       |
+ +---------------------------------*/
+
 #ifndef SPINALCORD_WATCH_H_INCLUDED
 #define SPINALCORD_WATCH_H_INCLUDED
 
@@ -66,7 +72,7 @@ public:
        //TODO: assert(robot.get_number_of_accel_sensors() >= 1); //TODO make applicable for more than one sensor
     }
 
-    void draw(const pref& p) const {
+    void draw(const pref& /*p*/) const {
         for (std::size_t i = 0; i < num_joints; ++i) {
             plot_axes    [i].draw();
             plot_position[i].draw();
@@ -82,7 +88,7 @@ public:
         plot_accel_z.draw();
     }
 
-    void execute_cycle(uint64_t cycle) {
+    void execute_cycle(uint64_t /*cycle*/) {
         for (std::size_t i = 0; i < num_joints; ++i) {
             plot_position[i].add_sample(joints[i].s_ang);
             plot_velocity[i].add_sample(joints[i].s_vel * constants::vel_amp);

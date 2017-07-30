@@ -111,7 +111,7 @@ Event_Manager::on_left_mouse_button_released(void)
     screen.x_angle = screen.snap*round(screen.x_angle/screen.snap);
     screen.y_angle = screen.snap*round(screen.y_angle/screen.snap);
 
-    sts_msg("New pos: % 5.2f, % 5.2f", screen.x_angle, screen.y_angle);
+    sts_msg("new pos: % 7.2f, % 7.2f", screen.x_angle, screen.y_angle);
 }
 
 void

@@ -1,3 +1,8 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | July 2017                       |
+ +---------------------------------*/
 
 #include <vector>
 #include <cassert>
@@ -81,7 +86,7 @@ public:
         return true;
     }
 
-    const double operator[] (std::size_t index) const { assert(index < data.size()); return data[index]; }
+    double operator[] (std::size_t index) const { return data.at(index); }
 
 };
 

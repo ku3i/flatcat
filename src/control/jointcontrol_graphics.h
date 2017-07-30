@@ -1,3 +1,9 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | July 2017                       |
+ +---------------------------------*/
+
 #ifndef JOINTCONTROL_GRAPHICS_H_INCLUDED
 #define JOINTCONTROL_GRAPHICS_H_INCLUDED
 
@@ -16,7 +22,7 @@ class Jointcontrol_Graphics : public Graphics_Interface
 public:
     Jointcontrol_Graphics(const robots::Robot_Interface& robot, const control::Jointcontrol& control) : robot(robot), control(control) {}
 
-    void draw(const pref& p) const
+    void draw(const pref& /*p*/) const
     {
         const double line_height = 0.02;
         const double row_width = 0.15;
