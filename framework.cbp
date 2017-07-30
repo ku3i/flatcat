@@ -34,9 +34,11 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-O2" />
 			<Add option="-Wswitch-default" />
 			<Add option="-Weffc++" />
 			<Add option="-pedantic" />
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-std=c++11" />
 			<Add option="`sdl2-config --cflags`" />
@@ -60,11 +62,8 @@
 		<Unit filename="src/common/autopause.h" />
 		<Unit filename="src/common/basic.cpp" />
 		<Unit filename="src/common/basic.h" />
-		<Unit filename="src/common/callbacks.cpp" />
-		<Unit filename="src/common/callbacks.h" />
 		<Unit filename="src/common/config.cpp" />
 		<Unit filename="src/common/config.h" />
-		<Unit filename="src/common/datalogger.h" />
 		<Unit filename="src/common/datareader.h" />
 		<Unit filename="src/common/event_manager.cpp" />
 		<Unit filename="src/common/event_manager.h" />
