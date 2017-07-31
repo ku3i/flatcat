@@ -255,22 +255,12 @@ void Evolution::save_statistics(void)
 std::string
 create_project_name_and_folder(std::string name)
 {
-    if (name.empty()) // no name given yet? create project name as time stamp
-    {
-        time_t t0 = time(NULL);                 // initialize time
-        struct tm * timeinfo = localtime(&t0);  // get time info
-        char timestamp[256];
-        snprintf(
-            timestamp, 256, "%02d%02d%02d%02d%02d%02d",
-            timeinfo->tm_year-100, timeinfo->tm_mon + 1,
-            timeinfo->tm_mday, timeinfo->tm_hour,
-            timeinfo->tm_min, timeinfo->tm_sec
-            );
-        name = timestamp;
+    if (name.empty()) { // no name given yet? create project name as time stamp
+        name = basic::get_timestamp();
         wrn_msg("Create project's name from current time stamp.");
     }
     sts_msg("Project name is '%s'", name.c_str());
-    make_directory("%s%s", FOLDER_PREFIX, name.c_str());
+    basic::make_directory("%s%s", FOLDER_PREFIX, name.c_str());
     return name;
 }
 

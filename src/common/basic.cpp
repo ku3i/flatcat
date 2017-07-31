@@ -51,7 +51,9 @@ open_file(const char* mode, const char* format, ...)
     return fd;
 }
 
-void
+namespace basic {
+
+std::string
 make_directory(const char *format, ...)
 {
     char foldername[256];
@@ -63,10 +65,9 @@ make_directory(const char *format, ...)
     int md = mkdir(foldername, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (!md) sts_msg("create folder %s", foldername);
     else if (errno != EEXIST) err_msg(__FILE__, __LINE__, "could not create folder %s.\n %s\n", foldername, strerror(errno));
-    return;
-}
 
-namespace basic {
+    return foldername;
+}
 
 Filelist list_directory(const char* target_dir, const char* filter)
 {
@@ -101,6 +102,19 @@ std::size_t get_file_size(FILE* fd)
     std::size_t file_size = ftell(fd);
     rewind(fd);
     return file_size;
+}
+
+std::string get_timestamp(void) {
+    time_t t0 = time(NULL);                 // initialize time
+    struct tm * timeinfo = localtime(&t0);  // get time info
+    char timestamp[256];
+    snprintf(
+        timestamp, 256, "%02d%02d%02d%02d%02d%02d",
+        timeinfo->tm_year-100, timeinfo->tm_mon + 1,
+        timeinfo->tm_mday, timeinfo->tm_hour,
+        timeinfo->tm_min, timeinfo->tm_sec
+        );
+    return timestamp;
 }
 
 } // namespace basic

@@ -21,14 +21,17 @@ void clear_double(double *values, unsigned int N) __attribute_deprecated__;
 
 /* file opening, formatted yeah! */
 FILE * open_file(const char *mode, const char *format, ...);
-void make_directory(const char *format, ...);
 
 namespace basic { /**TODO: move to file_io*/
+
+std::string make_directory(const char *format, ...);
 
 typedef std::vector<std::string> Filelist;
 Filelist list_directory(const char* target_dir = "", const char* filename_ending = "");
 
 std::size_t get_file_size(FILE* fd);
+
+std::string get_timestamp();
 
 } // namespace basic
 

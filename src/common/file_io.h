@@ -1,6 +1,7 @@
 #ifndef FILE_IO_H_INCLUDED
 #define FILE_IO_H_INCLUDED
 
+#include <cstdio>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -113,10 +114,18 @@ class Logfile
     Logfile& operator=(const Logfile&) = delete; // non copyable
 public:
     Logfile(const std::string& filename, bool append = false)
-    : fd( open_file(append ? "a":"w", filename.c_str()))
+    : filename(filename)
+    , fd(open_file(append ? "a":"w", filename.c_str()))
     {}
 
-    ~Logfile() { fclose(fd); }
+    ~Logfile() {
+        std::size_t fs = basic::get_file_size(fd);
+        fclose(fd);
+        if (fs == 0) { // no data written
+            sts_msg("No data written, removing file: %s", filename.c_str());
+            remove(filename.c_str());
+        }
+    }
 
     void append(const char* format, ...)
     {
@@ -134,6 +143,9 @@ public:
     }
 
     void flush(void) { fflush(fd); }
+
+
+    const std::string filename;
     FILE* fd;
 };
 

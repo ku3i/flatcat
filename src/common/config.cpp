@@ -17,13 +17,13 @@ config::load(void)
 {
     /* try to open file for reading */
     fd = fopen(filename.c_str(), "r");
-	if (fd == NULL) {
+    if (fd == NULL) {
         num_entries = 0;
         wrn_msg("Cannot load configuration file %s", filename.c_str());
         return false;
     }
 
-	sts_msg("Configuration file %s is opened", filename.c_str());
+    sts_msg("Configuration file %s is opened", filename.c_str());
     num_entries = parse();
     fclose(fd); // and close
     return true;
@@ -244,8 +244,8 @@ config::finish()
     std::fstream fs;
     fs.open(filename.c_str(), std::fstream::out);
 
-	if (fs.is_open())
-	{
+    if (fs.is_open())
+    {
         dbg_msg("Writing configuration file.");
         for (unsigned int i = 0; i < num_entries; ++i)
         {

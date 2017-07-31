@@ -72,7 +72,7 @@ fps_controller(double &fps, const double &sp_fps)
 }
 
 void
-ui_main_loop(GlobalFlag &do_quit, const GlobalFlag &do_drawing, Event_Manager &em, const Application_Base &app)
+ui_main_loop(GlobalFlag& do_quit, const GlobalFlag& do_drawing, Event_Manager& em, const Application_Base& app)
 {
     sts_msg("Entering UI main loop.");
     double fps = 0.0;
