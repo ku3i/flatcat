@@ -39,7 +39,7 @@ on_button_pressed_RETURN(void)
 }
 
 void
-on_button_pressed_CARET(void)
+on_button_pressed_G(void)
 {
     sts_msg("Toggled drawing grid.");
     draw_grid.toggle();
@@ -184,7 +184,7 @@ Event_Manager::handle_key_pressed(SDL_Keysym &keysym)
         case SDLK_TAB:       break;
         case SDLK_UP:        break;
         case SDLK_F1:        break; */
-        case SDLK_CARET:     on_button_pressed_CARET();     break;
+        case SDLK_g :        on_button_pressed_G();         break;
         case SDLK_f:         on_button_pressed_F();         break;
         /*
         case SDLK_0:         break;
