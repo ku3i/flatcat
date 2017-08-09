@@ -199,6 +199,7 @@
 		<Unit filename="src/robots/simloid.cpp" />
 		<Unit filename="src/robots/simloid.h" />
 		<Unit filename="src/robots/simloid_graphics.h" />
+		<Unit filename="src/robots/simloid_log.h" />
 		<Unit filename="src/robots/spinalcord_watch.h" />
 		<Unit filename="src/serial/rs232.c">
 			<Option compilerVar="CC" />
