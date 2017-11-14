@@ -424,8 +424,10 @@ Simloid::update_rotation_z(void)
 
     for (std::size_t i = 0; i < configuration.number_of_bodies; ++i) {
         Vector3 relative_position = configuration.bodies[i].position - average_position; // avg free position
-        relative_position.normalize(); // TODO: needed?
-        assert_close(relative_position.length(), 1.0, 0.001);
+        relative_position.normalize();
+        const double len = relative_position.length();
+
+        if (len != 0) assert_close(len, 1.0, 0.001, "relative position");
 
         const Vector3 relpos0 = body_position0[i] - average_position0;
         const double relative_rotation = relative_position.angle_phi() - relpos0.angle_phi();

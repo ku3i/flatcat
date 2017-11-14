@@ -18,7 +18,7 @@ public:
     {
         switch (keysym.sym)
         {
-            case SDLK_q : ++view_id; if (view_id >= num_views) view_id = 0; break;
+            case SDLK_v : ++view_id; if (view_id >= num_views) view_id = 0; break;
             default     : return;
         }
     }

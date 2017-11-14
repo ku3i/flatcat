@@ -6,10 +6,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <math.h>
 #include <float.h>
 #include <assert.h>
 #include <vector>
+#include <algorithm>
 #include "vector_n.h"
 #include <common/log_messages.h>
 
@@ -115,11 +117,14 @@ double wrap2(double angle);
 /* unwraps angles of -pi..+pi to -inf..+inf */
 double unwrap(double new_angle, double last_angle);
 
-/* checks that value is close to refval by max distance of maxdiff */
-inline bool close(double value, double refval, double maxdiff) { return (fabs(value - refval) < maxdiff); }
+/* checks that value is close to refval by max distance of tolerance */
+inline bool close(double value, double refval, double tolerance) { return (fabs(value - refval) < tolerance); }
 
-/* asserts that value is close to refval by max distance of maxdiff */
-inline void assert_close(double value, double refval, double maxdiff) { assert( close(value, refval, maxdiff) ); }
+/* asserts that value is close to refval by max distance of tolerance */
+inline void assert_close(double value, double refval, double tolerance, const char* msg) {
+    if (not close(value, refval, tolerance))
+        err_msg(__FILE__, __LINE__, "%s: value %f not close to %f by tolerance of %f.\n", msg, value, refval, tolerance);
+}
 
 /* checks if variable is in the given range [lower, upper]*/
 template <typename T>
@@ -146,5 +151,7 @@ inline void test_range(Vector_t const& values, double lower, double upper, const
 
 #define assert_in_range(VALUE, LOWER, UPPER)  \
 test_range(VALUE, LOWER, UPPER, #VALUE); \
+
+std::string random_string(size_t length);
 
 #endif /*MODULES_H*/

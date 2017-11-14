@@ -56,6 +56,8 @@ public:
             for (std::size_t i = 0; i < hidden.size(); ++i)
                 act += weights[i][j] * hidden[i];
             outputs[j] = tanh(act);
+            /** TODO: The decoder should not use the tanh activation function.
+                This must also be considered in the weight change. */
         }
 
     }
