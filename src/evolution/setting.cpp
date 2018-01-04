@@ -120,7 +120,7 @@ Setting::read_configuration(const std::string& filename)
     population_size = settings_file.readUINT("POPULATION_SIZE", population_size);
     selection_size  = settings_file.readUINT("SELECTION_SIZE" , selection_size );
     max_trials      = settings_file.readUINT("MAX_TRIALS"     , max_trials);
-    dbg_msg("   Generations: %u, Population Size: %u, Selection Size: %u", max_generations, population_size, selection_size);
+    dbg_msg("   Generations: %u, Population Size: %u, Selection Size: %u, Max Trials: %u", max_generations, population_size, selection_size, max_trials);
 
     init_mutation_rate = settings_file.readDBL("INIT_MUTATION_RATE", init_mutation_rate);
     meta_mutation_rate = settings_file.readDBL("META_MUTATION_RATE", meta_mutation_rate);
