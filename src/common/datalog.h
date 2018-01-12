@@ -12,7 +12,7 @@ public:
     : logfile(filename)
     , enabled(enabled)
     {
-        sts_msg("Created data log file: %s", filename.c_str());
+        sts_msg("Created data log file: %s (%s)", filename.c_str(), enabled ? "Enabled":"Disabled");
     }
 
     template<typename... Args>

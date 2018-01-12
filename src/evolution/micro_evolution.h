@@ -66,7 +66,7 @@ public:
             candidate_idx = trial_count;
             return population[trial_count].genome;
         }
-        else if (random_value(0.0, 1.0) > moving_rate)
+        else if (random_value(0.0, 1.0) > moving_rate) /**TODO: this is actually the inverse moving rate, rename!*/
         {
             /* select parents from pool and crossover */
             std::size_t parent_1 = biased_random_index_inv(population.get_size(), selection_bias);

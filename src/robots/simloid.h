@@ -86,10 +86,8 @@ public:
     void save_state(void);
     void finish(void);
 
-    void set_force(unsigned int body_index, const Vector3& force) {
-        assert(body_index < configuration.number_of_bodies);
-        configuration.bodies[body_index].force = force;
-    }
+    void set_force(std::size_t body_index, const Vector3& force) { configuration.bodies.at(body_index).force = force; }
+
     void reset_all_forces(void) {
         for (std::size_t i = 0; i < configuration.bodies.size(); ++i)
             configuration.bodies[i].force.zero();

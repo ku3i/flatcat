@@ -1,6 +1,8 @@
 
 #include <common/settings.h>
 
+/**TODO create argument parser, similar to python, showing all arguments via --help */
+
 bool
 read_option_flag(int argc, char **argv, const char* short_name, const char* ext_name)
 {
@@ -12,7 +14,7 @@ read_option_flag(int argc, char **argv, const char* short_name, const char* ext_
 }
 
 std::string
-read_string_option(int argc, char **argv, const char* short_name, const char* ext_name, const char* default_value)
+read_string_option(int argc, char **argv, const char* short_name, const char* ext_name, const std::string default_value)
 {
     std::string result = default_value;
 

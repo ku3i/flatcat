@@ -11,6 +11,7 @@
 
 #include <common/event_manager.h>
 #include <common/datalog.h>
+#include <common/settings.h>
 
 #include <draw/graphics.h>
 
@@ -36,7 +37,9 @@ public:
     virtual void user_callback_key_pressed (const SDL_Keysym& /*keysym*/) {};
     virtual void user_callback_key_released(const SDL_Keysym& /*keysym*/) {};
 
-    Application_Base( Event_Manager& em
+    Application_Base( int argc
+                    , char** argv
+                    , Event_Manager& em
                     , const std::string& name
                     , unsigned width  = constants::default_window_width
                     , unsigned height = constants::default_window_height )
@@ -45,9 +48,11 @@ public:
     , window_width(width)
     , window_height(height)
     , cycles(0)
-    , logger( basic::make_directory(constants::logfolder.c_str()) // folder
-            + basic::get_timestamp()                              // name as time stamp
-            + constants::logfileext )                             // file extension
+    , logger( read_string_option( argc, argv, "--outfile", "-o"
+                                , /* default: */ basic::make_directory(constants::logfolder.c_str()) // folder
+                                               + basic::get_timestamp()                              // name as time stamp
+                                               + constants::logfileext )                             // file extension
+            , read_option_flag(argc, argv, "--enable_logging", "-l") )
     {
         sts_msg("Loading application...");
         /* register key event */

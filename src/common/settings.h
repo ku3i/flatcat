@@ -4,6 +4,8 @@
 #include <string.h>
 #include <common/datareader.h>
 
+bool        read_option_flag  (int argc, char **argv, const char* short_name, const char* ext_name);
+std::string read_string_option(int argc, char **argv, const char* short_name, const char* ext_name, const std::string default_value);
 
 std::string read_options(int argc, char **argv, const char* default_path);
 
