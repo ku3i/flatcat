@@ -17,6 +17,7 @@ Simloid::Simloid( const unsigned short port,
                 , mtx()
                 , client()
                 , connection_established(open_connection())
+                , record_frame(false)
                 , configuration(client)
                 , timestamp()
                 , body_position0(configuration.number_of_bodies)
@@ -328,13 +329,14 @@ Simloid::write_motor_data(void)
             n += snprintf(msg + n, constants::msglen - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
                                                                                     bodies[i].force.y,
                                                                                     bodies[i].force.z);
-    snprintf(msg + n, constants::msglen - n, "\nDONE\n");
+    snprintf(msg + n, constants::msglen - n, "\n%sDONE\n", record_frame ? "RECORD\n" : "");
     client.send(msg);
 
     /* transfer motor data u(t) to u(t-1) */
     for (auto& j: configuration.joint)
         j.motor.transfer();
 
+    record_frame = false;
     return;
 }
 

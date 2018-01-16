@@ -67,6 +67,7 @@ public:
                         , robots::Simloid                      const& robot )
     : reward_base(16)
     {
+        /** TODO: consider using the body velocity instead of avg_vel_fw.., the latter oscillates very much */
         rewards.emplace_back("intrinsically motivated", [&learner](){ return learner.get_learning_progress(); }); /**TODO add joint-level gmes*/
         rewards.emplace_back("walking forwards"       , [&robot  ](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
         rewards.emplace_back("walking backwards"      , [&robot  ](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });

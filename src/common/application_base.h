@@ -8,20 +8,14 @@
 #define APPLICATION_BASE_H
 
 #include <string>
-
 #include <common/event_manager.h>
 #include <common/datalog.h>
-#include <common/settings.h>
-
 #include <draw/graphics.h>
 
 namespace constants {
     const unsigned default_window_width  = 400;
     const unsigned default_window_height = 400;
-    const std::string logfolder = "./data/";
-    const std::string logfileext = ".log";
 }
-
 
 class Application_Base
 {
@@ -48,11 +42,7 @@ public:
     , window_width(width)
     , window_height(height)
     , cycles(0)
-    , logger( read_string_option( argc, argv, "--outfile", "-o"
-                                , /* default: */ basic::make_directory(constants::logfolder.c_str()) // folder
-                                               + basic::get_timestamp()                              // name as time stamp
-                                               + constants::logfileext )                             // file extension
-            , read_option_flag(argc, argv, "--enable_logging", "-l") )
+    , logger(argc, argv)
     {
         sts_msg("Loading application...");
         /* register key event */

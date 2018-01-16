@@ -13,11 +13,6 @@
 #include <dirent.h>
 #include "log_messages.h"
 
-/* memory allocation */
-double* init_double(unsigned int N) __attribute_deprecated__;
-double** init_double(unsigned int N, unsigned int M) __attribute_deprecated__;
-
-void clear_double(double *values, unsigned int N) __attribute_deprecated__;
 
 /* file opening, formatted yeah! */
 FILE * open_file(const char *mode, const char *format, ...);

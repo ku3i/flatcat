@@ -1,16 +1,25 @@
 #ifndef DATALOG_H_INCLUDED
 #define DATALOG_H_INCLUDED
 
+#include <string>
 #include <common/basic.h>
 #include <common/file_io.h>
 #include <common/log_messages.h>
+#include <common/settings.h>
+
+namespace constants {
+    const std::string logfolder = "./data/";
+    const std::string logfileext = ".log";
+}
 
 class Datalog {
 public:
 
-    Datalog(std::string const& filename, bool enabled = false)
-    : logfile(filename)
-    , enabled(enabled)
+    Datalog(int argc, char** argv, std::string const& folder = constants::logfolder )
+    : filename  ( read_string_option(argc, argv, "--outfile"       , "-o", get_timestamped_file_name(folder)) )
+    , logfile   ( filename )
+    , enabled   ( read_option_flag  (argc, argv, "--enable_logging", "-l") )
+    , incl_video( read_option_flag  (argc, argv, "--include_video" , "-i") )
     {
         sts_msg("Created data log file: %s (%s)", filename.c_str(), enabled ? "Enabled":"Disabled");
     }
@@ -31,10 +40,20 @@ public:
     }
 
     bool is_enabled(void) const { return enabled; }
+    bool is_video_included(void) const { return enabled and incl_video; }
 
 private:
+    const std::string filename;
     file_io::Logfile logfile;
     bool enabled;
+    bool incl_video;
+
+
+    std::string get_timestamped_file_name(const std::string& folder) {
+        return basic::make_directory(folder.c_str()) // folder
+             + basic::get_timestamp()                // name as time stamp
+             + constants::logfileext;                // extension
+    }
 };
 
 

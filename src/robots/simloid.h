@@ -26,7 +26,7 @@
 
 namespace robots {
 
-/**TODO think about how get simloid thread save:
+/**TODO think about how to get simloid thread save:
  * analyze which resources are accessed simultaneously and lock only them instead of locking every method.*/
 
 class Simloid : public Robot_Interface
@@ -44,6 +44,7 @@ private:
 
     Socket_Client client;
     bool connection_established;
+    bool record_frame;
     Robot_Configuration configuration;
 
     double timestamp;
@@ -136,6 +137,7 @@ public:
 
     unsigned get_body_id_by_name(const Bodyvector_t& bodies, const std::string& name) const;
 
+    void record_next_frame() { record_frame = true; }
 };
 
 } // namespace robots

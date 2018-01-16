@@ -2,36 +2,6 @@
 
 #include "basic.h"
 
-double *
-init_double(unsigned int N) //TODO save
-{
-    double *var = (double *) calloc(N, sizeof(double));
-    if (NULL == var) err_msg(__FILE__, __LINE__, "Cannot allocate memory.");
-    return var;
-}
-
-double **
-init_double(unsigned int N, unsigned int M)
-{
-    double **var = (double **) calloc(N, sizeof(double*));
-    if (NULL == var) err_msg(__FILE__, __LINE__, "Cannot allocate memory (1).");
-
-    for (unsigned int i = 0; i < N; ++i)
-    {
-        var[i] = (double *) calloc(M, sizeof(double));
-        if (NULL == var[i]) err_msg(__FILE__, __LINE__, "Cannot allocate memory (2).");
-    }
-    return var;
-}
-
-void
-clear_double(double *values, unsigned int N)
-{
-    if (NULL == values) err_msg(__FILE__, __LINE__, "Pointer is NULL.");
-    for (unsigned int i = 0; i < N; i++)
-        values[i] = .0;
-}
-
 FILE*
 open_file(const char* mode, const char* format, ...)
 {
