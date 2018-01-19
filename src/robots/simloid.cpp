@@ -196,6 +196,20 @@ Simloid::finish(void)
 }
 
 bool
+Simloid::idle(void)
+{
+    common::lock_t lock(mtx);
+
+    if (!connection_established) {
+        wrn_msg("Not connected.");
+        return false;
+    }
+
+    send_pause_command();
+    return true;
+}
+
+bool
 Simloid::update(void)
 {
     common::lock_t lock(mtx);
@@ -339,6 +353,9 @@ Simloid::write_motor_data(void)
     record_frame = false;
     return;
 }
+
+void
+Simloid::send_pause_command(void) { client.send("PAUSE\nDONE\n"); }
 
 void
 Simloid::update_avg_position(void)

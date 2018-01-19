@@ -10,7 +10,10 @@
 #include <string>
 #include <common/event_manager.h>
 #include <common/datalog.h>
+#include <common/globalflag.h>
 #include <draw/graphics.h>
+
+extern GlobalFlag do_pause;
 
 namespace constants {
     const unsigned default_window_width  = 400;
@@ -25,7 +28,7 @@ public:
     virtual void draw(const pref&) const = 0;                /* things to draw */
     virtual bool visuals_enabled() { return true; };         /* returns true if the application was started with visuals */
     uint64_t get_cycle_count(void) const { return cycles; }  /* returns the current application cycle */
-
+    virtual void paused() {}
 
 
     virtual void user_callback_key_pressed (const SDL_Keysym& /*keysym*/) {};
@@ -48,6 +51,9 @@ public:
         /* register key event */
         em.register_user_callback_key_pressed (std::bind(&Application_Base::base_callback_key_pressed , this, std::placeholders::_1));
         em.register_user_callback_key_released(std::bind(&Application_Base::base_callback_key_released, this, std::placeholders::_1));
+
+        if (read_option_flag(argc, argv, "-c", "--no_pause"))
+            do_pause.disable();
     }
 
     Event_Manager&    em;

@@ -71,6 +71,7 @@ private:
     void read_robot_configuration(void);
     void read_sensor_data(void);
     void write_motor_data(void);
+    void send_pause_command(void);
     void reset(void);
     void update_avg_position(void);
     void update_avg_velocity(void);
@@ -82,6 +83,7 @@ public:
     ~Simloid(void);
 
     bool update(void); //locking
+    bool idle(void); //locking
     bool is_connected(void) const { return connection_established; }
     void restore_state(void); //locking
     void save_state(void);

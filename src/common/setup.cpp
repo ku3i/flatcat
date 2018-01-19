@@ -28,8 +28,10 @@ process_application(void *data)
     sts_msg("Entering application main loop.");
     while (!do_quit.status())
     {
-        if (do_pause.status())
+        if (do_pause.status()) {
             usleep(10000); // 10ms
+            a->paused();
+        }
         else
         {
             if (a->get_cycle_count() % 100 == 0) {

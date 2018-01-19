@@ -22,6 +22,7 @@ public:
     , incl_video( read_option_flag  (argc, argv, "--include_video" , "-i") )
     {
         sts_msg("Created data log file: %s (%s)", filename.c_str(), enabled ? "Enabled":"Disabled");
+        sts_msg("Video will%s be recorded.", incl_video ? "":" NOT");
     }
 
     template<typename... Args>
