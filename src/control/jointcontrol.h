@@ -73,6 +73,8 @@ public:
     std::size_t get_number_of_parameter          (void) const { return number_of_params_asym; }
     std::size_t get_number_of_symmetric_parameter(void) const { return number_of_params_sym;  }
 
+    bool is_symmetric(void) const { return symmetric_controller; }
+
 private:
 
     void apply_symmetric_weights(const std::vector<double>& params);

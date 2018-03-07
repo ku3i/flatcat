@@ -2,6 +2,7 @@
 #define TEST_ROBOT_H_INCLUDED
 
 #include <robots/robot.h>
+#include <common/modules.h>
 
 class Test_Robot : public robots::Robot_Interface {
 public:
@@ -54,11 +55,23 @@ public:
 
     double get_normalized_mechanical_power(void) const { return .0; }
 
+    void set_random_inputs(void) {
+        for (auto& jx : set_joints()) {
+            jx.s_ang = random_value(-1.0,1.0);
+            jx.s_vel = random_value(-1.0,1.0);
+            jx.motor.set(random_value(-1.0,1.0));
+            jx.motor.transfer(); // for filling backed
+        }
+    }
+
     std::size_t num_joints;
     std::size_t num_sym_joints;
     robots::Jointvector_t joints;
     robots::Accelvector_t accels;
 
 };
+
+
+
 
 #endif // TEST_ROBOT_H_INCLUDED

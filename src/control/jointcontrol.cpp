@@ -41,6 +41,8 @@ Jointcontrol::set_control_parameter(const Control_Parameter& controller)
     if (controller.is_symmetric()) apply_symmetric_weights(controller.get_parameter());
     else apply_weights(controller.get_parameter());
     symmetric_controller = controller.is_symmetric();
+
+    switch_symmetric(controller.is_mirrored());
 }
 
 
@@ -185,27 +187,27 @@ std::size_t swap_sym_joint_pos(robots::Robot_Interface const& robot, std::size_t
     assert(sym_id < robot.get_number_of_joints());
     assert(input_pos < get_number_of_inputs(robot));
 
-    if (joint_id == sym_id) /* not symmetric */
+    if (joint_id == sym_id){ /* not symmetric */
+        dbg_msg("1) not changed %u", input_pos);
         return input_pos;
+    }
 
-    if (input_pos >= 3 * robot.get_number_of_joints()) /* no joint pos, angle or torque */
+    if (input_pos >= 3 * robot.get_number_of_joints()){ /* no joint pos, angle or torque */
+        dbg_msg("2) not changed %u", input_pos);
         return input_pos;
+    }
 
     std::size_t jid = input_pos/3;
     std::size_t rem = input_pos%3;
     assert(jid < robot.get_number_of_joints());
 
-
     std::size_t result = 0;
-    if (joint_id == jid)
-        result = sym_id*3 + rem;
-    else if (sym_id == jid)
-        result = joint_id*3 + rem;
-    else return input_pos; /* not the right id */
+    sym_id = robot.get_joints()[jid].symmetric_joint;
+    result = sym_id*3 + rem;
 
-    assert(result < get_number_of_inputs(robot));
-    assert(input_pos != result);
     dbg_msg("Transforming %u to %u", input_pos, result);
+    assert(result < get_number_of_inputs(robot));
+
     return result;
 }
 
@@ -236,6 +238,9 @@ make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& o
         if (robot.get_joints()[ix].type == robots::Joint_Type_Normal)
         {
             std::size_t iy = robot.get_joints()[ix].symmetric_joint; // get symmetric counterpart of ix
+            assert(robot.get_joints()[iy].symmetric_joint == ix);
+            if (ix!=iy)
+                assert(robot.get_joints()[iy].type == robots::Joint_Type_Symmetric);
             assert(iy < robot.get_number_of_joints());
             for (std::size_t k = 0; k < number_of_inputs; ++k)
             {
@@ -250,9 +255,16 @@ make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& o
     // get them out
     std::vector<double> params;
     params.reserve(number_of_inputs * robot.get_number_of_joints());
-    for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix)
-        for (std::size_t k = 0; k < number_of_inputs; ++k)
+    for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix) {
+        printf("\n");
+        for (std::size_t k = 0; k < number_of_inputs; ++k) {
             params.push_back(temp_weights[ix][k]);
+            printf("  %+5.2f", temp_weights[ix][k]);
+        }
+    }
+    printf("\n");
+
+    other.print();
 
     assert(params.size() == number_of_inputs * robot.get_number_of_joints());
 
@@ -293,23 +305,31 @@ initialize_anyhow(robots::Robot_Interface const& robot, Jointcontrol const& cont
     return Control_Parameter();
 }
 
-    Control_Vector param_factory( const robots::Robot_Interface& robot
-                                , std::size_t number_of_motor_units
-                                , const std::string& folder
-                                , const control::Minimal_Seed_t& seed )
-    {
-        dbg_msg("Launching motor control parameter vector factory.");
-        control::Control_Vector params(number_of_motor_units, folder);
+Control_Vector param_factory( const robots::Robot_Interface& robot
+                            , std::size_t number_of_motor_units
+                            , const std::string& folder
+                            , const control::Minimal_Seed_t& seed )
+{
+    sts_msg("Launching motor control parameter vector factory.");
+    control::Control_Vector params(number_of_motor_units, folder);
 
+    sts_msg("Number of elements loaded from files: %u", params.size());
+    assert(number_of_motor_units>=params.size());
+
+    if (number_of_motor_units > params.size()) {
+        sts_msg("Added the rest (%u) as randomized values.", number_of_motor_units - params.size());
         for (std::size_t i = params.size(); i < number_of_motor_units; ++i) {
-            //dbg_msg("Create randomized motor control parameter: %u", i);
+            sts_msg("Create randomized motor control parameter no.: %u", i);
             control::Control_Parameter p = control::get_initial_parameter(robot, seed, false/*symmetric?*/);//(i % 2 == 0));
             control::randomize_control_parameter(p, 0.1, 1.0);
                 /**TODO make random parameters to settings, and constrain motor self not not go beyond zero */
                 /**TODO also: make settings grouped and only give the local settings as ref */
             params.add(p);
         }
-        return params;
     }
+    assert(params.size() == number_of_motor_units);
+    sts_msg("Done creating %u motor control vectors.", params.size());
+    return params;
+}
 
 } // namespace control
