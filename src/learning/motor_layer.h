@@ -60,9 +60,14 @@ public:
     , experts(max_num_motor_experts, payloads, motorspace, learning_rate, experience_size, params, robot)
     , gmes(experts, growth_rate, /* one shot learning = */false, num_initial_experts)
     {
-        dbg_msg("Creating motor layer with max. %u experts and growth rate: %1.4f", max_num_motor_experts, growth_rate);
+        sts_msg("Creating motor layer with max. %u experts and growth rate: %1.4f", max_num_motor_experts, growth_rate);
         if (initial_parameter_folder != "")
-            dbg_msg("Reading initial parameters from '%s'", initial_parameter_folder.c_str());
+            sts_msg("Reading initial parameters from '%s'", initial_parameter_folder.c_str());
+
+        sts_msg("Number of initial experts: %u (loaded and created: %u)", num_initial_experts, params.size());
+        assert(params.size() == max_num_motor_experts);
+        assert(get_max_number_of_experts() == max_num_motor_experts);
+        assert(get_cur_number_of_experts() == num_initial_experts);
 
         assert(learning_rate > 0.);
         assert(growth_rate > 0.);

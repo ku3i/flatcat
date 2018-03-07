@@ -91,6 +91,7 @@ public:
                  , robots::Robot_Interface const& robot )
     : Expert_Vector(max_number_of_experts, payloads)
     {
+        sts_msg("Creating motor expert vector with %u elements in control parameter vector.", ctrl_params.size());
         assert(local_learning_rate > 0.);
         assert(ctrl_params.size() == max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)

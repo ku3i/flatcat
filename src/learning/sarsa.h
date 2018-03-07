@@ -161,6 +161,7 @@ class Policy_Selector /**TODO: move to separate file */
     std::vector<uint64_t> policy_trial_duration;
     uint64_t              cycles;
     bool                  random_policy_mode;
+    mutable bool          trial_has_ended;
 
     struct policy_profile {
         std::vector<std::size_t> items;
@@ -180,6 +181,7 @@ public:
     , policy_trial_duration(number_of_policies, default_duration_s * 100) /* make constant in setup */
     , cycles(0)
     , random_policy_mode(random_policy_mode)
+    , trial_has_ended(false)
     , profile()
     {
         dbg_msg("Creating Policy Selector with %u policies.", number_of_policies);
@@ -199,6 +201,7 @@ public:
         }
         sarsa.select_policy(current_policy, false);
         cycles = 0;
+        trial_has_ended = true;
     }
 
     void select_policy(std::size_t new_policy) {
@@ -209,6 +212,7 @@ public:
         current_policy = new_policy;
         sarsa.select_policy(current_policy);
         cycles = 0;
+        trial_has_ended = true;
     }
 
     void execute_cycle(void) {
@@ -229,8 +233,10 @@ public:
         {
             select_random_policy();
         }
-        else
+        else {
             cycles = 0;
+            trial_has_ended = true;
+        }
     }
 
     void set_profile(std::vector<std::size_t> p) { profile.items = p; profile.current = 0; }
@@ -250,6 +256,12 @@ public:
     }
 
     std::size_t size() const { return number_of_policies; }
+
+    bool has_trial_ended(void) const {
+        const bool result = trial_has_ended;
+        trial_has_ended = false;
+        return result;
+    }
 
     friend class Policy_Selector_Graphics;
 };

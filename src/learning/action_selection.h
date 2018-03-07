@@ -6,6 +6,8 @@
 #include <learning/action_module.h>
 #include <learning/payload.h>
 
+template <typename Vector_t> std::size_t select_from_distribution(Vector_t const& distribution);
+
 class Action_Selection_Base
 {
 public:
@@ -42,11 +44,30 @@ public:
         return select_from_distribution(selection_probabilities); // uniform, only available actions
     }
 
-    std::size_t select_from_distribution(const Action_Selection_Base::Vector_t& distribution);
 };
-
 
 void print_distribution(const Action_Selection_Base::Vector_t& distribution);
 
+
+/** Selects an index from given discrete probability distribution.
+ *  The given distribution must sum up to 1.
+ */
+template <typename Vector_t>
+std::size_t
+select_from_distribution(Vector_t const& distribution)
+{
+    const double x = random_value(0.0, 1.0);
+    double sum = 0.0;
+    for (std::size_t i = 0; i < distribution.size(); ++i)
+    {
+        assert((0.0 <= distribution[i]) and (distribution[i] <= 1.0));
+        sum += distribution[i];
+        if (x < sum)
+            return i;
+        assert(sum < 1.0);
+    }
+    dbg_msg("sum: %1.4f", sum);
+    assert(false);
+}
 
 #endif // ACTION_SELECTION_H_INCLUDED

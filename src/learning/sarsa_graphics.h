@@ -14,6 +14,17 @@
 
 #include "sarsa.h"
 
+/** REWARD DISPLAY
+
+ Shows the rewards on different time scales
+
+ 1) Immediate reward r(t), according to system time t.
+ 2) Immediate reward r(T), according to eigentime T.
+ 3) Trial reward, accumulated eigenstep rewards for a full trial (Episode), before switching to another policy
+ 4) Bunch reward, trial rewards over time.
+
+ */
+
 class SARSA_Graphics : public Graphics_Interface {
 public:
     SARSA_Graphics(const SARSA& sarsa) //TODO make position on the screen configurable
@@ -42,21 +53,21 @@ public:
         plot_reward_bunch     .reserve(num_policies);
 
         for (std::size_t i = 0; i < sarsa.get_number_of_policies(); ++i) {
-            axis_reward_systemstep.emplace_back(-1.0, 0.00 - 0.2*i, 0.0, 0.45, .18, 0, "");
-            axis_reward_eigenstep .emplace_back(-1.5, 0.00 - 0.2*i, 0.0, 0.45, .18, 0, "");
-            axis_reward_trial     .emplace_back(-2.0, 0.00 - 0.2*i, 0.0, 0.45, .18, 0, sarsa.rewards.get_reward_name(i));
-            axis_reward_bunch     .emplace_back(-2.5, 0.00 - 0.2*i, 0.0, 0.45, .18, 0, "");
+            axis_reward_systemstep.emplace_back(+0.75, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "r(t)");
+            axis_reward_eigenstep .emplace_back(+0.25, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "r(T)");
+            axis_reward_trial     .emplace_back(-0.25, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "R/trial");
+            axis_reward_bunch     .emplace_back(-0.75, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, sarsa.rewards.get_reward_name(i).substr(0,14));
 
-            plot_reward_systemstep.emplace_back(400   , axis_reward_systemstep[i], Color4::set_transparency(table.get_color(i), 1.00));
-            plot_reward_eigenstep .emplace_back(400   , axis_reward_eigenstep [i], Color4::set_transparency(table.get_color(i), 0.75));
-            plot_reward_trial     .emplace_back(100   , axis_reward_trial     [i], Color4::set_transparency(table.get_color(i), 0.50));
-            plot_reward_bunch     .emplace_back(100   , axis_reward_bunch     [i], Color4::set_transparency(table.get_color(i), 1.00));
+            plot_reward_systemstep.emplace_back(400, axis_reward_systemstep[i], Color4::set_transparency(table.get_color(i), 1.00));
+            plot_reward_eigenstep .emplace_back(400, axis_reward_eigenstep [i], Color4::set_transparency(table.get_color(i), 0.80));
+            plot_reward_trial     .emplace_back(100, axis_reward_trial     [i], Color4::set_transparency(table.get_color(i), 0.60));
+            plot_reward_bunch     .emplace_back(100, axis_reward_bunch     [i], Color4::set_transparency(table.get_color(i), 0.40));
         }
 
         dbg_msg("Creating Sarsa Graphics.");
     }
 
-    void execute_cycle(uint64_t /*cycle*/, bool state_changed)
+    void execute_cycle(uint64_t /*cycle*/, bool state_changed, bool trial_ended)
     {
 
         for (std::size_t i = 0; i < num_policies; ++i)
@@ -77,10 +88,9 @@ public:
             }
         }
 
-        if (last_policy != sarsa.get_current_policy()) {  // policy changed, trial ended
-            last_policy = sarsa.get_current_policy();
-
+        if (/*last_policy != sarsa.get_current_policy() or*/ trial_ended) {  // policy changed, trial ended
             std::size_t i = last_policy;
+            last_policy = sarsa.get_current_policy();
 
             reward_bunch[i].add(reward_trial[i].get_avg_value());
             plot_reward_trial[i].add_sample(reward_trial[i].get_avg_value_and_reset());

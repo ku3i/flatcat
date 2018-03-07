@@ -29,10 +29,22 @@ public:
         control.switch_symmetric(parameter_set.get(current_behavior).is_mirrored());
     }
 
+    bool step(void) {
+        if (triggered) {
+            next();
+            triggered = false;
+            return true;
+        }
+        else return false;
+    }
+
+    void trigger(void) { triggered = true; }
+
 private:
     const Control_Vector& parameter_set;
     Jointcontrol&         control;
     std::size_t           current_behavior;
+    bool                  triggered = false;
 };
 
 

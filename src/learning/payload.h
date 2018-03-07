@@ -75,9 +75,16 @@ public:
     , num_states(payloads.size())
     {}
     void draw(const pref& /*p*/) const {
+
+        /**TODO draw user selected policy a little bigger */
+
+        const float width = 2.0/num_policies;
+        const float offx = width * num_policies/2 - 0.5*width;
+        const float height = 0.05;
+        const float offy = 0.5*height;
         for (std::size_t i = 0; i < num_policies; ++i)
             for (std::size_t s = 0; s < std::min(10ul,num_states); ++s)
-                draw::vec3(i*0.6, 0.0 - s*0.06, 0.05, 0.5, payloads[s].policies[i].qvalues);
+                draw::vec3(i*width - offx, 0.0 - s*0.05 + offy, height, width*0.95, payloads[s].policies[i].qvalues);
     }
 };
 #endif // PAYLOAD_H_INCLUDED
