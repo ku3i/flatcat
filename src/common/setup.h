@@ -18,6 +18,7 @@
 #include <common/gui.h>
 #include <common/modules.h>
 #include <draw/draw.h>
+#include <external/gl2ps/gl2ps.h>
 
 void init_SDL(const bool visuals, const std::size_t window_width, const std::size_t window_height, const std::string& name = "working title");
 void deinit_SDL(void);
@@ -44,7 +45,7 @@ extern GlobalFlag do_quit;                                                      
 extern GlobalFlag fast_forward;                                                                             \
 extern GlobalFlag draw_grid;                                                                                \
 extern GlobalFlag do_drawing;                                                                               \
-
+extern GlobalFlag screenshot;                                                                               \
 
 
 #define APPLICATION_MAIN()                                                                                  \

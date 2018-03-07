@@ -5,6 +5,7 @@ GlobalFlag do_quit     (false);
 GlobalFlag fast_forward(false);
 GlobalFlag draw_grid   (false);
 GlobalFlag do_drawing  (false);
+GlobalFlag screenshot  (false);
 
 static SDL_Window *window;
 static SDL_GLContext glcontext;
@@ -248,6 +249,23 @@ init_controls()
 void
 draw_screen(const double& fps, const Application_Base& app)
 {
+    static FILE *fp;
+    const unsigned long long cycles = app.get_cycle_count();
+
+    /* prepare screen shot */
+    if (screenshot.status())
+    {
+
+        int buffsize = 1024*1024;
+
+        fp = open_file("wb", "screenshot_%llu.svg", cycles);
+        sts_msg("Prepare screen shot at cycle: %llu",cycles);
+
+        gl2psBeginPage("screenshot", "gl2ps", NULL, GL2PS_SVG, GL2PS_SIMPLE_SORT,
+                       GL2PS_DRAW_BACKGROUND | GL2PS_USE_CURRENT_VIEWPORT,
+                       GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fp, "foo.svg");
+    }
+
     /* Clear the color and depth buffers. */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -274,8 +292,15 @@ draw_screen(const double& fps, const Application_Base& app)
 
     if (screen.show_fps) {
         glColor3f(1.0, 1.0, 1.0);
-        unsigned long long cycles = app.get_cycle_count();
         glprintf(-1.0,-1.0, 0.0, .025, "%s (%lu), %d fps %1.2fx", get_time_from_cycle_counter(cycles).c_str(), cycles, (int) round(fps), speed_factor);
+    }
+
+    /* finish screen shot */
+    if (screenshot.status()) {
+        if (GL2PS_OVERFLOW == gl2psEndPage())
+            wrn_msg("Overflow while creating screen shot. Increase buffer size.");
+        fclose(fp);
+        screenshot.disable();
     }
 
     SDL_GL_SwapWindow(window); // swap the buffers

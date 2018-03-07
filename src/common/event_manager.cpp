@@ -5,6 +5,7 @@
 extern GlobalFlag do_pause;
 extern GlobalFlag fast_forward;
 extern GlobalFlag draw_grid;
+extern GlobalFlag screenshot;
 
 extern Visuals screen;
 extern float t_delay_ms;
@@ -43,6 +44,12 @@ on_button_pressed_G(void)
 {
     sts_msg("Toggled drawing grid.");
     draw_grid.toggle();
+}
+
+void
+on_button_pressed_S(void)
+{
+    screenshot.enable();
 }
 
 void
@@ -184,8 +191,9 @@ Event_Manager::handle_key_pressed(SDL_Keysym &keysym)
         case SDLK_TAB:       break;
         case SDLK_UP:        break;
         case SDLK_F1:        break; */
-        case SDLK_g :        on_button_pressed_G();         break;
+        case SDLK_g:         on_button_pressed_G();         break;
         case SDLK_f:         on_button_pressed_F();         break;
+        case SDLK_s:         on_button_pressed_S();         break;
         /*
         case SDLK_0:         break;
         case SDLK_2:         break;
