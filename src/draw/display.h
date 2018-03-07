@@ -56,23 +56,28 @@ void vbar(float px, float py, float dx, float dy, float value, float max_value);
 void block(float px, float py, float sx, float sy, float value, float max_value);
 
 template <typename Vector_t = std::vector<double> > inline void
-vec3( const double posx
-    , const double posy
-    , const double height
-    , const double width
+vec3( const float posx
+    , const float posy
+    , const float height
+    , const float width
     , const Vector_t& vec )
 {
-    const double max_value = std::max( fabs(vec.get_max()), fabs(vec.get_min()) );
-    const double wbar = width/vec.size();
+    const float max_value = std::max( fabs(vec.get_max()), fabs(vec.get_min()) );
+    const float wbar = width/vec.size();
+    const float px = posx - 0.5*width + 0.5*wbar;
+    const float py = posy;
 
     for (std::size_t i = 0; i < vec.size(); ++i) {
-        block(posx + i*wbar, posy, 0.9*wbar, 0.9*height, vec[i], max_value);
-        glColor3f(0.8,0.8,0.8);
-        glprintf(posx + i*wbar-0.05, posy+0.01, 0, 0.01, "%1.3f", vec[i]);
+        draw_rect(posx, posy, width, height);
+        block(px + i*wbar, py, 0.9*wbar, 0.9*height, vec[i], max_value);
+    }
+    glColor3f(0.8,0.8,0.8);
+    for (std::size_t i = 0; i < vec.size(); ++i) {
+        glprintf(px + (i-0.5)*wbar +0.01, py+0.01, 0, 0.01, "%5.2f", vec[i]);
     }
 
 }
 
-}
+} /* namespace draw */
 
 #endif // DISPLAY_H_INCLUDED

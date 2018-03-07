@@ -30,9 +30,8 @@ void block(float px, float py, float sx, float sy, float value, float max_value)
     draw_fill_rect(px, py, sx, sy);
     glColor4f(.9f, .9f, .9f, .5f);
     draw_rect(px, py, sx, sy);
-
 }
 
-}
+} /* namespace draw */
 
 

@@ -84,8 +84,8 @@ plot1D::add_sample(const float s)
 
     /* autoscale //TODO überarbeiten */
     if (pointer == 0) {
-        axis.max_amplitude -= decrement;
-        axis.min_amplitude += decrement;
+        axis.max_amplitude *= decrement;
+        axis.min_amplitude *= decrement;
     }
     axis.max_amplitude = std::max(axis.max_amplitude, s);
     axis.min_amplitude = std::min(axis.min_amplitude, s);

@@ -21,7 +21,7 @@ public:
     , axis_id(axis.countNum++)
     , signal(number_of_samples)
     , color(c)
-    , decrement(0.001)
+    , decrement(0.99)
     { }
 
     virtual ~plot1D() = default;
