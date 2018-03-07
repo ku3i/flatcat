@@ -1,6 +1,7 @@
 /* basic.cpp */
 
 #include "basic.h"
+#include <algorithm>
 
 FILE*
 open_file(const char* mode, const char* format, ...)
@@ -58,7 +59,9 @@ Filelist list_directory(const char* target_dir, const char* filter)
         }
         if (files_in_directory.size() > 1)
             std::sort(files_in_directory.begin(), files_in_directory.end());
-        dbg_msg("Read %u files in directory %s", files_in_directory.size(), target_dir);
+        sts_msg("Read %u files in directory %s", files_in_directory.size(), target_dir);
+        for (std::size_t i = 0; i < std::min(10lu, files_in_directory.size()); ++i)
+            sts_msg("\t%s", files_in_directory[i].c_str());
     } else err_msg(__FILE__, __LINE__, "Could not open directory %s", target_dir);
 
     //for (unsigned i = 0; i < files_in_directory.size(); ++i) dbg_msg("%s", files_in_directory[i].c_str());

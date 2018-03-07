@@ -120,6 +120,16 @@ double unwrap(double new_angle, double last_angle);
 /* checks that value is close to refval by max distance of tolerance */
 inline bool close(double value, double refval, double tolerance) { return (fabs(value - refval) < tolerance); }
 
+/* checks for vector that value is close to refval by max distance of tolerance */
+template <typename Vector_t>
+inline bool close(Vector_t vec, Vector_t refvec, double tolerance) {
+    assert(vec.size() == refvec.size());
+    for (std::size_t i = 0; i < vec.size();++i)
+        if (fabs(vec[i] - refvec[i]) > tolerance)
+            return false;
+    return true;
+}
+
 /* asserts that value is close to refval by max distance of tolerance */
 inline void assert_close(double value, double refval, double tolerance, const char* msg) {
     if (not close(value, refval, tolerance))
