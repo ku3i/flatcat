@@ -1,5 +1,7 @@
 #include "evolution.h"
 
+/**TODO: --watch does not work, when current trial == 0*/
+
 /* constructor for a new evolution */
 Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, const std::vector<double>& seed_genome)
 : evaluation(evaluation)

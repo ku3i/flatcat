@@ -165,8 +165,8 @@ public:
             max_trials += (current_trial - (current_trial % max_trials));
             if (max_trials > max_trials_old)
                 wrn_msg("Max. trials increased from %u to %u.", max_trials_old, max_trials);
-            load_state();
-            population.sort_by_fitness();
+            load_state();                 /**TODO consider to move that out of the if clause */
+            population.sort_by_fitness(); /**TODO consider to move that out of the if clause */
             sts_msg("Strategy ready to resume.");
         } else
             wrn_msg("Nothing to resume. Skip.");

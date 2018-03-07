@@ -117,7 +117,7 @@ public:
             data.out_of_track = true;
 
         if (data.steps > 100 && stop_penalty && robot.motion_stopped(0.0005))
-            data.stopped = true;
+            data.stopped = true; /**TODO this penalty is not yet included in the other fitness functions*/
     }
 
     void finish(fitness_data& data) override
