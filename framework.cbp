@@ -153,6 +153,10 @@
 		<Unit filename="src/evolution/population.h" />
 		<Unit filename="src/evolution/setting.cpp" />
 		<Unit filename="src/evolution/setting.h" />
+		<Unit filename="src/external/gl2ps/gl2ps.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/external/gl2ps/gl2ps.h" />
 		<Unit filename="src/learning/action_module.h" />
 		<Unit filename="src/learning/action_selection.cpp" />
 		<Unit filename="src/learning/action_selection.h" />
