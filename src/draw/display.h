@@ -2,6 +2,7 @@
 #define DISPLAY_H_INCLUDED
 
 #include <vector>
+#include <limits>
 #include <draw/draw.h>
 #include <common/modules.h>
 #include "../../simloidTCP/src/basic/color.h"
@@ -51,7 +52,7 @@ draw_vector2( const double posx
 namespace draw {
 
 
-void hbar(float px, float py, float dx, float dy, float value, float max_value);
+void hbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color = colors::white);
 void vbar(float px, float py, float dx, float dy, float value, float max_value);
 void block(float px, float py, float sx, float sy, float value, float max_value);
 
@@ -60,20 +61,24 @@ vec3( const float posx
     , const float posy
     , const float height
     , const float width
-    , const Vector_t& vec )
+    , const Vector_t& vec
+    , std::size_t max_elements = std::numeric_limits<std::size_t>::max())
 {
-    const float max_value = std::max( fabs(vec.get_max()), fabs(vec.get_min()) );
+    const std::size_t len = std::min(vec.size(), max_elements);
+    double max_value = 0;
+    for (std::size_t i = 0; i < len; ++i)
+        max_value = std::max(max_value, fabs(vec[i]));
+
     const float wbar = width/vec.size();
     const float px = posx - 0.5*width + 0.5*wbar;
     const float py = posy;
 
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-        draw_rect(posx, posy, width, height);
+    for (std::size_t i = 0; i < len; ++i) {
         block(px + i*wbar, py, 0.9*wbar, 0.9*height, vec[i], max_value);
     }
     glColor3f(0.8,0.8,0.8);
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-        glprintf(px + (i-0.5)*wbar +0.01, py+0.01, 0, 0.01, "%5.2f", vec[i]);
+    for (std::size_t i = 0; i < len; ++i) {
+        glprintf(px + (i-0.40)*wbar, py, 0, 0.008, "%.2f", vec[i]);
     }
 
 }

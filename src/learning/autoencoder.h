@@ -1,8 +1,6 @@
 #ifndef AUTOENCODER_H_INCLUDED
 #define AUTOENCODER_H_INCLUDED
 
-/** TODO make use of this #include <armadillo> */
-
 #include <common/modules.h>
 #include <common/static_vector.h>
 #include <control/sensorspace.h>
@@ -13,9 +11,6 @@ namespace learning {
 class Autoencoder {
     typedef VectorN vector_t;
     typedef copyable_static_vector<copyable_static_vector<double>> matrix_t;
-
-    //typedef arma::vec vector_t;
-    //typedef arma::mat matrix_t;
 
 public:
     Autoencoder( const std::size_t input_size
@@ -86,7 +81,7 @@ public:
         */
 
         for (std::size_t j = 0; j < outputs.size(); ++j)
-            delta[j] = (inputs[j] - outputs[j]) * tanh_(outputs[j]);
+            delta[j] = (inputs[j] - outputs[j]) * tanh_(outputs[j]); /** this tanh_ is not needed, when transfer function of output layer is omitted */
 
         for (std::size_t i = 0; i < hidden.size(); ++i)
         {
@@ -106,6 +101,7 @@ public:
 
     void randomize_weight_matrix(const double random_weight_range) {
         assert_in_range(random_weight_range, 0.0, 0.1);
+         /**TODO normalize by sqrt(N), N:#inputs */
         for (std::size_t i = 0; i < weights.size(); ++i)
             for (std::size_t j = 0; j < weights[i].size(); ++j)
                 weights[i][j] = rand_norm_zero_mean(random_weight_range);

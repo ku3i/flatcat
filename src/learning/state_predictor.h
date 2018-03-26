@@ -3,6 +3,7 @@
 
 #include <learning/predictor.h>
 #include <learning/autoencoder.h>
+#include <learning/time_delay_network.h>
 
 namespace learning {
 
@@ -23,7 +24,7 @@ public:
                    , const std::size_t    experience_size = 1   /**TODO*/
                    , const std::size_t    hidden_layer_size = constants::default_hidden_size )
     : Predictor_Base(inputs, learning_rate, random_weight_range, experience_size)
-    , enc(inputs.size(), hidden_layer_size, random_weight_range )
+    , enc(inputs.size(), inputs.size(), hidden_layer_size, 10, random_weight_range )
     {
 //        dbg_msg("Initialize State Predictor using Auto-encoder.");
     }
@@ -39,13 +40,17 @@ public:
     Predictor_Base::vector_t const& get_prediction(void) const override { return enc.get_outputs(); }
 
     double predict(void) override {
-        enc.propagate(input);
+        enc.propagate_and_shift(input);
         return calculate_prediction_error();
     };
 
+    double verify(void) override {
+        enc.propagate();
+        return calculate_prediction_error();
+    }
+
     void initialize_randomized(void) override {
-//        dbg_msg("Initialize randomized state predictor.");
-        enc.randomize_weight_matrix(random_weight_range);
+        //enc.randomize_weight_matrix(random_weight_range);
         auto initial_experience = input.get();
         for (auto& w: initial_experience)
             w += random_value(-random_weight_range, random_weight_range);
@@ -55,12 +60,14 @@ public:
 
     void initialize_from_input(void) override { assert(false && "one shot learning not supported."); }
 
+    void draw(void) const { assert(false); /*not implemented*/ }
+
 private:
 
     void learn_from_input_sample(void) override { enc.adapt(input, learning_rate); };
     void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); };
 
-    Autoencoder enc;
+    Timedelay_Network enc;//Autoencoder enc;
 
     friend class Predictor_Graphics;
 };

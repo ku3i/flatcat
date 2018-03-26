@@ -24,7 +24,7 @@ public:
         current = lambda();
     }
 
-    const std::string       name;
+    std::string             name;
     std::function<double()> lambda;
 
     double operator() (void) const { return current; }

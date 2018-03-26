@@ -34,6 +34,10 @@ public:
 
     const Color4& get_color(unsigned int index) const { return colors[index % max_colors]; }
 
+    //      Color4& operator[] (std::size_t index)       { return colors[index % max_colors]; }
+    const Color4& operator[] (std::size_t index) const { return colors[index % max_colors]; }
+
+
     void randomize() {
         auto engine = std::default_random_engine{};
         std::shuffle(std::begin(colors), std::end(colors), engine);

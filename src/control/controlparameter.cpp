@@ -44,7 +44,7 @@ namespace control {
 
     void Control_Parameter::set_from_matrix(matrix_t const& weights)
     {
-        assert(symmetric == false and mirrored == false);
+        assert(symmetric == false and mirrored == false); /**TODO accept mirrored weights */
         assert(weights.size() > 0 and weights[0].size() > 0);
         assert(parameter.size() == weights.size() * weights[0].size());
 
@@ -73,9 +73,32 @@ namespace control {
         return *this;
     }
 
+    void Control_Parameter::add_gaussian_noise(double sigma) {
+        if (sigma == 0.0) return;
+        const double s = sigma/sqrt(parameter.size());
+        for (auto &u : parameter) {
+            u += rand_norm_zero_mean(s);
+        }
+    }
+
+
     void Control_Parameter::print() const {
         for ( auto const& p : parameter ) printf("% 5.2f ", p);
         printf("\n");
+    }
+
+    void Control_Parameter::save_to_file(const std::string& filename, std::size_t id) const {
+        sts_msg("Saving control parameter to file: %s", filename.c_str());
+
+        FILE* ctrl = open_file("w", filename.c_str());
+
+        fprintf(ctrl, "name = \"motor-expert-%lu\"\n", id);
+        fprintf(ctrl, "symmetry = \"%s\"\n", symmetric ? "symmetric" : "asymmetric");
+        fprintf(ctrl, "propagation = \"original\"\n");
+        fprintf(ctrl, "parameter = { ");
+        for ( auto const& p : parameter ) fprintf(ctrl, "%e ", p);
+        fprintf(ctrl, "}\n\n");
+        fclose(ctrl);
     }
 
 } // namespace control

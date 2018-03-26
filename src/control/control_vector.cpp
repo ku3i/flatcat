@@ -13,7 +13,8 @@ namespace control {
 
 
     Control_Vector::Control_Vector( std::size_t max_number_of_parameter_sets
-                                  , const std::string& foldername )
+                                  , const std::string& foldername
+                                  , bool include_mirrored )
     : max_number_of_parameter_sets(max_number_of_parameter_sets)
     , controls()
     {
@@ -33,6 +34,17 @@ namespace control {
                 sts_msg("No files found in '%s'", foldername.c_str());
         } else
             sts_msg("Initialize empty control vector.");
+
+        if (include_mirrored) {
+            std::size_t len = controls.size();
+            for (std::size_t i = 0; i < len; ++i)
+                if (not controls[i].is_symmetric() and not controls[i].is_mirrored()) {
+                    controls.emplace_back(controls[i].get_parameter(), false, true);
+                    sts_msg("Adding mirrored variant of controller %lu", i);
+                }
+        }
+        if (controls.size() >= max_number_of_parameter_sets)
+            wrn_msg("Maximum number of parameter sets exceeded.");
     }
 
 

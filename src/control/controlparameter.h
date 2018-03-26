@@ -48,7 +48,11 @@ public:
     bool is_symmetric(void) const { return symmetric; }
     bool is_mirrored (void) const { return mirrored;  }
 
+    void add_gaussian_noise(double sigma);
+
     void print() const;
+
+    void save_to_file(const std::string& filename, std::size_t id) const;
 
 private:
 

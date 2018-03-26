@@ -89,11 +89,14 @@ public:
     virtual void copy(Predictor_Base const& other) = 0;
 
     virtual double predict(void) = 0;
+    virtual double verify (void) = 0; // verification can e.g. be prediction by default
 
     virtual void initialize_randomized(void) = 0;
     virtual void initialize_from_input(void) = 0;
 
     virtual vector_t const& get_prediction(void) const = 0;
+
+    virtual void draw(void) const = 0;
 
 private:
     virtual void learn_from_input_sample(void) = 0;
@@ -122,9 +125,12 @@ public:
     Predictor_Base::vector_t const& get_prediction(void) const override { return weights; }
 
     double predict(void) override;
+    double verify(void) override { return predict(); }
 
     void initialize_randomized(void) override;
     void initialize_from_input(void) override;
+
+    void draw(void) const { assert(false);/* not implemented*/ }
 
 private:
 

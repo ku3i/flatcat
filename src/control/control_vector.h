@@ -11,13 +11,13 @@
 namespace control {
 
 
-    void randomize_control_parameter(Control_Parameter& params, double std_dev, double max_dev);
+void randomize_control_parameter(Control_Parameter& params, double std_dev, double max_dev);
 
 
 class Control_Vector : public static_vector_interface
 {
 public:
-    Control_Vector(std::size_t max_number_of_parameter_sets, const std::string& foldername = "");
+    Control_Vector(std::size_t max_number_of_parameter_sets, const std::string& foldername = "", bool include_mirrored = false);
 
     const Control_Parameter& get(std::size_t index) const { return controls.at(index); }
 

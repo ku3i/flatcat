@@ -37,6 +37,10 @@ double clip(double x, double ul_limit);
 /* clips values to Interval [l_limit, u_limit] */
 double clip(double x, double l_limit, double u_limit);
 
+/* clip() on a vector_t */
+template <typename Vector_t>
+void vector_clip(Vector_t& vec) { for (auto& v : vec) v = clip(v); }
+
 /* min of 3 arguments */
 double fmin3(double x, double y, double z);
 

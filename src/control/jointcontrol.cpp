@@ -31,7 +31,9 @@ Jointcontrol::switch_symmetric(bool switched)
 {
     if (not symmetric_controller)
         is_switched = switched;
-    else wrn_msg("Switching symmetry does not have any effect on symmetrical controller weights.");
+    else
+        is_switched = false;
+    /* switching symmetry does not have any effect on symmetrical controller weights */
 }
 
 
@@ -181,6 +183,10 @@ make_symmetric(robots::Robot_Interface const& robot, const Control_Parameter& ot
 
 }
 
+bool is_sagittal_accel_sensor(robots::Robot_Interface const& robot, std::size_t input_pos) {
+    return (input_pos == 3 * robot.get_number_of_joints());
+}
+
 std::size_t swap_sym_joint_pos(robots::Robot_Interface const& robot, std::size_t joint_id, std::size_t input_pos) {
 
     std::size_t sym_id = robot.get_joints()[joint_id].symmetric_joint;
@@ -188,12 +194,12 @@ std::size_t swap_sym_joint_pos(robots::Robot_Interface const& robot, std::size_t
     assert(input_pos < get_number_of_inputs(robot));
 
     if (joint_id == sym_id){ /* not symmetric */
-        dbg_msg("1) not changed %u", input_pos);
+        //dbg_msg("1) not changed %u", input_pos);
         return input_pos;
     }
 
     if (input_pos >= 3 * robot.get_number_of_joints()){ /* no joint pos, angle or torque */
-        dbg_msg("2) not changed %u", input_pos);
+        //dbg_msg("2) not changed %u", input_pos);
         return input_pos;
     }
 
@@ -205,7 +211,7 @@ std::size_t swap_sym_joint_pos(robots::Robot_Interface const& robot, std::size_t
     sym_id = robot.get_joints()[jid].symmetric_joint;
     result = sym_id*3 + rem;
 
-    dbg_msg("Transforming %u to %u", input_pos, result);
+    //dbg_msg("Transforming %u to %u", input_pos, result);
     assert(result < get_number_of_inputs(robot));
 
     return result;
@@ -269,6 +275,46 @@ make_asymmetric(robots::Robot_Interface const& robot, const Control_Parameter& o
     assert(params.size() == number_of_inputs * robot.get_number_of_joints());
 
     return Control_Parameter(params, false);
+}
+
+
+Control_Parameter
+turn_symmetry(robots::Robot_Interface const& robot, const Control_Parameter& other) {
+    if (other.is_symmetric() or !other.is_mirrored()) {
+        dbg_msg("Nothing to turn to original.");
+        return other; /* nothing to do*/
+    }
+
+    dbg_msg("Turning controller to original.");
+    Control_Parameter orig = other; // make a safe copy
+    auto& params = orig.set_parameter();
+    orig.print();
+    printf("\n");
+    std::size_t number_of_inputs = get_number_of_inputs(robot);
+
+    /* copy params to temp weight matrix */
+    std::vector<std::vector<double> > weights{ robot.get_number_of_joints()
+                                              , std::vector<double>(number_of_inputs, 0.0)};
+    std::size_t p = 0;
+        for (auto& w_i : weights)
+            for (auto& w_ik : w_i)
+                w_ik = params[p++];
+    assert(p == params.size());
+
+    p = 0;
+    for (std::size_t ix = 0; ix < robot.get_number_of_joints(); ++ix) {
+        for (std::size_t k = 0; k < number_of_inputs; ++k) {
+            unsigned j = swap_sym_joint_pos(robot, ix, k);
+            int sign = is_sagittal_accel_sensor(robot,k)? -1:1;
+            params[p++] = sign*weights[robot.get_joints()[ix].symmetric_joint][j];
+        }
+    }
+
+    assert(p == params.size());
+
+    orig.print();
+
+    return Control_Parameter(params, false, false);
 }
 
 /** this initializer is capable of reading a symmetric file and transform it to asymmetric */

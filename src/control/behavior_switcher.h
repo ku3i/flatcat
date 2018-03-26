@@ -19,14 +19,17 @@ public:
         dbg_msg("Creating Behavior Switcher.");
     }
 
+    void random(void) {
+        current_behavior = random_index(parameter_set.size());
+        switch_behavior();
+    }
+
     void next(void) {
         ++current_behavior;
         if (current_behavior >= parameter_set.size())
             current_behavior = 0;
         dbg_msg("Current behavior: %u", current_behavior);
-        control.set_control_parameter(parameter_set.get(current_behavior));
-
-        control.switch_symmetric(parameter_set.get(current_behavior).is_mirrored());
+        switch_behavior();
     }
 
     bool step(void) {
@@ -41,6 +44,12 @@ public:
     void trigger(void) { triggered = true; }
 
 private:
+
+    void switch_behavior(void) {
+        control.set_control_parameter(parameter_set.get(current_behavior));
+        control.switch_symmetric(parameter_set.get(current_behavior).is_mirrored());
+    }
+
     const Control_Vector& parameter_set;
     Jointcontrol&         control;
     std::size_t           current_behavior;

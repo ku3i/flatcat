@@ -22,7 +22,7 @@ public:
 //        dbg_msg("Creating Policies.");
         assert(actions.get_number_of_actions() >= 1);
         for (std::size_t i = 0; i < qvalues.size(); ++i)
-            qvalues[i] = initial;
+            qvalues[i] = initial + rand_norm_zero_mean(0.01);
     }
 
     double get_max_q(void) const

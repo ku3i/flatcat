@@ -8,6 +8,8 @@
 #include <control/control_core.h>
 #include <learning/predictor.h>
 
+#include <draw/display.h>
+
 namespace learning {
 
 class Motor_Predictor : public Predictor_Base {
@@ -22,11 +24,9 @@ public:
     , robot(robot)
     , core(robot)
     , motor_targets(motor_targets)
-    , params(control::make_asymmetric(robot, parameter))
+    , params(control::turn_symmetry(robot, control::make_asymmetric(robot, parameter)))
     , params_changed(false)
     {
-//        dbg_msg("Creating motor predictor with learning rate: %1.4f", learning_rate);
-        //params.print();
         core.apply_weights(robot, params.get_parameter());
     }
 
@@ -37,10 +37,19 @@ public:
     }
 
     double predict(void) override {
-        //dbg_msg("Motor predictor: predicts.");
         core.prepare_inputs(robot);
+        add_noise_to_inputs(core.input, 0.01); /**TODO setting*/
+        assert(!(params.is_mirrored() and params.is_symmetric()));
         core.update_outputs(robot, params.is_symmetric(), params.is_mirrored());
-        vector_tanh(core.activation);
+        //vector_tanh(core.activation);
+        vector_clip(core.activation);
+        return calculate_prediction_error();
+    }
+
+    double verify(void) override {
+        assert(!(params.is_mirrored() and params.is_symmetric()));
+        core.update_outputs(robot, params.is_symmetric(), params.is_mirrored());
+        vector_clip(core.activation);
         return calculate_prediction_error();
     }
 
@@ -72,6 +81,16 @@ public:
         return params;
     }
 
+    void draw(void) const {
+        unsigned I = core.weights.size();
+        unsigned i = 0;
+        for (auto const& wi : core.weights) {
+            //draw_vector2(-.5, 0.0 - 0.05 * i++, 0.045, 1.0, wi, 3.0);
+            //TODO correct this draw_rect   (0.0 - I/2*0.5 +  0.5*i ,  0.0, 0.5, 0.045);
+            draw_vector2(0.0 - I/2*0.5 +  0.5*i++, 0.0, 0.045, 0.5, wi, 3.0);
+        }
+    }
+
 private:
     robots::Robot_Interface const&          robot;
     control::Fully_Connected_Symmetric_Core core;
@@ -98,12 +117,22 @@ private:
             double err = motor_targets[k] - predictions[k];
             for (std::size_t i = 0; i < weights[k].size(); ++i) { // for num of inputs
                 weights[k][i] += learning_rate * err * tanh_(predictions[k]) * inputs[i].x;
+                /** This gradient is intentionally wrong, derivative of clip transfer function would be not continuous. */
             }
         }
         params_changed = true; /**TODO: move to learn_from_experience, if supported */
     }
 
     void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); }
+
+    void add_noise_to_inputs(std::vector<control::sym_input>& inputs, double sigma) {
+        const double s = sigma/sqrt(inputs.size());
+        for (auto &in : inputs) {
+            const double rndval = rand_norm_zero_mean(s);
+            in.x += rndval;
+            in.y += rndval;
+        }
+    }
 };
 
 } // namespace learning

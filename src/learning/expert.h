@@ -30,6 +30,7 @@ public:
     Expert& operator=(Expert&& other) = default;
 
     bool   learning_capacity_is_exhausted(void) const { return learning_capacity < gmes_constants::learning_capacity_exhausted; }
+    double get_learning_capacity         (void) const { return learning_capacity; }
     double get_prediction_error          (void) const { return predictor->get_prediction_error(); }
     void   adapt_weights                 (void)       { predictor->adapt();                       }
     void   reinit_predictor_weights      (void)       { predictor->initialize_from_input();       }
@@ -42,6 +43,7 @@ public:
 
     /* make prediction and update prediction error */
     double make_prediction(void) { return predictor->predict(); }
+    double redo_prediction(void) { return predictor->verify(); }
 
     void clear_transitions(void) { for (auto& t : transition) t = 0.0; }
 

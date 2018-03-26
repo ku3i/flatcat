@@ -113,6 +113,9 @@
 		<Unit filename="src/control/jointcontroller.h" />
 		<Unit filename="src/control/pidcontrol.h" />
 		<Unit filename="src/control/positioncontrol.h" />
+		<Unit filename="src/control/pusher.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/control/sensorspace.h" />
 		<Unit filename="src/control/spaces.h" />
 		<Unit filename="src/control/statemachine.h" />
@@ -192,6 +195,7 @@
 		<Unit filename="src/learning/sarsa_constants.h" />
 		<Unit filename="src/learning/sarsa_graphics.h" />
 		<Unit filename="src/learning/state_predictor.h" />
+		<Unit filename="src/learning/time_delay_network.h" />
 		<Unit filename="src/midi/RtMidi.cpp" />
 		<Unit filename="src/midi/RtMidi.h" />
 		<Unit filename="src/midi/midi_in.h" />
@@ -234,6 +238,9 @@
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/test_robot.h">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/time_delay_network_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Extensions>

@@ -1,6 +1,7 @@
 #ifndef STATE_LAYER_H_INCLUDED
 #define STATE_LAYER_H_INCLUDED
 
+#include <common/integrator.h>
 #include <robots/robot.h>
 #include <robots/joint.h>
 #include <control/jointcontrol.h>
@@ -32,7 +33,7 @@ namespace state_layer_constants {
     const double learning_rate        = 0.02;
     const double growth_rate          = 1.0;//10.0;
     const std::size_t experience_size = 100;
-    const std::size_t hidden_size     = 6;
+    const std::size_t hidden_size     = 8;//6;
 
     const unsigned subspace_num_datapoints = 200; // 2s of data at 100Hz
 }
@@ -43,10 +44,10 @@ public:
     : sensor_vector(joints.size())
     {
         for (robots::Joint_Model const& j : joints)
-            sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang; /*+ rand_norm_zero_mean(0.01);*/ });
+            sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang; });
 
         for (robots::Joint_Model const& j : joints)
-            sensors.emplace_back(j.name + "_vel", [&j](){ return j.s_vel;                                  });
+            sensors.emplace_back(j.name + "_vel", [&j](){ return j.s_vel; });
 
         sensors.emplace_back("bias", [](){ return 0.1; });
     }
@@ -108,8 +109,8 @@ struct sensor_subspace_graphics : public Graphics_Interface
     , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("xy"))
     , axis_dt(pos.x + (2.0 + size)/2, pos.y + size/2, pos.z, 2.0-size, size, 1, std::string(j0.name + "/" + j1.name))
     , plot_xy(state_layer_constants::subspace_num_datapoints, axis_xy, colors::magenta )
-    , plot_j0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::cyan    )
-    , plot_j1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::orange  )
+    , plot_j0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light0  )
+    , plot_j1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light1  )
     , plot_p0(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
     , plot_p1(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
     {
@@ -159,6 +160,12 @@ public:
     , winner()
     , subspace()
     , colortable(4, /*randomized*/true)
+    , integrator()
+    , axis_dt(-0.5,-1.50, 0.0, 1.0, 1.0, 1, "PredErr")
+    , axis_ne(-0.5,-1.75, 0.0, 1.0, 0.5, 1, "#Experts")
+    , pred_err(2000, axis_dt, colors::white)
+    , pred_err_avg(2000, axis_dt, colors::magenta)
+    , num_exp(2000, axis_ne, colors::cyan)
     {
         /** TODO
             + also for the rest of the joints
@@ -183,6 +190,12 @@ public:
 
         for (auto& s: subspace)
             s.draw(p);
+
+        axis_dt.draw();
+        axis_ne.draw();
+        pred_err.draw();
+        pred_err_avg.draw();
+        num_exp.draw();
     };
 
     void execute_cycle() {
@@ -196,6 +209,15 @@ public:
             auto s1 = predictions.at(s.j1.joint_id);
             s.execute_cycle(s0, s1, winner);
         }
+
+        integrator.add(state_layer.gmes.get_min_prediction_error());
+        if (integrator.get_number_of_samples()==1000) {
+            const double val = 100.0*integrator.get_avg_value_and_reset();
+            avg_err = 0.99*avg_err + 0.01*val;
+            pred_err.add_sample(val);
+            pred_err_avg.add_sample(avg_err);
+            num_exp.add_sample(state_layer.gmes.get_number_of_experts());
+        }
     };
 
     State_Layer const& state_layer;
@@ -206,6 +228,12 @@ public:
     std::vector<sensor_subspace_graphics> subspace;
     ColorTable                            colortable;
 
+    Integrator integrator;
+    double     avg_err = 0.0;
+    axes       axis_dt;
+    axes       axis_ne;
+    plot1D     pred_err,pred_err_avg;
+    plot1D     num_exp;
 };
 
 } // namespace learning

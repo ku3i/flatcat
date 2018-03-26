@@ -63,16 +63,19 @@ public:
 class walking_reward_space : public reward_base
 {
 public:
-    walking_reward_space( learning::Learning_Machine_Interface const& learner
-                        , robots::Simloid                      const& robot )
+    walking_reward_space(robots::Simloid const& robot)
     : reward_base(16)
     {
-        /** TODO: consider using the body velocity instead of avg_vel_fw.., the latter oscillates very much */
-        rewards.emplace_back("intrinsically motivated", [&learner](){ return learner.get_learning_progress(); }); /**TODO add joint-level gmes*/
+        /* add dummies for intrinsic learning, until state and motor layers are constructed */
+        rewards.emplace_back("Intrinsic Motivation"   , [](){ return .0; } );
+
         rewards.emplace_back("walking forwards"       , [&robot  ](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
         rewards.emplace_back("walking backwards"      , [&robot  ](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
         rewards.emplace_back("turning left"           , [&robot  ](){ return +0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
         rewards.emplace_back("turning right"          , [&robot  ](){ return -0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
+
+        //rewards.emplace_back("jump"                   , [&robot  ](){ return +robot.get_avg_position().z; });
+
 
         switch(robot.robot_ID){
         case 10:
@@ -92,6 +95,17 @@ public:
          *  TODO: make a policy for stopping, use simloid.is_motion_stopped? and minimize ctrl output.
          */
         sts_msg("Creating %u reward signals for walking." , rewards.size());
+    }
+
+    void add_intrinsic_rewards( learning::Learning_Machine_Interface const& state_learner
+                              , learning::Learning_Machine_Interface const& motor_learner )
+    {
+        assert(rewards.size() >= 2);
+        rewards[0] = { "Intrinsic Motivation"
+                     , [&state_learner ,&motor_learner]() { return state_learner.get_learning_progress()
+                                                                 + motor_learner.get_learning_progress(); }
+                     };
+
     }
 };
 

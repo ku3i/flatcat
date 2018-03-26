@@ -31,17 +31,22 @@ public:
     : sarsa(sarsa)
     , num_policies(sarsa.get_number_of_policies())
     , last_policy(sarsa.get_current_policy())
+    , table(4)
+    , axis_reward_total(-0.0, -0.8, 0.0, 1.98, 0.38, 0, "total")
     , axis_reward_systemstep()
     , axis_reward_eigenstep ()
     , axis_reward_trial     ()
     , axis_reward_bunch()
+    , plot_reward_total(2000, axis_reward_total, Color4::set_transparency(colors::cyan, 0.30))
+    , plot_reward_t_avg(2000, axis_reward_total, Color4::set_transparency(colors::cyan, 0.60))
+    , plot_reward_t_max(2000, axis_reward_total, Color4::set_transparency(colors::pidgin, 0.60))
     , plot_reward_systemstep()
     , plot_reward_eigenstep ()
     , plot_reward_trial     ()
     , plot_reward_bunch     ()
+    , plot_reward_trial_long()
     , reward_trial(num_policies)
     , reward_bunch(num_policies)
-    , table(4)
     {
         axis_reward_eigenstep .reserve(num_policies);
         axis_reward_systemstep.reserve(num_policies);
@@ -52,19 +57,22 @@ public:
         plot_reward_trial     .reserve(num_policies);
         plot_reward_bunch     .reserve(num_policies);
 
-        for (std::size_t i = 0; i < sarsa.get_number_of_policies(); ++i) {
-            axis_reward_systemstep.emplace_back(+0.75, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "r(t)");
-            axis_reward_eigenstep .emplace_back(+0.25, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "r(T)");
-            axis_reward_trial     .emplace_back(-0.25, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, "R/trial");
-            axis_reward_bunch     .emplace_back(-0.75, -0.10 - 0.20*i, 0.0, 0.48, 0.18, 0, sarsa.rewards.get_reward_name(i).substr(0,14));
+        unsigned N = sarsa.get_number_of_policies();
+        for (std::size_t i = 0; i < N; ++i) {
+            float ypos = N/2 *0.2 - 0.2*i;
+            axis_reward_systemstep.emplace_back(+0.75, ypos, 0.0, 0.48, 0.18, 0, "r(t)");
+            axis_reward_eigenstep .emplace_back(+0.25, ypos, 0.0, 0.48, 0.18, 0, "r(T)");
+            axis_reward_trial     .emplace_back(-0.25, ypos, 0.0, 0.48, 0.18, 0, "R/trial");
+            axis_reward_bunch     .emplace_back(-0.75, ypos, 0.0, 0.48, 0.18, 0, sarsa.rewards.get_reward_name(i).substr(0,14));
 
-            plot_reward_systemstep.emplace_back(400, axis_reward_systemstep[i], Color4::set_transparency(table.get_color(i), 1.00));
-            plot_reward_eigenstep .emplace_back(400, axis_reward_eigenstep [i], Color4::set_transparency(table.get_color(i), 0.80));
-            plot_reward_trial     .emplace_back(100, axis_reward_trial     [i], Color4::set_transparency(table.get_color(i), 0.60));
-            plot_reward_bunch     .emplace_back(100, axis_reward_bunch     [i], Color4::set_transparency(table.get_color(i), 0.40));
+            plot_reward_systemstep.emplace_back(400 , axis_reward_systemstep[i], Color4::set_transparency(table.get_color(i), 1.00));
+            plot_reward_eigenstep .emplace_back(400 , axis_reward_eigenstep [i], Color4::set_transparency(table.get_color(i), 0.80));
+            plot_reward_trial     .emplace_back(100 , axis_reward_trial     [i], Color4::set_transparency(table.get_color(i), 0.60));
+            plot_reward_bunch     .emplace_back(100 , axis_reward_bunch     [i], Color4::set_transparency(table.get_color(i), 0.40));
+            plot_reward_trial_long.emplace_back(2000, axis_reward_total        , Color4::set_transparency(table.get_color(i), 0.75));
         }
 
-        dbg_msg("Creating Sarsa Graphics.");
+        dbg_msg("Creating Sarsa Graphics for %lu policies.", num_policies);
     }
 
     void execute_cycle(uint64_t /*cycle*/, bool state_changed, bool trial_ended)
@@ -92,16 +100,35 @@ public:
             std::size_t i = last_policy;
             last_policy = sarsa.get_current_policy();
 
-            reward_bunch[i].add(reward_trial[i].get_avg_value());
-            plot_reward_trial[i].add_sample(reward_trial[i].get_avg_value_and_reset());
+            const float trial_reward_i = reward_trial[i].get_avg_value_and_reset();
+            reward_bunch[i].add(trial_reward_i);
+            plot_reward_trial[i].add_sample(trial_reward_i);
 
             if (reward_bunch[i].get_number_of_samples() >= 10)
                 plot_reward_bunch[i].add_sample(reward_bunch[i].get_avg_value_and_reset());
+
+            plot_reward_trial_long[i].add_sample(trial_reward_i);
+
+            ++trial_count;
+            if (trial_count % num_policies == 0) {
+                double total = .0;
+                for (auto const& r: reward_trial)
+                    total += r.get_last();
+                reward_t_avg = 0.95*reward_t_avg + 0.05*total;
+                reward_t_max = std::max(reward_t_max, reward_t_avg);
+                plot_reward_total.add_sample(total);
+                plot_reward_t_avg.add_sample(reward_t_avg);
+                plot_reward_t_max.add_sample(reward_t_max);
+            }
         }
     }
 
     void draw(const pref& /*p*/) const
     {
+        axis_reward_total.draw();
+        plot_reward_total.draw();
+        plot_reward_t_max.draw();
+        plot_reward_t_avg.draw();
         for (std::size_t i = 0; i < num_policies; ++i) {
             axis_reward_systemstep[i].draw();
             axis_reward_eigenstep [i].draw();
@@ -111,14 +138,11 @@ public:
             plot_reward_eigenstep [i].draw();
             plot_reward_trial     [i].draw();
             plot_reward_bunch     [i].draw();
+            plot_reward_trial_long[i].draw();
         }
 
-        //const std::size_t cur_policy = sarsa.get_current_policy();
         glColor3f(1.0, 1.0, 1.0);
-        //glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", cur_policy, sarsa.rewards.get_reward_name(cur_policy).c_str());
         glprintf(-0.9, 0.75, 0.0, 0.03, "cur: %+.4f", sarsa.get_current_reward(sarsa.get_current_policy()));
-
-        //TODO draw the eligibilities, draw the path
     }
 
 private:
@@ -127,19 +151,29 @@ private:
     const std::size_t   num_policies;
     std::size_t         last_policy;
 
+    std::size_t         trial_count = 0;
+    double              reward_t_avg = .0;
+    double              reward_t_max = .0;
+
+    const ColorTable    table;
+    axes                axis_reward_total;
     std::vector<axes>   axis_reward_systemstep;
     std::vector<axes>   axis_reward_eigenstep;
     std::vector<axes>   axis_reward_trial;
     std::vector<axes>   axis_reward_bunch;
 
+    plot1D              plot_reward_total;
+    plot1D              plot_reward_t_avg;
+    plot1D              plot_reward_t_max;
     std::vector<plot1D> plot_reward_systemstep;
     std::vector<plot1D> plot_reward_eigenstep;
     std::vector<plot1D> plot_reward_trial;
     std::vector<plot1D> plot_reward_bunch;
+    std::vector<plot1D> plot_reward_trial_long;
 
     std::vector<Integrator> reward_trial;
     std::vector<Integrator> reward_bunch;
-    const ColorTable    table;
+
 };
 
 #endif // SARSA_GRAPHICS_H_INCLUDED

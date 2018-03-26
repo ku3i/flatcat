@@ -7,6 +7,8 @@
 
 namespace local_tests {
 
+namespace autoencoder_tests {
+
 struct Test_Sensor_Space : public sensor_vector {
     Test_Sensor_Space(const robots::Jointvector_t& joints)
     : sensor_vector(2*joints.size() + 1)
@@ -95,5 +97,5 @@ TEST_CASE( "auto encoder learning", "[autoencoder]")
     }
 }
 
-} // namespace local_tests
+}} // namespace local_tests::autoencoder_tests
 

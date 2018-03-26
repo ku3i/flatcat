@@ -41,6 +41,7 @@ std::size_t get_number_of_inputs(robots::Robot_Interface const& robot);
 Control_Parameter get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t& seed, bool symmetric);
 Control_Parameter make_symmetric       (robots::Robot_Interface const& robot, const Control_Parameter& other);
 Control_Parameter make_asymmetric      (robots::Robot_Interface const& robot, const Control_Parameter& other);
+Control_Parameter turn_symmetry        (robots::Robot_Interface const& robot, const Control_Parameter& other);
 
 Control_Parameter initialize_anyhow    ( robots::Robot_Interface const& robot, Jointcontrol const& control
                                        , bool is_symmetric, const Minimal_Seed_t params_pdm, const std::string& filename);

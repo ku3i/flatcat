@@ -91,6 +91,11 @@
             expert[to_insert].clear_transitions();
             clear_transitions_to(to_insert);
 
+            /* exchange learning capacity */
+            const double share = (expert[winner].learning_capacity + expert[to_insert].learning_capacity)/2;
+            expert[winner   ].learning_capacity += share;
+            expert[to_insert].learning_capacity -= share;
+
             /* set new transition */
             expert[to_insert].reset_transition(winner);
             winner = to_insert;
@@ -105,7 +110,7 @@
     void GMES::estimate_learning_progress(void)
     {
         const double prediction_error_before_adaption = expert[winner].get_prediction_error();
-        learning_progress = prediction_error_before_adaption - expert[winner].make_prediction();
+        learning_progress = prediction_error_before_adaption - expert[winner].redo_prediction();
         assert_in_range(learning_progress, 0.0, 1.0);
     }
 

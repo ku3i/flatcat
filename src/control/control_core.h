@@ -66,13 +66,13 @@ public:
     {
         assert(input.size() == weights[0].size());
         assert(activation.size() == robot.get_number_of_joints());
+        assert(!(is_switched and is_symmetric));
         for (std::size_t i = 0; i < activation.size(); ++i)
         {
             activation[i] = .0;
-            bool swap_inputs = is_switched == (is_symmetric and robot.get_joints()[i].type == robots::Joint_Type_Symmetric);
-
+            bool swap_inputs = is_switched != (is_symmetric and robot.get_joints()[i].type == robots::Joint_Type_Symmetric);
             for (std::size_t k = 0; k < input.size(); ++k)
-                activation[i] += weights[i][k] * (swap_inputs ? input[k].x : input[k].y);
+                activation[i] += weights[i][k] * (swap_inputs ? input[k].y : input[k].x);
         }
     }
 
@@ -87,7 +87,6 @@ public:
 
     void apply_weights(robots::Robot_Interface const& /*robot*/, std::vector<double> const& params)
     {
-//        dbg_msg("Apply weights.");
         assert(params.size() == weights.size() * weights.at(0).size());
         std::size_t param_index = 0;
         for (auto& w_i : weights)
@@ -99,7 +98,6 @@ public:
 
     void apply_symmetric_weights(robots::Robot_Interface const& robot, std::vector<double> const& params)
     {
-//        dbg_msg("Apply symmetric weights.");
         robots::Jointvector_t const& joints = robot.get_joints();
 
         std::size_t param_index = 0;

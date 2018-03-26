@@ -1,6 +1,8 @@
 #ifndef SARSA_H_INCLUDED
 #define SARSA_H_INCLUDED
 
+#include <algorithm>
+
 #include <common/modules.h>
 #include <common/static_vector.h>
 
@@ -56,7 +58,7 @@ public:
         assert(number_of_policies > 0);
         assert(number_of_actions > 0);
         assert_in_range(learning_rates, 0.0001, 0.5);
-        assert(learning_rates.size() == number_of_policies);
+        assert(learning_rates.size() >= number_of_policies);
     }
 
     double      get_current_reward    (std::size_t index) const { return rewards.get_current_reward(index); }
@@ -152,6 +154,30 @@ private:
     friend class Policy_Selector_Graphics;
 };
 
+class pseudo_random_order {
+
+    unsigned ptr = 0;
+    std::vector<unsigned> cards;
+
+    void shuffle(void) { std::random_shuffle(cards.begin(), cards.end()); }
+
+public:
+    pseudo_random_order(unsigned number_of_values)
+    : cards()
+    {
+        cards.reserve(number_of_values);
+        for (unsigned i=0; i < number_of_values; ++i)
+           cards.emplace_back(i);
+        shuffle();
+    }
+
+    unsigned next(void) {
+        unsigned result = cards[ptr++];
+        if (ptr >= cards.size()) { shuffle(); ptr = 0; }
+        return result;
+    }
+};
+
 class Policy_Selector /**TODO: move to separate file */
 {
     SARSA&                sarsa;
@@ -162,6 +188,8 @@ class Policy_Selector /**TODO: move to separate file */
     uint64_t              cycles;
     bool                  random_policy_mode;
     mutable bool          trial_has_ended;
+
+    pseudo_random_order   pseudo_rnd_order;
 
     struct policy_profile {
         std::vector<std::size_t> items;
@@ -182,9 +210,11 @@ public:
     , cycles(0)
     , random_policy_mode(random_policy_mode)
     , trial_has_ended(false)
+    , pseudo_rnd_order(number_of_policies)
     , profile()
     {
         dbg_msg("Creating Policy Selector with %u policies.", number_of_policies);
+        select_random_policy();
     }
 
     void toggle_random_policy_mode(void) {
@@ -195,8 +225,11 @@ public:
     void select_random_policy(void) {
         /* select a random policy which is different from the previous one */
         if (number_of_policies > 1) {
+            /*
             current_policy += random_int(1, number_of_policies - 1);
             current_policy %= number_of_policies;
+            */
+            current_policy = pseudo_rnd_order.next();
             assert(current_policy < number_of_policies);
         }
         sarsa.select_policy(current_policy, false);
@@ -273,13 +306,14 @@ public:
 
     void draw(const pref& /*p*/) const {
         unsigned int time_left = policy_selector.get_trial_time_left();
+        unsigned int minutes = (time_left / 6000);
         unsigned int seconds = (time_left / 100) % 60;
         unsigned int hsecs   = (time_left % 100);
         glColor3f(1.0,1.0,1.0);
-        glprintf(-0.9, 0.95, 0.0, 0.03, "[%u] %s", policy_selector.current_policy
-                                                 , policy_selector.sarsa.rewards.get_reward_name(policy_selector.current_policy).c_str());
-        glprintf(-0.9, 0.90, 0.0, 0.03, "left: %02u:%02u [%c]" , seconds, hsecs, policy_selector.profile.play ? '+' :
-                                                                                 policy_selector.random_policy_mode ? '~' : '=');
+        glprintf(0.0,-0.05, 0.0, 0.03, "[%u] %s", policy_selector.current_policy
+                                                , policy_selector.sarsa.rewards.get_reward_name(policy_selector.current_policy).c_str());
+        glprintf(0.0,-0.10, 0.0, 0.03, "left: %u:%02u:%02u [%c]", minutes, seconds, hsecs, policy_selector.profile.play ? '+' :
+                                                                                           policy_selector.random_policy_mode ? '~' : '=');
     }
 };
 #endif // SARSA_H_INCLUDED

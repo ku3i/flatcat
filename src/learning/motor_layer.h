@@ -21,14 +21,15 @@
 #include <draw/plot3D.h>
 #include <draw/network3D.h>
 #include <draw/graphics.h>
+#include <draw/display.h>
 
 
 namespace learning {
 
 namespace motor_layer_constants {
     const double number_of_experts    = 19;
-    const double learning_rate        = 0.01;
-    const double growth_rate          = 1.0;//10.0;
+    const double learning_rate        = 0.001;
+    const double growth_rate          = 1.0;
     const std::size_t experience_size = 100;
 }
 
@@ -39,10 +40,15 @@ public:
     : sensor_vector(joints.size())
     {
         for (robots::Joint_Model const& j : joints)
-            sensors.emplace_back(j.name, [&j](){ return clip(j.motor.get() + rand_norm_zero_mean(0.01), 1.0); });
+            sensors.emplace_back(j.name, [&j](){ return clip(j.motor.get()); });
+            //sensors.emplace_back(j.name, [&j](){ return clip(j.motor.get() + rand_norm_zero_mean(0.01), 1.0); });
     }
 };
 
+
+std::size_t getnum(void){
+    return random_index(5);
+}
 
 class Motor_Layer : public learning::Learning_Machine_Interface {
 public:
@@ -82,6 +88,8 @@ public:
     void toggle_learning(void)   { gmes.enable_learning(not gmes.is_learning_enabled()); }
     double get_learning_progress(void) const override { return gmes.get_learning_progress(); }
 
+    bool is_learning_enabled(void) const { return gmes.is_learning_enabled(); }
+
     /** This is somewhat ugly. But the only way I have figured out to do that. */
     const control::Control_Parameter& get_controller_weights(std::size_t id) const {
 //        dbg_msg("Fetching controller weights.");
@@ -96,8 +104,25 @@ public:
 
     bool has_expert(std::size_t id) const { return experts[id].does_exists(); }
 
+    void save(const std::string& foldername) const {
+        const std::size_t num_experts = get_cur_number_of_experts();
+        sts_msg("Saving %lu motor expert%s to folder %s", num_experts, (num_experts>1?"s":""), foldername.c_str());
+        const std::string folder = basic::make_directory((foldername + "_" + basic::get_timestamp()).c_str());
+        for (std::size_t i = 0; i < num_experts; ++i)
+        {
+            auto const& ctrl = get_controller_weights(i);
+            ctrl.save_to_file(folder + "/motor_expert_" + std::to_string(i) + ".dat", i);
+        }
+
+    }
+
+    void connect_payloads(static_vector<State_Payload>* s) {
+        for (std::size_t i = 0; i < payloads.size(); ++i)
+            payloads[i].connect(i, s);
+    }
+
     control::Control_Vector      params; /**TODO: check if this can be removed, finally */
-    static_vector<Empty_Payload> payloads;
+    static_vector<Motor_Payload> payloads;
     Motor_Space                  motorspace;
     Expert_Vector                experts;
     GMES                         gmes;
@@ -115,16 +140,17 @@ struct motor_subspace_graphics : public Graphics_Interface
 {
     motor_subspace_graphics( robots::Joint_Model const& j0
                            , robots::Joint_Model const& j1
-                           , Vector3 pos, float size )
+                           , Vector3 pos, float size
+                           , ColorTable const& colortable )
     : j0(j0)
     , j1(j1)
     , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("xy"))
     , axis_dt(pos.x + (2.0 + size)/2, pos.y + size/2, pos.z, 2.0-size, size, 1, std::string(j0.name + "/" + j1.name))
     , plot_xy(constants::subspace_num_datapoints, axis_xy, colors::magenta )
-    , plot_j0(constants::subspace_num_datapoints, axis_dt, colors::cyan    )
-    , plot_j1(constants::subspace_num_datapoints, axis_dt, colors::orange  )
-    , plot_p0(constants::subspace_num_datapoints, axis_dt, colors::cyan_t  )
-    , plot_p1(constants::subspace_num_datapoints, axis_dt, colors::orange_t)
+    , plot_j0(constants::subspace_num_datapoints, axis_dt, colors::light0  )
+    , plot_j1(constants::subspace_num_datapoints, axis_dt, colors::light1  )
+    , plot_p0(constants::subspace_num_datapoints, axis_dt, colortable      )
+    , plot_p1(constants::subspace_num_datapoints, axis_dt, colortable      )
     {
         dbg_msg("Initialize motor subspace for joints:\n\t%2u: %s\n\t%2u: %s", j0.joint_id, j0.name.c_str()
                                                                              , j1.joint_id, j1.name.c_str() );
@@ -137,16 +163,16 @@ struct motor_subspace_graphics : public Graphics_Interface
         axis_dt.draw();
         plot_j0.draw(); // signals
         plot_j1.draw();
-        plot_p0.draw(); // predictions
-        plot_p1.draw();
+        plot_p0.draw_colored(); // predictions
+        plot_p1.draw_colored();
     }
 
-    void execute_cycle(float s0, float s1) {
+    void execute_cycle(float s0, float s1, unsigned expert_id) {
         plot_xy.add_sample(j0.motor.get(), j1.motor.get());
         plot_j0.add_sample(j0.motor.get());
         plot_j1.add_sample(j1.motor.get());
-        plot_p0.add_sample(s0);
-        plot_p1.add_sample(s1);
+        plot_p0.add_colored_sample(s0, expert_id);
+        plot_p1.add_colored_sample(s1, expert_id);
     }
 
     const robots::Joint_Model& j0;
@@ -157,7 +183,7 @@ struct motor_subspace_graphics : public Graphics_Interface
 
     plot2D plot_xy;
     plot1D plot_j0, plot_j1; // joint motor commands
-    plot1D plot_p0, plot_p1; // predictions
+    colored_plot1D plot_p0, plot_p1; // predictions
 
 };
 
@@ -171,6 +197,7 @@ public:
     , max_experts(motor_layer.gmes.get_max_number_of_experts())
     , winner()
     , subspace()
+    , colortable(4, /*randomized*/true)
     {
         /** TODO
             + also for the rest of the joints
@@ -184,7 +211,7 @@ public:
             if (j0.is_symmetric()) {
                 robots::Joint_Model const& j1 = robot.get_joints()[j0.symmetric_joint];
                 pos.y -= size;
-                subspace.emplace_back(j1, j0, pos, size);
+                subspace.emplace_back(j1, j0, pos, size, colortable);
             }
         }
     }
@@ -195,6 +222,34 @@ public:
 
         for (auto& s: subspace)
             s.draw(p);
+
+
+        for (std::size_t i = 0; i < motor_layer.experts.size(); ++i)
+        {
+            if (winner == i) glColor3f(1.0, 0.5, 1.0);
+            else if (motor_layer.experts[i].does_exists())
+                glColor3f(.9f, .9f, .9f);
+            else
+                glColor3f(.3f,.3f,.3f);
+            glprintf(-1.1, -1.5 - 0.05*i, 0.0, 0.04, "%2u" , i);
+
+            auto const& col = motor_layer.experts[i].does_exists() ? colortable[i] : colors::gray;
+            draw::hbar(-1.4, -1.5 - 0.05*i, 0.3, 0.02, 0.5* motor_layer.experts[i].get_learning_capacity(), gmes_constants::initial_learning_capacity, col);
+
+            auto const& pred = motor_layer.experts[i].get_predictor();
+            glPushMatrix();
+            glTranslatef(0.0, -1.5 - 0.05*i , 0.0);
+            pred.draw();
+            glPopMatrix();
+        }
+
+
+        const bool learning = motor_layer.is_learning_enabled();
+        if (learning) glColor3f(.9f,.9f,.9f);
+        else          glColor3f(.3f,.3f,.3f);
+
+        glprintf(-1.0, -1.4, 0.0, 0.05, "learning: %s", learning ? "enabled" : "disabled");
+
     };
 
     void execute_cycle() {
@@ -206,7 +261,7 @@ public:
         for (auto& s: subspace) {
             auto s0 = predictions.at(s.j0.joint_id);
             auto s1 = predictions.at(s.j1.joint_id);
-            s.execute_cycle(s0, s1);
+            s.execute_cycle(s0, s1, winner);
         }
     };
 
@@ -216,11 +271,22 @@ public:
     std::size_t        winner;
 
     std::vector<motor_subspace_graphics> subspace;
-
+    ColorTable                           colortable;
 };
 
 } // namespace learning
 
 
 #endif // MOTOR_LAYER_H_INCLUDED
+
+
+
+
+
+
+
+
+
+
+
 
