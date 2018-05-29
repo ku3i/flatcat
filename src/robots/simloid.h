@@ -101,14 +101,14 @@ public:
 
     std::size_t get_number_of_joints          (void) const { return configuration.number_of_joints;                 }
     std::size_t get_number_of_symmetric_joints(void) const { return configuration.get_number_of_symmetric_joints(); }
-    std::size_t get_number_of_accel_sensors   (void) const { return configuration.number_of_accelsensors;           }
+    std::size_t get_number_of_accel_sensors   (void) const { return configuration.number_of_accels;                 }
     std::size_t get_number_of_bodies          (void) const { return configuration.number_of_bodies;                 }
 
-    const Jointvector_t& get_joints(void) const { return configuration.joint; }
-          Jointvector_t& set_joints(void)       { return configuration.joint; }
+    const Jointvector_t& get_joints(void) const { return configuration.joints; }
+          Jointvector_t& set_joints(void)       { return configuration.joints; }
 
-    const Accelvector_t& get_accels(void) const { return configuration.s_acc; }
-          Accelvector_t& set_accels(void)       { return configuration.s_acc; }
+    const Accelvector_t& get_accels(void) const { return configuration.accels; }
+          Accelvector_t& set_accels(void)       { return configuration.accels; }
 
     const Bodyvector_t& get_bodies(void) const { return configuration.bodies; }
           Bodyvector_t& set_bodies(void)       { return configuration.bodies; }
@@ -140,6 +140,8 @@ public:
     unsigned get_body_id_by_name(const Bodyvector_t& bodies, const std::string& name) const;
 
     void record_next_frame() { record_frame = true; }
+
+    void randomize_model(double rnd_amplitude);
 };
 
 } // namespace robots

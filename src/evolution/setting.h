@@ -65,6 +65,7 @@ class Setting
         double       push_strength;
 
         std::string  fitness_function;
+        bool         random_mode;
 
         Setting(int argc, char **argv);
         void read_setting_file(const std::string& setting_name);

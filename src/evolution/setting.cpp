@@ -40,6 +40,7 @@ Setting::Setting( int argc, char **argv )
                 , push_steps(0)
                 , push_strength(0.0)
                 , fitness_function("FORWARDS")
+                , random_mode(false)
 {
     if (read_option_bool(argc, argv, "--help", "-h"))
     {
@@ -143,6 +144,8 @@ Setting::read_configuration(const std::string& filename)
 
     fitness_function = settings_file.readSTR("FITNESS_FUNCTION");
     assert(not fitness_function.empty());
+
+    random_mode = settings_file.readBOOL("RANDOM_MODE", random_mode);
 }
 
 const std::string&
@@ -178,6 +181,10 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeDBL ("META_MUTATION_RATE"  , meta_mutation_rate);
 
     project_file.writeUINT("POPULATION_SIZE"     , population_size);
+
+    project_file.writeBOOL("RANDOM_MODE"         , random_mode);
+
+    /**TODO what about selection bias, moving rate, max generations, is that an error?*/
 
     project_file.finish();
     return filename;

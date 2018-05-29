@@ -24,27 +24,41 @@ typedef std::vector<Body_Segment> Bodyvector_t;
 
 class Robot_Configuration
 {
+
 public:
-    Robot_Configuration(Socket_Client &client); //robot conf should not depend on socket client, reading configuration should be done outside
+    unsigned number_of_joints = 0;
+    unsigned number_of_accels = 0;
+    unsigned number_of_bodies = 0;
+
+    robots::Jointvector_t joints;
+    robots::Accelvector_t accels;
+    Bodyvector_t          bodies;
+
+    Robot_Configuration(std::string const& server_message)
+    : joints()
+    , accels()
+    , bodies()
+    {
+        read_robot_info(server_message);
+    }
 
     void delete_symmetry_information(void) { //TODO get rid of that method
         sts_msg("Deleting symmetry information.");
-        for (unsigned int i = 0; i < joint.size(); ++i) {
-            joint[i].type = robots::Joint_Type_Normal;
-            joint[i].symmetric_joint = i; // delete reference to other joints
+        for (unsigned int i = 0; i < joints.size(); ++i) {
+            joints[i].type = robots::Joint_Type_Normal;
+            joints[i].symmetric_joint = i; // delete reference to other joints
         }
         assert(get_number_of_symmetric_joints() == 0);
     }
 
     unsigned int get_number_of_symmetric_joints(void) const;
 
-    unsigned int number_of_joints;
-    unsigned int number_of_accelsensors;
-    unsigned int number_of_bodies;
 
-    robots::Jointvector_t joint; //TODO rename to joints
-    robots::Accelvector_t s_acc; //TODO rename to accels
-    Bodyvector_t          bodies;
+    void read_robot_info(std::string const& server_message);
+
+private:
+    const char* read_joints(const char* msg, int* offset);
+    const char* read_bodies(const char* msg, int* offset);
 };
 
 

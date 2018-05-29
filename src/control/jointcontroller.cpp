@@ -9,7 +9,7 @@ Jointcontroller::Jointcontroller( Robot_Configuration& configuration
                                 , const std::string& seed_filename
                                 )
 : robot(configuration)
-, num_inputs(3 * robot.number_of_joints + 3 * robot.number_of_accelsensors + 1) /* angle, velocity, motor output, + xyz-Accel + bias, Idea: add 1 for antisymmetric bias? */
+, num_inputs(3 * robot.number_of_joints + 3 * robot.number_of_accels + 1) /* angle, velocity, motor output, + xyz-Accel + bias, Idea: add 1 for antisymmetric bias? */
 , total_num_params(0) // will be assigned later
 , activation(robot.number_of_joints)
 , weights(robot.number_of_joints, std::vector<double>(num_inputs, 0.0))
@@ -19,7 +19,7 @@ Jointcontroller::Jointcontroller( Robot_Configuration& configuration
 {
     sts_msg("Creating joint controller.");
     if (robot.number_of_joints < 1) err_msg(__FILE__, __LINE__, "No motor outputs.");
-    if (0 == robot.number_of_accelsensors) wrn_msg("No use of acceleration sensors in controller.");
+    if (0 == robot.number_of_accels) wrn_msg("No use of acceleration sensors in controller.");
 
     sts_msg("Controller type is %s", symmetric_controller? "symmetric":"asymmetric");
     if (not symmetric_controller)
@@ -53,10 +53,10 @@ Jointcontroller::get_control_parameter(void) const
 
     unsigned int p = 0;
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        if (robot.joint[i].type == robots::Joint_Type_Normal)
+        if (robot.joints[i].type == robots::Joint_Type_Normal)
             for (unsigned int k = 0; k < num_inputs; ++k)
             {
-                if ((p < total_num_params) && (weights[i][k] == weights[robot.joint[i].symmetric_joint][k]))
+                if ((p < total_num_params) && (weights[i][k] == weights[robot.joints[i].symmetric_joint][k]))
                     transmission_params[p++] = weights[i][k];
                 else
                     err_msg(__FILE__, __LINE__, "Inconsistent parameter transmission.");
@@ -99,13 +99,13 @@ Jointcontroller::set_control_parameter(const std::vector<double>& params)
     unsigned int p = 0;
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
     {
-        if (robot.joint[i].type == robots::Joint_Type_Normal)
+        if (robot.joints[i].type == robots::Joint_Type_Normal)
         {
-            assert(robot.joint[i].symmetric_joint < robot.number_of_joints);
+            assert(robot.joints[i].symmetric_joint < robot.number_of_joints);
             for (unsigned int k = 0; k < num_inputs; ++k)
             {
                 weights[i][k] = params[p++]; // apply weights
-                weights[robot.joint[i].symmetric_joint][k] = weights[i][k];
+                weights[robot.joints[i].symmetric_joint][k] = weights[i][k];
             }
         }
     }
@@ -117,22 +117,22 @@ Jointcontroller::set_initial_parameter(double p, double d, double m)
 {
     /* set default weights for asymmetric joints */
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        if (robot.joint[i].type == robots::Joint_Type_Normal)
+        if (robot.joints[i].type == robots::Joint_Type_Normal)
         {
             weights[i][i*3 + 0] = -p; // spring
             weights[i][i*3 + 1] =  d; // positive friction
             weights[i][i*3 + 2] =  m; // motor neuron's self coupling
 
             /* divide by initial bias, because INITIAL BIAS < 1 */
-            weights[i][num_inputs-1] = -weights[i][i*3 + 0] * robot.joint[i].default_pos * 1.0/INITIAL_BIAS;
+            weights[i][num_inputs-1] = -weights[i][i*3 + 0] * robot.joints[i].default_pos * 1.0/INITIAL_BIAS;
             /* if p is zero this bias is also zero */
         }
 
     /* copy weights for symmetric joints */
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        if (robot.joint[i].type == robots::Joint_Type_Symmetric)
+        if (robot.joints[i].type == robots::Joint_Type_Symmetric)
             for (unsigned int k = 0; k < num_inputs; ++k)
-                weights[i][k] = weights[robot.joint[i].symmetric_joint][k];
+                weights[i][k] = weights[robot.joints[i].symmetric_joint][k];
 }
 
 void
@@ -143,7 +143,7 @@ Jointcontroller::print_parameter(void) const
     /*print header*/
     printf(" #  |");
     for (std::size_t i = 0; i < robot.number_of_joints; ++i)
-        if (robot.joint[i].type == robots::Joint_Type_Normal)
+        if (robot.joints[i].type == robots::Joint_Type_Normal)
             printf("%4lu  |", i);
     printf("\n");
 
@@ -152,7 +152,7 @@ Jointcontroller::print_parameter(void) const
         printf("%2lu: |", k);
         for (std::size_t i = 0; i < robot.number_of_joints; ++i)
         {
-            if (robot.joint[i].type == robots::Joint_Type_Normal)
+            if (robot.joints[i].type == robots::Joint_Type_Normal)
                 printf("% 1.3f|", weights[i][k]);
         }
         printf("\n");
@@ -164,54 +164,53 @@ double
 Jointcontroller::get_normalized_mechanical_power(void) const
 {
     double power = .0;
-    for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        power += square(robot.joint[i].motor.get());
+    for (auto& j : robot.joints)
+        power += square(j.motor.get());
     return power/robot.number_of_joints;
 }
 
 void
 Jointcontroller::reset(void)
 {
-    for (unsigned int i = 0; i < robot.number_of_joints; ++i)
-        robot.joint[i].motor.set( random_value(-0.01, 0.01) );
+    for (auto& j : robot.joints)
+        j.motor.set( random_value(-0.01, 0.01) );
 
-    /* reset integrated velocities from accel sensors */
-    for (unsigned int i = 0; i < robot.number_of_accelsensors; ++i)
-        robot.s_acc[i].reset();
+    /* reset integrated velocities from acceleration sensors */
+    for (auto& a : robot.accels) a.reset();
 }
 
 void
 Jointcontroller::loop(void)
 {
-    unsigned int k, index = 0;
-    for (unsigned int i = 0; i < robot.number_of_joints; ++i)
+    unsigned int index = 0;
+    for (auto& jx : robot.joints)
     {
         //virt_ang[i] = clip(virt_ang[i] + x[i][0]);
-        k = robot.joint[i].symmetric_joint;
+        auto& jy = robot.joints[jx.symmetric_joint];
 
-        X[index]   = robot.joint[i].s_ang;
-        Y[index++] = robot.joint[k].s_ang;
+        X[index]   = jx.s_ang;
+        Y[index++] = jy.s_ang;
 
-        X[index]   = robot.joint[i].s_vel;
-        Y[index++] = robot.joint[k].s_vel;
+        X[index]   = jx.s_vel;
+        Y[index++] = jy.s_vel;
 
-        X[index]   = robot.joint[i].motor.get_backed();
-        Y[index++] = robot.joint[k].motor.get_backed(); //ganz wichtig!, bringt irre viel dynamic für den anfang
+        X[index]   = jx.motor.get_backed();
+        Y[index++] = jy.motor.get_backed(); //ganz wichtig!, bringt irre viel dynamic für den anfang
     }
 
-    for (unsigned int i = 0; i < robot.number_of_accelsensors; ++i)
+    for (auto& a : robot.accels)
     {
         /* integrate velocities from acceleration sensors */
-        robot.s_acc[i].integrate();
+        a.integrate();
 
-        X[index]   = robot.s_acc[i].v.x;
-        Y[index++] = -robot.s_acc[i].v.x; // mirror the x-axes
+        X[index]   = a.v.x;
+        Y[index++] = -a.v.x; // mirror the x-axes
 
-        X[index]   = robot.s_acc[i].v.y;
-        Y[index++] = robot.s_acc[i].v.y;
+        X[index]   = a.v.y;
+        Y[index++] = a.v.y;
 
-        X[index]   = robot.s_acc[i].v.z;
-        Y[index++] = robot.s_acc[i].v.z;
+        X[index]   = a.v.z;
+        Y[index++] = a.v.z;
 
     }
 
@@ -224,7 +223,7 @@ Jointcontroller::loop(void)
     for (unsigned int i = 0; i < robot.number_of_joints; ++i)
     {
         activation[i] = 0;
-        if (robot.joint[i].type == robots::Joint_Type_Symmetric)
+        if (robot.joints[i].type == robots::Joint_Type_Symmetric)
         {
             for (unsigned int k = 0; k < num_inputs; ++k)
                 activation[i] += weights[i][k] * Y[k];
@@ -234,7 +233,7 @@ Jointcontroller::loop(void)
             for (unsigned int k = 0; k < num_inputs; ++k)
                 activation[i] += weights[i][k] * X[k];
         }
-        //TODO robot.joint[i].motor = tanh(activation[i]);
-        robot.joint[i].motor.set( clip(activation[i], 1.0) );
+        //TODO robot.joints[i].motor = tanh(activation[i]);
+        robot.joints[i].motor.set( clip(activation[i], 1.0) );
     }
 }

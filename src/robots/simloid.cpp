@@ -18,7 +18,7 @@ Simloid::Simloid( const unsigned short port,
                 , client()
                 , connection_established(open_connection())
                 , record_frame(false)
-                , configuration(client)
+                , configuration(client.recv(5*constants::seconds_us))
                 , timestamp()
                 , body_position0(configuration.number_of_bodies)
                 , average_position()
@@ -32,6 +32,9 @@ Simloid::Simloid( const unsigned short port,
                 , left_id(get_body_id_by_name(configuration.bodies, "left"))
                 , rift_id(get_body_id_by_name(configuration.bodies, "rift"))
 {
+    sts_msg("Done reading robot configuration. Sending acknowledge.");
+    client.send("ACK\n");
+
     assert(configuration.number_of_bodies > 0);
 
     if (connection_established)
@@ -122,7 +125,7 @@ Simloid::set_robot_to_default_position(void)
         read_sensor_data();
 
         short n = snprintf(msg, constants::msglen, "PX");
-        for (auto& j: configuration.joint)
+        for (auto& j: configuration.joints)
             n += snprintf(msg + n, constants::msglen - n, " %lf", j.default_pos);
 
         snprintf(msg + n, constants::msglen - n, "\nDONE\n");
@@ -137,7 +140,7 @@ void
 Simloid::reset(void) //non-public
 {
     /* resetting simloid, resetting motor output */
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         j.motor.set(.0);
     client.send("UA 0\nRESET\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
@@ -176,7 +179,7 @@ Simloid::restore_state(void)
     }
 
     /* restoring last snapshot of simloid, resetting motor output */
-    for (auto& j: configuration.joint) j.motor.set(.0);
+    for (auto& j: configuration.joints) j.motor.set(.0);
     reset_all_forces();
     client.send("UA 0\nNEWTIME\nRESTORE\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
@@ -237,7 +240,7 @@ void Simloid::init_robot(void)
     sts_msg("Initializing robot.");
 
     /* initialize motor voltages */
-    for (auto& j: configuration.joint) j.motor.set(.0);
+    for (auto& j: configuration.joints) j.motor.set(.0);
     set_robot_to_default_position();
     save_state();
 }
@@ -308,15 +311,15 @@ Simloid::read_sensor_data(void)
     timestamp = read_double(server_message, &charcount);
 
     /* read angles */
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         j.s_ang = clip(read_double(server_message, &charcount));
 
     /* read angle rate */
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         j.s_vel = clip(read_double(server_message, &charcount));
 
     /* read acceleration sensors */
-    for(auto& s: configuration.s_acc)
+    for(auto& s: configuration.accels)
         s.a = read_vector3(server_message, &charcount);
 
     /* read body positions + velocities */
@@ -334,7 +337,7 @@ Simloid::write_motor_data(void)
     static char msg[constants::msglen];
     unsigned n = snprintf(msg, constants::msglen, "UX");
 
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         n += snprintf(msg + n, constants::msglen - n, " %lf", clip(j.motor.get()));
 
     auto const& bodies = configuration.bodies;
@@ -347,7 +350,7 @@ Simloid::write_motor_data(void)
     client.send(msg);
 
     /* transfer motor data u(t) to u(t-1) */
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         j.motor.transfer();
 
     record_frame = false;
@@ -407,7 +410,7 @@ bool
 Simloid::motion_stopped(double thrsh) const
 {
     double sum_v = .0;
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         sum_v += fabs(j.s_vel);
     return ((sum_v/configuration.number_of_joints) < thrsh);
 }
@@ -477,7 +480,7 @@ double
 Simloid::get_normalized_mechanical_power(void) const
 {
     double power = .0;
-    for (auto& j: configuration.joint)
+    for (auto& j: configuration.joints)
         power += square(j.motor.get());
     return power/configuration.number_of_joints;
 }
@@ -507,5 +510,14 @@ Simloid::get_max_feet_pos(void) const {
                   , std::max(configuration.bodies[left_id].position.z, configuration.bodies[rift_id].position.z) };
 }
 
+void
+Simloid::randomize_model(double rnd_amplitude)
+{
+    uint64_t rnd_instance = time(NULL);
+    sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
+    client.send("MODEL %u %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
+    configuration.read_robot_info( client.recv(5*constants::seconds_us) );
+    client.send("ACK\n");
+}
 
 } // namespace robots

@@ -9,7 +9,7 @@ Generation_Based_Evolution::show_selection(void) /**TODO show_sel and evaluate h
     double generation_rnd = random_value(0.0, 1.0); // provide a random value used by evaluation, same for every individual of a generation,
 
     sts_msg("Showing selection");
-    evaluation.prepare(); // prepare generation
+    evaluation.prepare_generation(cur_generation, max_generation); // prepare generation
     for (std::size_t i = 0; i < selection_size; ++i)
     {
         sts_msg("  showing individual no. %3u/%u ", i + 1, selection_size);
@@ -40,7 +40,7 @@ Generation_Based_Evolution::evaluate_generation(void)
     double generation_rnd = random_value(0.0, 1.0); // provide a random value used by evaluation, same for every individual of a generation,
 
     if (verbose) sts_msg("Evaluate generation %u/%u:", cur_generation, max_generation);
-    evaluation.prepare(); // prepare generation
+    evaluation.prepare_generation(cur_generation, max_generation); // prepare generation
 
     for (std::size_t i = 0; i < population.get_size(); ++i)
     {
