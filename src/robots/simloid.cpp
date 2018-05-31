@@ -115,6 +115,8 @@ Simloid::simulation_idle(double sec)
 void
 Simloid::set_robot_to_default_position(void)
 {
+    client.send("GRAVITY OFF\n");
+
     double sec = 2; // should be enough
     sts_msg("Setting robot to default joint position.");
 
@@ -518,6 +520,8 @@ Simloid::randomize_model(double rnd_amplitude)
     client.send("MODEL %u %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
     configuration.read_robot_info( client.recv(5*constants::seconds_us) );
     client.send("ACK\n");
+    assert(configuration.number_of_bodies > 0);
+    init_robot();
 }
 
 } // namespace robots
