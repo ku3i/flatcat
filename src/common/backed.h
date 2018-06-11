@@ -11,7 +11,9 @@ class backed_t
 public:
     explicit backed_t(T const& actual = T(), T const& backup = T()) : actual(actual), backup(backup) {}
 
-    void set(T const& value) { actual = value; }
+    void set       (T const& value) { actual = value; }
+    void set_backed(T const& value) { backup = value; }
+
     void transfer() { backup = actual; }
 
     T const& get()        const { return actual; }
