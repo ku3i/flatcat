@@ -517,7 +517,7 @@ Simloid::randomize_model(double rnd_amplitude)
 {
     uint64_t rnd_instance = time(NULL);
     sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
-    client.send("MODEL %u %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
+    client.send("MODEL %u 2 %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
     configuration.read_robot_info( client.recv(5*constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
