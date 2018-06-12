@@ -75,13 +75,13 @@ public:
         fclose(csv_file);
     }
 
-    void get_line(std::size_t row_index, std::vector<T>& line) {
+    void get_line(std::size_t row_index, std::vector<T>& line) const {
         assert(row_index < data.size());
-        //dbg_msg("reading line %2u, size: %u", row_index, max_cols);
+        //dbg_msg("reading line %2u, size: %u, line size: %u", row_index, max_cols, line.size());
         assert(line.size() == max_cols);
         line = data[row_index];
     }
-    void get_line(std::size_t row_index, T& value) {
+    void get_line(std::size_t row_index, T& value) const {
         assert(row_index < data.size());
         //dbg_msg("reading line %2u, size: 1", row_index);
         value = data[row_index][0];
