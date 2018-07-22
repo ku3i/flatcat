@@ -2,13 +2,13 @@
 
 #include "axes.h"
 
-axes::axes(float x, float y, float z, float w, float h, int flags, std::string namestr)
+axes::axes(float x, float y, float z, float w, float h, int flags, std::string namestr, float def_amp)
 : px(x), py(y), pz(z)
 , width(w), height(h)
 , flag(flags)
 , countNum(0)
-, max_amplitude(+1.0)
-, min_amplitude(-1.0)
+, max_amplitude(+def_amp)
+, min_amplitude(-def_amp)
 , font_height(clip(0.75 * height, .01, .04))
 , name(namestr)
 {

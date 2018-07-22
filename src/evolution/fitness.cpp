@@ -13,9 +13,10 @@ Fitness_ptr assign_fitness( const robots::Simloid& robot
     else if ("BACKWARDS"    == fitness) fitness_function = Fitness_ptr(new Fitness_Backwards(robot, settings.drop_penalty, settings.out_of_track_penalty));
     else if ("BACKWARDS_MIN"== fitness) fitness_function = Fitness_ptr(new Fitness_Backwards(robot, settings.drop_penalty, settings.out_of_track_penalty, false));
     else if ("STOPPING"     == fitness) fitness_function = Fitness_ptr(new Fitness_Stopping (robot, settings.drop_penalty));
-    else if ("STANDING"     == fitness) fitness_function = Fitness_ptr(new Fitness_Standing (robot));
+    else if ("STANDING"     == fitness) fitness_function = Fitness_ptr(new Fitness_Standing (robot, settings.stop_penalty));
     else if ("SIDEWARDS"    == fitness) fitness_function = Fitness_ptr(new Fitness_Sidewards(robot, settings.drop_penalty, settings.out_of_track_penalty));
     else if ("TURNING"      == fitness) fitness_function = Fitness_ptr(new Fitness_Turning  (robot, settings.drop_penalty, settings.out_of_track_penalty));
+    else if ("MOVING"       == fitness) fitness_function = Fitness_ptr(new Fitness_Moving   (robot, settings.drop_penalty));
     else err_msg(__FILE__, __LINE__, "Wrong name of fitness function.");
 
     return fitness_function;

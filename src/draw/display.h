@@ -53,7 +53,7 @@ namespace draw {
 
 
 void hbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color = colors::white);
-void vbar(float px, float py, float dx, float dy, float value, float max_value);
+void vbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color = colors::white);
 void block(float px, float py, float sx, float sy, float value, float max_value);
 
 template <typename Vector_t = std::vector<double> > inline void

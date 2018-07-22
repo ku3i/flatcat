@@ -63,6 +63,16 @@ Jointcontrol::reset(void)
     for (auto& a : robot.set_accels()) a.reset(); // reset integrated velocities from acceleration sensors
 }
 
+
+void
+Jointcontrol::insert_motor_command(unsigned index, double value)
+{
+    assert(index < robot.set_joints().size());
+    auto& j = robot.set_joints()[index];
+    j.motor.set(robot.get_joints()[index].motor.get() + value);
+}
+
+
 void
 Jointcontrol::integrate_accels(void)
 {

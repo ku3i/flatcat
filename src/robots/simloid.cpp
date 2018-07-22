@@ -524,4 +524,32 @@ Simloid::randomize_model(double rnd_amplitude)
     init_robot();
 }
 
+void
+Simloid::reinit_robot_model(std::vector<double> params)
+{
+    sts_msg("Requesting new model for robot_id %u with %u params", robot_ID, params.size());
+    client.send("MODEL %u %u %s\nDONE\n", robot_ID, params.size(), common::to_string(params).c_str());
+    configuration.read_robot_info( client.recv(5*constants::seconds_us) );
+    client.send("ACK\n");
+    assert(configuration.number_of_bodies > 0);
+    init_robot();
+}
+
+void
+Simloid::reinit_motor_model(std::vector<double> params)
+{
+    sts_msg("Requesting new motor model with %u params", params.size());
+    client.send("MOTOR %u %s\nDONE\n", params.size(), common::to_string(params).c_str());
+}
+
+double
+Simloid::sum_abs_velocities(void) const
+{
+    double sum_v = .0;
+    for (auto& j: configuration.joints)
+        sum_v += fabs(j.s_vel);
+    return sum_v/configuration.number_of_joints;
+}
+
+
 } // namespace robots

@@ -46,6 +46,8 @@ public:
     std::size_t get_current_trial   (void) const { return strategy->get_current_trial(); }
     std::size_t get_population_size (void) const { return population.get_size();         }
 
+    std::vector<double> get_best_individuals_genome(void) const { return population.get_best_individual().genome; }
+
 private:
     Evaluation_Interface& evaluation;
     const std::string     projectname;

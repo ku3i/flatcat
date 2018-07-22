@@ -29,7 +29,7 @@ private:
     std::string name;
 
 public:
-    axes(float x, float y, float z, float w, float h, int flags, std::string name);
+    axes(float x, float y, float z, float w, float h, int flags, std::string name, float def_amp = 1.0f);
     void draw(void) const;
 };
 
