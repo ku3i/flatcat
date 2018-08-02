@@ -542,14 +542,4 @@ Simloid::reinit_motor_model(std::vector<double> params)
     client.send("MOTOR %u %s\nDONE\n", params.size(), common::to_string(params).c_str());
 }
 
-double
-Simloid::sum_abs_velocities(void) const
-{
-    double sum_v = .0;
-    for (auto& j: configuration.joints)
-        sum_v += fabs(j.s_vel);
-    return sum_v/configuration.number_of_joints;
-}
-
-
 } // namespace robots

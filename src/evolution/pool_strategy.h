@@ -222,6 +222,7 @@ public:
 
         if (population.get_best_individual().fitness.get_number_of_evaluations() > 0)
             fitness_stats.max = population.get_best_individual().fitness.get_value();
+        else fitness_stats.max = -1.0; /**TODO hack*/
 
         if (population.get_last_individual().fitness.get_number_of_evaluations() > 0)
             fitness_stats.min = population.get_last_individual().fitness.get_value();

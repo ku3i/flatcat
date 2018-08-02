@@ -19,6 +19,7 @@ struct fitness_data
     , power(.0)
     , temp (.0)
     , steps( 0)
+    , max_steps(0)
     , dropped(false)
     , out_of_track(false)
     , stopped(false)
@@ -27,10 +28,13 @@ struct fitness_data
     double      power;
     double      temp;
     std::size_t steps;
+    std::size_t max_steps;
     bool        dropped;
     bool        out_of_track;
     bool        stopped;
 };
+
+inline double step_ratio(fitness_data const& data) { return clip(static_cast<double>(data.steps)/data.max_steps, 0.0, 1.0); }
 
 class Fitness_Base {
 public:
@@ -41,8 +45,10 @@ public:
     , out_of_track_penalty(out_of_track_penalty)
     , stop_penalty(stop_penalty)
     {
-        sts_msg("Fitness function: %s", name.c_str());
-        //TODO print flags
+        sts_msg("Fitness function = %s", name.c_str());
+        sts_msg("DROPPING         = %s", drop_penalty         ? "YES":"NO");
+        sts_msg("OUT-OF-TRACK     = %s", out_of_track_penalty ? "YES":"NO");
+        sts_msg("STOPPED          = %s", stop_penalty         ? "YES":"NO");
     }
 
     virtual void start (fitness_data& /*data*/) {};
@@ -71,7 +77,7 @@ public:
     Fitness_Forwards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty, bool use_avg = true)
     : Fitness_Base("FORWARDS", robot, drop_penalty, out_of_track_penalty)
     , use_avg(use_avg)
-    { sts_msg("Evolve walking forwards."); }
+    { sts_msg("Evolve getting forwards."); }
 
     void step(fitness_data& data) override
     {
@@ -90,17 +96,15 @@ public:
         else
             data.fit = -robot.get_max_position().y;
 
-        if (data.dropped)
-            data.fit -= 2*robot.get_bodyheight0();
-
-        if (data.out_of_track)
-            data.fit -= .5;
+        if (data.dropped or data.out_of_track)
+            data.fit -= 1.0 - step_ratio(data);
     }
 
 private:
     bool use_avg;
 };
 
+/**TODO remove if not needed*/
 class Fitness_Forwards_Feet : public Fitness_Base
 {
 public:
@@ -125,15 +129,8 @@ public:
         /* forwards has negative sign on y axis */
         data.fit = -robot.get_max_feet_pos().y;
 
-        if (data.dropped) {
-            data.fit -= 2*robot.get_bodyheight0() + exp(-(data.steps/1000.0));
-        }
-
-        if (data.out_of_track)
-            data.fit -= .5;
-
-        if (data.stopped)
-            data.fit -= .5;// + exp(-(data.steps/1000.0));
+        if (data.dropped or data.out_of_track or data.stopped)
+            data.fit -= 1.0 - step_ratio(data);
     }
 };
 
@@ -143,7 +140,7 @@ public:
     Fitness_Backwards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty, bool use_avg = true)
     : Fitness_Base("BACKWARDS", robot, drop_penalty, out_of_track_penalty)
     , use_avg(use_avg)
-    { sts_msg("Evolve walking backwards."); }
+    { sts_msg("Evolve getting backwards."); }
 
     void step(fitness_data& data) override
     {
@@ -162,11 +159,8 @@ public:
         else
             data.fit = robot.get_min_position().y;
 
-        if (data.dropped)
-            data.fit -= 2*robot.get_bodyheight0();
-
-        if (data.out_of_track)
-            data.fit -= .5;
+        if (data.dropped or data.out_of_track)
+            data.fit -= 1.0 - step_ratio(data);
     }
 
 private:
@@ -209,13 +203,13 @@ public:
             data.dropped = true;
 
         if (data.steps > 100 && stop_penalty && robot.motion_stopped(0.0005))
-            data.stopped = true; /**TODO this penalty is not yet included in the other fitness functions*/
+            data.stopped = true;
     }
 
     void finish(fitness_data& data) override
     {
-        data.fit = data.steps;
-        /* TODO include power consumption */
+        data.fit = step_ratio(data);
+        /** TODO think about how to include power consumption */
     }
 };
 
@@ -244,7 +238,8 @@ public:
         data.fit -= data.temp;
 
         if (data.dropped)
-            data.fit -= 2*robot.get_bodyheight0(); //TODO make the penalty configurable
+            data.fit -= 1.0 - step_ratio(data);
+
         /* no penalty for out of track here */
     }
 };
@@ -277,36 +272,7 @@ public:
         data.fit = data.temp;
 
         if (data.dropped)
-            data.fit -= 2*M_PI;
-    }
-};
-
-class Fitness_Moving : public Fitness_Base
-{
-public:
-    Fitness_Moving(const robots::Simloid& robot, bool drop_penalty)
-    : Fitness_Base("TURNING", robot, drop_penalty, false)
-    { sts_msg("Evolve moving."); }
-
-    void start(fitness_data& data) override {
-        data.temp = .0;
-    }
-
-    void step(fitness_data& data) override
-    {
-        if (drop_penalty && robot.dropped())
-            data.dropped = true;
-
-        /* sum up movements */
-        data.temp += robot.sum_abs_velocities();
-    }
-
-    void finish(fitness_data& data) override
-    {
-        data.fit = data.temp/10.0;
-
-        //if (data.dropped)
-          //  data.fit -= 1.0 + exp(-(data.steps/1000.0));
+            data.fit -= 2*M_PI * (1.0 - step_ratio(data));
     }
 };
 

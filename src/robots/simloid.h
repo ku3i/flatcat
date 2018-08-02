@@ -146,8 +146,6 @@ public:
     void randomize_model(double rnd_amplitude);
     void reinit_robot_model(std::vector<double> params);
     void reinit_motor_model(std::vector<double> params);
-
-    double sum_abs_velocities(void) const;
 };
 
 } // namespace robots

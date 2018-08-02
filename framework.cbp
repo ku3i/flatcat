@@ -58,7 +58,6 @@
 			<Add library="pthread" />
 			<Add library="armadillo" />
 		</Linker>
-		<Unit filename="../simloidTCP/src/basic/capsule.h" />
 		<Unit filename="src/common/application_base.h" />
 		<Unit filename="src/common/autopause.h" />
 		<Unit filename="src/common/basic.cpp" />
