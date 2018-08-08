@@ -54,6 +54,7 @@ public:
     virtual void start (fitness_data& /*data*/) {};
     virtual void step  (fitness_data& data) = 0;
     virtual void finish(fitness_data& data) = 0;
+    virtual ~Fitness_Base() {};
 
     const std::string& get_name(void) const { return name; }
 
