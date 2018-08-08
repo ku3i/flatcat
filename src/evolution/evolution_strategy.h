@@ -29,6 +29,9 @@ struct statistics_t {
         min = std::min(val, min);
         sum += val;
         ++num_samples;
+    }
+
+    void update_average(void) {
         avg = sum/num_samples;
     }
 

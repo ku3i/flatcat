@@ -1,11 +1,9 @@
 #include "generation_based_strategy.h"
 
 bool
-Generation_Based_Evolution::show_selection(void) /**TODO show_sel and evaluate have many lines of code in common!*/
+Generation_Based_Evolution::show_selection(void)
 {
-    double max_fitness = -DBL_MAX;
-    double min_fitness = +DBL_MAX;
-    double avg_fitness = 0.0;
+    fitness_stats.reset();
     double generation_rnd = random_value(0.0, 1.0); // provide a random value used by evaluation, same for every individual of a generation,
 
     sts_msg("Showing selection");
@@ -15,18 +13,14 @@ Generation_Based_Evolution::show_selection(void) /**TODO show_sel and evaluate h
         sts_msg("  showing individual no. %3u/%u ", i + 1, selection_size);
         if (evaluation.evaluate(population[i].fitness, population[i].genome, generation_rnd))
         {
-            sts_msg("  = %1.3f (% e)", population[i].fitness, population[i].fitness.get_value());
-            avg_fitness += population[i].fitness.get_value();
-            max_fitness = fmax(max_fitness, population[i].fitness.get_value());
-            min_fitness = fmin(min_fitness, population[i].fitness.get_value());
+            auto const& fitval = population[i].fitness.get_value();
+            sts_msg("  = %1.3f (% e)", fitval, fitval);
+            fitness_stats.add_sample(fitval);
         }
         else return false;
     }
-    avg_fitness /= selection_size;
-    sts_msg("Result: max: %1.2f min: %1.2f avg: %1.2f\n", max_fitness, min_fitness, avg_fitness);
-    fitness_stats.max = max_fitness;
-    fitness_stats.avg = avg_fitness;
-    fitness_stats.min = min_fitness;
+    fitness_stats.update_average();
+    sts_msg("Result: max: %1.2f avg: %1.2f min: %1.2f\n", fitness_stats.max, fitness_stats.avg, fitness_stats.min);
     return true;
 }
 
@@ -64,6 +58,9 @@ Generation_Based_Evolution::evaluate_generation(void)
             return false;
         }
     }
+    fitness_stats .update_average();
+    mutation_stats.update_average();
+
     sts_msg("\rGeneration result: max=%+07.3f avg=%+07.3f min=%+07.3f", fitness_stats.max, fitness_stats.avg, fitness_stats.min);
 
     return true;

@@ -22,6 +22,10 @@ public:
     void reset(void) { fitness.reset(); }
     std::size_t get_number_of_evaluations(void) const { return fitness.get_num_samples(); }
 
+    double get_value_or_default(double default_value = 0.0) const {
+        return (fitness.get_num_samples()>0) ? fitness.get() : default_value;
+    }
+
 private:
     incremental_average fitness;
 
