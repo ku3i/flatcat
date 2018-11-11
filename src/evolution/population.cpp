@@ -8,7 +8,11 @@ Population::initialize_from_seed(const std::vector<double>& seed) //TODO take a 
         individuals[i].initialize_from_seed(seed);
 }
 
-bool greater_than(const Individual& ind1, const Individual& ind2) { return (ind1.fitness > ind2.fitness); }
+bool greater_than(const Individual& ind1, const Individual& ind2) {
+    if (ind1.fitness.get_number_of_evaluations() > 0 and ind2.fitness.get_number_of_evaluations() > 0)
+        return (ind1.fitness > ind2.fitness);
+    else return false;
+}
 
 void
 Population::sort_by_fitness(void)
@@ -62,7 +66,7 @@ save_fitness_values(Population& population, file_io::CSV_File<double>& csv_fitne
 {
     //sts_msg("Saving fitness values.");
     for (std::size_t idx = 0; idx < population.individuals.size(); ++idx)
-        csv_fitness.set_line(idx, population.individuals[idx].fitness.get_value());
+        csv_fitness.set_line(idx, population.individuals[idx].fitness.get_value_or_default());
     csv_fitness.write();
 }
 

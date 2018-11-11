@@ -72,7 +72,7 @@ protected:
         if (total_bytes + 1 < BufferSize) {
             auto n = snprintf(buffer+total_bytes, BufferSize-total_bytes, format, args...);
             if (n < 0) err_msg(__FILE__,__LINE__," Encoding error.");
-            if (n < BufferSize-total_bytes) {
+            if (static_cast<unsigned>(n) < BufferSize-total_bytes) {
                 total_bytes += n;
                 return;
             }

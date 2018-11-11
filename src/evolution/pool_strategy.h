@@ -62,7 +62,7 @@ public:
     bool evaluate(Individual& individual)
     {
         bool result = evaluation.evaluate(individual.fitness, individual.genome, random_value(0.0, 1.0));
-        sts_msg(" f = %+1.4f", individual.fitness.get_value());
+        sts_msg(" f = %+1.4f", individual.fitness.get_value_or_default());
         return result;
     }
 
@@ -90,7 +90,7 @@ public:
             if (population[replace_idx].fitness.get_number_of_evaluations() == 0)
                 err_msg(__FILE__, __LINE__, "overriding a not yet tested one: %u", replace_idx);
         }
-        else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness.get_value(), population[replace_idx].fitness.get_value());
+        else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness.get_value_or_default(), population[replace_idx].fitness.get_value_or_default());
 
         return result;
     }
@@ -119,7 +119,9 @@ public:
     Evolution_State execute_trial(void)
     {
         bool result = false;
-        if (current_trial < population.get_size()) {
+        bool is_initial = current_trial < population.get_size();
+
+        if (is_initial) {
             sts_msg("Trial: %u (initial)", current_trial);
             result = initial_trial();
         } else if (random_value(0.0, 1.0) > moving_rate) {
@@ -132,7 +134,8 @@ public:
 
         if (not result) return Evolution_State::aborted;
 
-        update_population_statistics();
+        if (!is_initial)
+            update_population_statistics();
 
         if (++current_trial < max_trials) {
             if (current_trial > 0 and (current_trial % population.get_size() == 0))
@@ -186,7 +189,7 @@ public:
 
     const Individual& get_best_individual(void) const
     {
-        sts_msg("Get best individual (%1.4f)", population.get_best_individual().fitness.get_value());
+        sts_msg("Get best individual (%1.4f)", population.get_best_individual().fitness.get_value_or_default());
         return population.get_best_individual();
     }
 
@@ -203,28 +206,19 @@ public:
         population.sort_by_fitness();
         best_individual_has_changed |= (last_best_fitness != population.get_best_individual().fitness.get_value());
 
-        double sum_fitness = .0;
-
-        mutation_stats = statistics_t();
+        fitness_stats .reset();
+        mutation_stats.reset();
 
         for (std::size_t i = 0; i < population.get_size(); ++i) {
-            if (population[i].fitness.get_number_of_evaluations() > 0)
-                sum_fitness += population[i].fitness.get_value();
 
-            /* statistics of mutation rates */
-            mutation_stats.max = std::max(population[i].mutation_rate, mutation_stats.max);
-            mutation_stats.min = std::min(population[i].mutation_rate, mutation_stats.min);
-            mutation_stats.avg += population[i].mutation_rate;
+            if (population[i].fitness.get_number_of_evaluations() > 0) {
+                fitness_stats .add_sample(population[i].fitness.get_value());
+                mutation_stats.add_sample(population[i].mutation_rate);
+            } else dbg_msg("not evaluated, skipping %u", i);
         }
-        mutation_stats.avg /= population.get_size();
 
-        fitness_stats.avg = sum_fitness / population.get_size();
-
-        if (population.get_best_individual().fitness.get_number_of_evaluations() > 0)
-            fitness_stats.max = population.get_best_individual().fitness.get_value();
-
-        if (population.get_last_individual().fitness.get_number_of_evaluations() > 0)
-            fitness_stats.min = population.get_last_individual().fitness.get_value();
+        fitness_stats .update_average();
+        mutation_stats.update_average();
 
         if ((current_trial+1) % population.get_size() == 0)
             sts_msg("max:%+1.4f, avg:%+1.4f, min:%+1.4f",

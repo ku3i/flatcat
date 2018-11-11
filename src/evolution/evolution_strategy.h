@@ -16,9 +16,32 @@ enum Evolution_State
 };
 
 struct statistics_t {
+    statistics_t()
+    : max(-DBL_MAX)
+    , min(+DBL_MAX)
+    , sum(0.0)
+    , avg(0.0)
+    , num_samples(0)
+    {}
+
+    void add_sample(double val) {
+        max = std::max(val, max);
+        min = std::min(val, min);
+        sum += val;
+        ++num_samples;
+    }
+
+    void update_average(void) {
+        avg = sum/num_samples;
+    }
+
+    void reset() { *this = statistics_t{}; }
+
     double max;
-    double avg;
     double min;
+    double sum;
+    double avg;
+    uint64_t num_samples;
 };
 
 /* base class */

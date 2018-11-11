@@ -11,7 +11,11 @@ public:
         mean = mean + (value - mean) / num_samples;
     }
 
-    double get(void) const { return mean; }
+    double get(void) const {
+        assert(num_samples>0);
+        return mean;
+    }
+
     std::size_t get_num_samples(void) const { return num_samples; }
 
     void reset(void) {

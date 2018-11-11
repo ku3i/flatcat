@@ -143,7 +143,7 @@ Evolution::write_config()
 {
     /* test if the project already exists */
     if (configuration.readUINT("STATUS") > 0)
-        err_msg(__FILE__, __LINE__, "Project already exists. Please use '--resume' instead. Exit.");
+        err_msg(__FILE__, __LINE__, "Project already exists. Please use '--resume' or '-r' instead. Exit.");
     else
         sts_msg("Safely override existing configuration file.");
 
