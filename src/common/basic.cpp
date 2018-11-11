@@ -71,10 +71,11 @@ Filelist list_directory(const char* target_dir, const char* filter)
 std::size_t get_file_size(FILE* fd)
 {
     // obtain file size
+    if (fd == nullptr) return 0;
     fseek(fd, 0, SEEK_END);
-    std::size_t file_size = ftell(fd);
+    long int file_size = ftell(fd);
     rewind(fd);
-    return file_size;
+    return (file_size > 0) ? file_size : 0;
 }
 
 std::string get_timestamp(void) {

@@ -58,6 +58,7 @@
 			<Add library="pthread" />
 			<Add library="armadillo" />
 		</Linker>
+		<Unit filename="../simloidTCP/src/basic/capsule.h" />
 		<Unit filename="src/common/application_base.h" />
 		<Unit filename="src/common/autopause.h" />
 		<Unit filename="src/common/basic.cpp" />
@@ -173,12 +174,17 @@
 		<Unit filename="src/learning/expert.h" />
 		<Unit filename="src/learning/expert_vector.h" />
 		<Unit filename="src/learning/forcefield.h" />
+		<Unit filename="src/learning/fw_bw_model.h" />
 		<Unit filename="src/learning/gmes.cpp" />
 		<Unit filename="src/learning/gmes.h" />
 		<Unit filename="src/learning/gmes_action_module.h" />
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />
+		<Unit filename="src/learning/homeokinetic.h" />
 		<Unit filename="src/learning/learning_machine_interface.h" />
+		<Unit filename="src/learning/linear_model.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/learning/motor_layer.h" />
 		<Unit filename="src/learning/motor_predictor.h" />
 		<Unit filename="src/learning/payload.h" />
@@ -219,10 +225,19 @@
 		<Unit filename="src/tests/catch.hpp">
 			<Option target="tests" />
 		</Unit>
+		<Unit filename="src/tests/fw_bw_model_tests.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/homeokinetic_tests.cpp">
+			<Option target="tests" />
+		</Unit>
 		<Unit filename="src/tests/jointcontroller_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/learning.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/linear_model_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/main.cpp">

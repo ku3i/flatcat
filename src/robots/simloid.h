@@ -13,11 +13,13 @@
 #include <float.h>
 #include <assert.h>
 #include <algorithm>
+#include <vector>
 
 #include <common/lock.h>
 #include <common/modules.h>
 #include <common/socket_client.h>
 #include <common/basic.h>
+#include <common/misc.h>
 #include <common/log_messages.h>
 #include <common/robot_conf.h>
 #include <robots/robot.h>
@@ -142,6 +144,10 @@ public:
     void record_next_frame() { record_frame = true; }
 
     void randomize_model(double rnd_amplitude);
+    void reinit_robot_model(std::vector<double> params);
+    void reinit_motor_model(std::vector<double> params);
+
+    double sum_abs_velocities(void) const;
 };
 
 } // namespace robots

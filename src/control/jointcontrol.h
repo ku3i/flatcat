@@ -61,6 +61,8 @@ public:
     void execute_cycle(void);
     void reset(void);
 
+    void insert_motor_command(unsigned index, double value);
+
     void switch_symmetric(bool switched);
     void switch_symmetric() { switch_symmetric(not is_switched); }
 

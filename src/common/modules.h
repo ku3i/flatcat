@@ -41,6 +41,22 @@ double clip(double x, double l_limit, double u_limit);
 template <typename Vector_t>
 void vector_clip(Vector_t& vec) { for (auto& v : vec) v = clip(v); }
 
+/* checks if vector is zero */
+template <typename Vector_t>
+bool is_vector_zero(Vector_t const& vec) {
+    for (auto& v : vec)
+        if (v != 0.0) return false;
+    return true;
+}
+
+template <typename Vector_t>
+void print_vector(Vector_t const& vec, const char* name = "", const char* format = "%+4.2f ") {
+    printf("%s = [", name);
+    for (auto const& el: vec)
+        printf(format, el);
+    printf("]\n");
+}
+
 /* min of 3 arguments */
 double fmin3(double x, double y, double z);
 

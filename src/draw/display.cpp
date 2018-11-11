@@ -11,12 +11,12 @@ void hbar(float px, float py, float dx, float dy, float value, float max_value, 
     fill_rect(px, py, dx*frac, dy);
 }
 
-void vbar(float px, float py, float dx, float dy, float value, float max_value)
+void vbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color)
 {
     const float frac = clip(value/max_value, 0.f, 1.f);
-    glColor3f(.3f, .3f, .3f);
+    set_color(color, 0.3);
     fill_rect(px, py, dx, dy);
-    glColor3f(.9f, .9f, .9f);
+    set_color(color);
     fill_rect(px, py, dx, dy*frac);
 }
 
