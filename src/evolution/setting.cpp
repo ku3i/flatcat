@@ -162,7 +162,7 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeUINT("PUSH_BODY"           , push_body);
     project_file.writeUINT("PUSH_CYCLE"          , push_cycle);
     project_file.writeUINT("PUSH_STEPS"          , push_steps);
-    project_file.writeUINT("PUSH_STRENGTH"       , push_strength);
+    project_file.writeDBL ("PUSH_STRENGTH"       , push_strength);
 
     project_file.writeSTR ("STRATEGY"            , strategy);
 
