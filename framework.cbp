@@ -94,6 +94,7 @@
 		<Unit filename="src/common/socket_client.h" />
 		<Unit filename="src/common/static_vector.h" />
 		<Unit filename="src/common/stopwatch.h" />
+		<Unit filename="src/common/timer.h" />
 		<Unit filename="src/common/vector2.h" />
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/view_manager.h" />
