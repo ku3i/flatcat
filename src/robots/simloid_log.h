@@ -12,7 +12,7 @@
 
 namespace robots {
 
-class Simloid_Log : public Loggable<768> {
+class Simloid_Log : public Loggable<2048> {
 
     const Simloid& simloid;
 
