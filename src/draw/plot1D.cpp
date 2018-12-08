@@ -72,8 +72,8 @@ plot1D::draw_statistics(void) const
             , axis.py + 0.5 * axis.height - 1.1 * axis.font_height * (axis_id + 1)
             , axis.pz
             , axis.font_height
-            , "%+.4f"
-            , signal[pointer] );
+            , "%+.4f %s"
+            , signal[pointer], name.c_str() );
 }
 
 void

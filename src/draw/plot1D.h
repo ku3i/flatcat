@@ -14,7 +14,7 @@
 
 class plot1D {
 public:
-    plot1D(unsigned int number_of_samples, axes& a, const Color4& c = colors::white0)
+    plot1D(unsigned int number_of_samples, axes& a, const Color4& c = colors::white0, const char* name = "")
     : number_of_samples(number_of_samples)
     , pointer(0)
     , axis(a)
@@ -22,13 +22,14 @@ public:
     , signal(number_of_samples)
     , color(c)
     , decrement(0.99)
+    , name(name)
     { }
 
     virtual ~plot1D() = default;
 
     void draw(void) const;
     void add_sample(const float s);
-    void reset(void) { std::fill(signal.begin(), signal.end(), .0); }
+    void reset(void) { std::fill(signal.begin(), signal.end(), .0); pointer = 0; }
 
 protected:
     void increment_pointer(void) { ++pointer; pointer %= number_of_samples; }
@@ -44,6 +45,7 @@ protected:
     std::vector<float> signal;
     Color4 color;
     const float decrement;
+    const std::string name;
 };
 
 
