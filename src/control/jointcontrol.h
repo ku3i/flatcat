@@ -78,6 +78,8 @@ public:
 
     bool is_symmetric(void) const { return symmetric_controller; }
 
+    double get_L1_norm(void);
+
 private:
 
     void apply_symmetric_weights(const std::vector<double>& params);
