@@ -375,7 +375,7 @@ Event_Manager::register_user_callback_key_pressed(callback_type callback_functio
     else
         user_callback_key_pressed = callback_function;
 
-    dbg_msg("User callback function for 'keyboard pressed' registered successfully.");
+    //dbg_msg("User callback function for 'keyboard pressed' registered successfully.");
 }
 void
 Event_Manager::register_user_callback_key_released(callback_type callback_function)
@@ -385,7 +385,7 @@ Event_Manager::register_user_callback_key_released(callback_type callback_functi
     else
         user_callback_key_released = callback_function;
 
-    dbg_msg("User callback function for 'keyboard released' registered successfully.");
+    //dbg_msg("User callback function for 'keyboard released' registered successfully.");
 }
 void
 Event_Manager::register_user_callback_joystick(callback_type callback_function)
@@ -395,7 +395,7 @@ Event_Manager::register_user_callback_joystick(callback_type callback_function)
     else
         user_callback_joystick = callback_function;
 
-    dbg_msg("User joystick callback function registered successfully.");
+    //dbg_msg("User joystick callback function registered successfully.");
 }
 
 void
@@ -406,5 +406,5 @@ Event_Manager::register_user_callback_mouse(callback_type callback_function)
     else
         user_callback_mouse = callback_function;
 
-    dbg_msg("User mouse callback function registered successfully.");
+    //dbg_msg("User mouse callback function registered successfully.");
 }
