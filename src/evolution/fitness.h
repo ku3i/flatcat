@@ -233,8 +233,9 @@ public:
 class Fitness_Sidewards : public Fitness_Base
 {
 public:
-    Fitness_Sidewards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty)
+    Fitness_Sidewards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty, bool use_avg = true)
     : Fitness_Base("SIDEWARDS", robot, drop_penalty, out_of_track_penalty)
+    , use_avg(use_avg)
     { sts_msg("Evolve walking sidewards."); }
 
     void step(fitness_data& data) override
@@ -251,7 +252,7 @@ public:
     void finish(fitness_data& data) override
     {
         /* left has positive sign on x axis */
-        data.fit = robot.get_avg_position().x;
+        data.fit = (use_avg) ? robot.get_avg_position().x : robot.get_min_position().x;
         data.fit -= data.temp;
 
         if (data.dropped)
@@ -259,6 +260,8 @@ public:
 
         /* no penalty for out of track here */
     }
+private:
+    bool use_avg;
 };
 
 class Fitness_Turning : public Fitness_Base

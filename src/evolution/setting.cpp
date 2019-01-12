@@ -168,7 +168,6 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeUINT("PUSH_CYCLE"          , push.cycle);
     project_file.writeUINT("PUSH_STEPS"          , push.steps);
     project_file.writeUINT("PUSH_STRENGTH"       , push.strength);
-
     project_file.writeSTR ("STRATEGY"            , strategy);
 
     assert(not fitness_function.empty());
