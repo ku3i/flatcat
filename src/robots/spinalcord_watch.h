@@ -42,8 +42,8 @@ public:
     , subspace_portrait()
     , axes_accel(0.,-1.25, 0., 4.0, 0.25, 1, "Accel")
     , plot_accel_x(1000, axes_accel, colors::cyan   )
-    , plot_accel_y(1000, axes_accel, colors::orange )
-    , plot_accel_z(1000, axes_accel, colors::magenta)
+    , plot_accel_y(1000, axes_accel, colors::magenta)
+    , plot_accel_z(1000, axes_accel, colors::yellow )
     {
         plot_axes    .reserve(num_joints);
         plot_position.reserve(num_joints);

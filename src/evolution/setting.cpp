@@ -1,6 +1,9 @@
 
 #include "./setting.h"
 
+/**TODO: this needs an update someday.*/
+
+
 bool         read_option_bool  (int argc, char **argv, const std::string long_name, const std::string short_name, bool def = false);
 unsigned int read_option_uint  (int argc, char **argv, const std::string long_name, const std::string short_name, unsigned int def);
 std::string  read_option_string(int argc, char **argv, const std::string long_name, const std::string short_name);
@@ -18,7 +21,7 @@ Setting::Setting( int argc, char **argv )
                 , efficient(true)
                 , drop_penalty(true)
                 , out_of_track_penalty(true)
-                , stop_penalty(true)
+                , stop_penalty(false)
                 , symmetric_controller(true)
                 , strategy("GENERATION")
                 , population_size(500)
@@ -34,13 +37,12 @@ Setting::Setting( int argc, char **argv )
                 , param_p(3.0)
                 , param_d(-1.0)
                 , param_m(1.0)
-                , push_mode(0)
-                , push_body(0)
-                , push_cycle(0)
-                , push_steps(0)
-                , push_strength(0.0)
+                , push()
                 , fitness_function("FORWARDS")
                 , random_mode(false)
+                , low_sensor_quality(false)
+                , L1_normalization(false)
+                , target(.0)
 {
     if (read_option_bool(argc, argv, "--help", "-h"))
     {
@@ -98,14 +100,14 @@ Setting::read_configuration(const std::string& filename)
     initial_steps = settings_file.readUINT("INITIAL_STEPS");
     dbg_msg("   Max_Power is %u, max. %u steps a trial and %u initial steps", max_power, max_steps, initial_steps);
 
-    push_mode     = settings_file.readUINT("PUSH_MODE"    , push_mode);
-    push_body     = settings_file.readUINT("PUSH_BODY"    , push_body);
-    push_cycle    = settings_file.readUINT("PUSH_CYCLE"   , push_cycle);
-    push_steps    = settings_file.readUINT("PUSH_STEPS"   , push_steps);
-    push_strength = settings_file.readDBL ("PUSH_STRENGTH", push_strength);
+    push.mode     = settings_file.readUINT("PUSH_MODE"    , push.mode);
+    push.body     = settings_file.readUINT("PUSH_BODY"    , push.body);
+    push.cycle    = settings_file.readUINT("PUSH_CYCLE"   , push.cycle);
+    push.steps    = settings_file.readUINT("PUSH_STEPS"   , push.steps);
+    push.strength = settings_file.readDBL ("PUSH_STRENGTH", push.strength);
 
-    dbg_msg("   push steps = %u/%u with strength = %lf (mode=%u) on body %u", push_steps, push_cycle, push_strength, push_mode, push_body);
-    assert(push_steps <= push_cycle);
+    dbg_msg("   push steps = %u/%u with strength = %lf (mode=%u) on body %u", push.steps, push.cycle, push.strength, push.mode, push.body);
+    assert(push.steps <= push.cycle);
 
     efficient    = settings_file.readBOOL("EFFICIENT", efficient);
     drop_penalty = settings_file.readBOOL("DROP_PENALTY", drop_penalty);
@@ -146,6 +148,9 @@ Setting::read_configuration(const std::string& filename)
     assert(not fitness_function.empty());
 
     random_mode = settings_file.readBOOL("RANDOM_MODE", random_mode);
+    low_sensor_quality = settings_file.readBOOL("LOW_SENSOR_QUALITY", low_sensor_quality);
+    L1_normalization = settings_file.readBOOL("L1_NORMALIZATION", L1_normalization);
+    target = settings_file.readDBL("TARGET", target);
 }
 
 const std::string&
@@ -158,11 +163,11 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeUINT("MAX_STEPS"           , max_steps);
     project_file.writeUINT("MAX_POWER"           , max_power);
     project_file.writeUINT("INITIAL_STEPS"       , initial_steps);
-    project_file.writeUINT("PUSH_MODE"           , push_mode);
-    project_file.writeUINT("PUSH_BODY"           , push_body);
-    project_file.writeUINT("PUSH_CYCLE"          , push_cycle);
-    project_file.writeUINT("PUSH_STEPS"          , push_steps);
-    project_file.writeUINT("PUSH_STRENGTH"       , push_strength);
+    project_file.writeUINT("PUSH_MODE"           , push.mode);
+    project_file.writeUINT("PUSH_BODY"           , push.body);
+    project_file.writeUINT("PUSH_CYCLE"          , push.cycle);
+    project_file.writeUINT("PUSH_STEPS"          , push.steps);
+    project_file.writeUINT("PUSH_STRENGTH"       , push.strength);
 
     project_file.writeSTR ("STRATEGY"            , strategy);
 
@@ -183,8 +188,12 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeUINT("POPULATION_SIZE"     , population_size);
 
     project_file.writeBOOL("RANDOM_MODE"         , random_mode);
+    project_file.writeBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality);
+    project_file.writeBOOL("L1_NORMALIZATION"    , L1_normalization);
+    project_file.writeDBL ("TARGET"              , target);
 
-    /**TODO what about selection bias, moving rate, max generations, is that an error?*/
+    /** NOTE: Strategy-specific settings are saved separately!
+        e.g. selection bias, moving rate, max generations */
 
     project_file.finish();
     return filename;

@@ -363,6 +363,14 @@ void
 Simloid::send_pause_command(void) { client.send("PAUSE\nDONE\n"); }
 
 void
+Simloid::set_low_sensor_quality(bool low_quality) {
+    if (low_quality)
+        client.send("SENSORS POOR\n");
+    else
+        client.send("SENSORS GOOD\n");
+}
+
+void
 Simloid::update_avg_position(void)
 {
     Vector3 position(.0);

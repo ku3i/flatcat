@@ -61,9 +61,14 @@ public:
 
     bool evaluate(Individual& individual)
     {
-        bool result = evaluation.evaluate(individual.fitness, individual.genome, random_value(0.0, 1.0));
-        sts_msg(" f = %+1.4f", individual.fitness.get_value_or_default());
-        return result;
+        evaluation.constrain(individual.genome);
+        if (evaluation.evaluate(individual.fitness, individual.genome, random_value(0.0, 1.0))) {
+            sts_msg(" f = %+1.4f", individual.fitness.get_value_or_default());
+            return true;
+        } else {
+            sts_msg("Evaluation aborted without result.");
+            return false;
+        }
     }
 
     bool crossover_trial(void)
@@ -76,7 +81,8 @@ public:
         sts_msg(" crossing %2u and %2u", parent_1, parent_2);
 
         child.mutate();
-        bool result = evaluate(child);
+
+        if (not evaluate(child)) return false;
 
         std::size_t replace_idx = get_replacement_candidate_for(child, population);
 
@@ -92,7 +98,7 @@ public:
         }
         else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness.get_value_or_default(), population[replace_idx].fitness.get_value_or_default());
 
-        return result;
+        return true;
     }
 
     bool refreshing_trial(void)
@@ -120,6 +126,10 @@ public:
     {
         bool result = false;
         bool is_initial = current_trial < population.get_size();
+
+        /* prepare */
+        if (current_trial % population.get_size() == 0)
+            evaluation.prepare_evaluation(current_trial, max_trials);
 
         if (is_initial) {
             sts_msg("Trial: %u (initial)", current_trial);

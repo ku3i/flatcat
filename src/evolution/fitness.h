@@ -11,6 +11,11 @@
 
 #include <evolution/setting.h>
 
+/**TODO: how to incorporate L1 normalization into fitness?
+   How to access the weight matrix?
+   we only need to access the norm value L1 = sum |w_i|
+   start with computing this value and print it to terminal after each evaluation.
+   */
 
 struct fitness_data
 {
@@ -38,12 +43,13 @@ inline double step_ratio(fitness_data const& data) { return clip(static_cast<dou
 
 class Fitness_Base {
 public:
-    Fitness_Base(const std::string& name, const robots::Simloid& robot, bool drop_penalty = false, bool out_of_track_penalty = false, bool stop_penalty = false)
+    Fitness_Base(const std::string& name, const robots::Simloid& robot, bool drop_penalty = false, bool out_of_track_penalty = false, bool stop_penalty = false, double target = .0)
     : name(name)
     , robot(robot)
     , drop_penalty(drop_penalty)
     , out_of_track_penalty(out_of_track_penalty)
     , stop_penalty(stop_penalty)
+    , target(target)
     {
         sts_msg("Fitness function = %s", name.c_str());
         sts_msg("DROPPING         = %s", drop_penalty         ? "YES":"NO");
@@ -66,6 +72,7 @@ protected:
     bool                   drop_penalty;
     bool                   out_of_track_penalty;
     bool                   stop_penalty;
+    double                 target;
 };
 
 typedef std::shared_ptr<Fitness_Base> Fitness_ptr;
@@ -75,10 +82,13 @@ Fitness_ptr assign_fitness(const robots::Simloid& robot, const Setting& settings
 class Fitness_Forwards : public Fitness_Base
 {
 public:
-    Fitness_Forwards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty, bool use_avg = true)
-    : Fitness_Base("FORWARDS", robot, drop_penalty, out_of_track_penalty)
+    Fitness_Forwards(const robots::Simloid& robot, bool drop_penalty, bool out_of_track_penalty, bool use_avg = true, double target = 0.)
+    : Fitness_Base("FORWARDS", robot, drop_penalty, out_of_track_penalty, /*stop_penalty=*/false, target)
     , use_avg(use_avg)
-    { sts_msg("Evolve getting forwards."); }
+    { sts_msg("Evolve getting forwards.");
+        assert(target >= .0);
+        dbg_msg("Target is %1.2f", target);
+    }
 
     void step(fitness_data& data) override
     {
@@ -96,6 +106,12 @@ public:
             data.fit = -robot.get_avg_position().y;
         else
             data.fit = -robot.get_max_position().y;
+
+        if (target != .0 and data.fit > target) {
+            data.fit = clip(data.fit, std::abs(target));
+            dbg_msg("Target overshot. \n");
+            data.fit *= step_ratio(data);
+        }
 
         if (data.dropped or data.out_of_track)
             data.fit -= 1.0 - step_ratio(data);
@@ -187,7 +203,7 @@ public:
         data.fit = 10.0/(1 + data.power);
 
         if (data.dropped)
-            data.fit -= 10;
+            data.fit -= 10.0 * (1.0 - step_ratio(data));
     }
 };
 

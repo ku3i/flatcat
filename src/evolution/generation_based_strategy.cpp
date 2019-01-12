@@ -11,6 +11,7 @@ Generation_Based_Evolution::show_selection(void)
     for (std::size_t i = 0; i < selection_size; ++i)
     {
         sts_msg("  showing individual no. %3u/%u ", i + 1, selection_size);
+        evaluation.constrain(population[i].genome);
         if (evaluation.evaluate(population[i].fitness, population[i].genome, generation_rnd))
         {
             auto const& fitval = population[i].fitness.get_value();
@@ -42,6 +43,7 @@ Generation_Based_Evolution::evaluate_generation(void)
         else printf("\rtesting individual no.%3lu/%lu [%lu/%lu]", i + 1, population.get_size(), cur_generation, max_generation);
 
         population[i].fitness.reset();
+        evaluation.constrain(population[i].genome);
         if (evaluation.evaluate(population[i].fitness, population[i].genome, generation_rnd))
         {
             auto const& fitval = population[i].fitness.get_value();

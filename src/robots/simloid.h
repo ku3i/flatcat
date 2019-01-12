@@ -146,6 +146,8 @@ public:
     void randomize_model(double rnd_amplitude);
     void reinit_robot_model(std::vector<double> params);
     void reinit_motor_model(std::vector<double> params);
+
+    void set_low_sensor_quality(bool low_quality);
 };
 
 } // namespace robots
