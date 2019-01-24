@@ -67,7 +67,13 @@ class Setting
         } push;
 
         std::string  fitness_function;
-        bool         random_mode;
+
+        struct Random_Mode_Settings {
+            std::string mode;
+            double value;
+            mutable uint64_t init;
+        } rnd;
+
         bool         low_sensor_quality;
         bool         L1_normalization;
 

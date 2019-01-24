@@ -49,6 +49,7 @@ public:
     std::vector<double> get_best_individuals_genome(void) const { return population.get_best_individual().genome; }
 
 private:
+    const Setting&        settings;
     Evaluation_Interface& evaluation;
     const std::string     projectname;
     const std::string     conffilename;

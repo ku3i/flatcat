@@ -39,7 +39,7 @@ Setting::Setting( int argc, char **argv )
                 , param_m(1.0)
                 , push()
                 , fitness_function("FORWARDS")
-                , random_mode(false)
+                , rnd({"NONE", 0.0, 0})
                 , low_sensor_quality(false)
                 , L1_normalization(false)
                 , target(.0)
@@ -147,7 +147,10 @@ Setting::read_configuration(const std::string& filename)
     fitness_function = settings_file.readSTR("FITNESS_FUNCTION");
     assert(not fitness_function.empty());
 
-    random_mode = settings_file.readBOOL("RANDOM_MODE", random_mode);
+    rnd.mode  = settings_file.readSTR ("RANDOM_MODE" , rnd.mode);
+    rnd.value = settings_file.readDBL ("RANDOM_VALUE", rnd.value);
+    rnd.init  = settings_file.readUINT("RANDOM_INIT" , rnd.init);
+
     low_sensor_quality = settings_file.readBOOL("LOW_SENSOR_QUALITY", low_sensor_quality);
     L1_normalization = settings_file.readBOOL("L1_NORMALIZATION", L1_normalization);
     target = settings_file.readDBL("TARGET", target);
@@ -186,7 +189,10 @@ Setting::save_to_projectfile(const std::string& filename) const
 
     project_file.writeUINT("POPULATION_SIZE"     , population_size);
 
-    project_file.writeBOOL("RANDOM_MODE"         , random_mode);
+    project_file.writeSTR ("RANDOM_MODE"         , rnd.mode);
+    project_file.writeDBL ("RANDOM_VALUE"        , rnd.value);
+    project_file.writeUINT("RANDOM_INIT"         , rnd.init);
+
     project_file.writeBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality);
     project_file.writeBOOL("L1_NORMALIZATION"    , L1_normalization);
     project_file.writeDBL ("TARGET"              , target);

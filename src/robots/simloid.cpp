@@ -520,16 +520,21 @@ Simloid::get_max_feet_pos(void) const {
                   , std::max(configuration.bodies[left_id].position.z, configuration.bodies[rift_id].position.z) };
 }
 
-void
-Simloid::randomize_model(double rnd_amplitude)
+uint64_t
+Simloid::randomize_model(double rnd_amplitude, uint64_t rnd_instance)
 {
-    uint64_t rnd_instance = time(NULL);
+    if (0 == rnd_instance) {/* not initialized yet? */
+        rnd_instance = time(NULL);
+        sts_msg("Initializing random seed, instance is: %lu", rnd_instance);
+    }
+
     sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
     client.send("MODEL %u 2 %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
     configuration.read_robot_info( client.recv(5*constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
     init_robot();
+    return rnd_instance;
 }
 
 void
