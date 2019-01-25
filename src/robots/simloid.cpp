@@ -3,11 +3,13 @@
 
 namespace robots {
 
-Simloid::Simloid( const unsigned short port,
-                  const unsigned int robot_ID,
-                  const unsigned int scene_ID,
-                  const bool visuals,
-                  const bool realtime)
+Simloid::Simloid( unsigned short port,
+                  unsigned int robot_ID,
+                  unsigned int scene_ID,
+                  bool visuals,
+                  bool realtime,
+                  std::vector<double> modelparams
+                )
                 : port(port)
                 , robot_ID(robot_ID)
                 , scene_ID(scene_ID)
@@ -40,7 +42,12 @@ Simloid::Simloid( const unsigned short port,
     if (connection_established)
     {
         sts_msg("Connection established.");
-        init_robot();
+
+        if (0 == modelparams.size()) init_robot();
+        else {
+            read_sensor_data();
+            reinit_robot_model(modelparams);
+        }
     }
     else
         wrn_msg("Cannot connect to robot.");
@@ -538,7 +545,7 @@ Simloid::randomize_model(double rnd_amplitude, uint64_t rnd_instance)
 }
 
 void
-Simloid::reinit_robot_model(std::vector<double> params)
+Simloid::reinit_robot_model(std::vector<double> const& params)
 {
     sts_msg("Requesting new model for robot_id %u with %u params", robot_ID, params.size());
     client.send("MODEL %u %u %s\nDONE\n", robot_ID, params.size(), common::to_string(params).c_str());
@@ -549,7 +556,7 @@ Simloid::reinit_robot_model(std::vector<double> params)
 }
 
 void
-Simloid::reinit_motor_model(std::vector<double> params)
+Simloid::reinit_motor_model(std::vector<double> const& params)
 {
     sts_msg("Requesting new motor model with %u params", params.size());
     client.send("MOTOR %u %s\nDONE\n", params.size(), common::to_string(params).c_str());

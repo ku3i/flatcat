@@ -81,7 +81,7 @@ private:
     void update_robot_velocity(void);
 
 public:
-    Simloid(const unsigned short port, const unsigned int robot_ID, const unsigned int scene_ID, const bool visuals, const bool realtime = true);
+    Simloid(unsigned short port, unsigned int robot_ID, unsigned int scene_ID, bool visuals, bool realtime = true, std::vector<double> modelparams = {});
     ~Simloid(void);
 
     bool update(void); //locking
@@ -144,8 +144,8 @@ public:
     void record_next_frame() { record_frame = true; }
 
     uint64_t randomize_model(double rnd_amplitude, uint64_t rnd_instance = 0);
-    void reinit_robot_model(std::vector<double> params);
-    void reinit_motor_model(std::vector<double> params);
+    void reinit_robot_model(std::vector<double> const& params);
+    void reinit_motor_model(std::vector<double> const& params);
 
     void set_low_sensor_quality(bool low_quality);
 };
