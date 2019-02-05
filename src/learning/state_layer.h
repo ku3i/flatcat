@@ -29,12 +29,6 @@ namespace learning {
 
 
 namespace state_layer_constants {
-    const double number_of_experts    = 20;
-    const double learning_rate        = 0.02;
-    const double growth_rate          = 1.0;//10.0;
-    const std::size_t experience_size = 100;
-    const std::size_t hidden_size     = 8;//6;
-
     const unsigned subspace_num_datapoints = 200; // 2s of data at 100Hz
 }
 
@@ -57,14 +51,16 @@ class State_Layer : public control::Statemachine_Interface, public learning::Lea
 public:
     State_Layer( robots::Robot_Interface const& robot
                , static_vector_interface& payloads
-               , std::size_t max_num_state_experts = state_layer_constants::number_of_experts
-               , double learning_rate = state_layer_constants::learning_rate
-               , double growth_rate = state_layer_constants::growth_rate
-               , std::size_t experience_size = state_layer_constants::experience_size )
+               , std::size_t max_num_state_experts
+               , double learning_rate
+               , double growth_rate
+               , std::size_t experience_size
+               , std::size_t hidden_layer_size
+               , std::size_t time_delay_size )
     : max_num_state_experts(max_num_state_experts)
     , payloads(payloads)
     , statespace(robot.get_joints())
-    , experts(max_num_state_experts, payloads, statespace, learning_rate, experience_size, state_layer_constants::hidden_size)
+    , experts(max_num_state_experts, payloads, statespace, learning_rate, experience_size, hidden_layer_size, time_delay_size)
     , gmes(experts, growth_rate, /* one shot learning = */false)
     {
         dbg_msg("Creating new competitive state layer.");
@@ -163,8 +159,8 @@ public:
     , integrator()
     , axis_dt(-0.5,-1.50, 0.0, 1.0, 1.0, 1, "PredErr")
     , axis_ne(-0.5,-1.75, 0.0, 1.0, 0.5, 1, "#Experts")
-    , pred_err(2000, axis_dt, colors::white)
-    , pred_err_avg(2000, axis_dt, colors::magenta)
+    , pred_err(2000, axis_dt, colors::gray0)
+    , pred_err_avg(2000, axis_dt, colors::white)
     , num_exp(2000, axis_ne, colors::cyan)
     {
         /** TODO

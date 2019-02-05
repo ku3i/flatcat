@@ -71,9 +71,9 @@ public:
     Motor_Payload& operator=(const Motor_Payload& other) {
         assert(this != &other); // no self-assignment
         //copy_with_flaws(other); // redirect copy-assignment
-        assert(other.index != index);
-        assert(states != nullptr);
         sts_msg("Copy action value from %lu to %lu.", other.index, index);
+        assert(other.index != index); /* If this was thrown, check payloads connected. */
+        assert(states != nullptr);
         for (std::size_t i = 0; i < (*states).size(); ++i)
             (*states)[i].copy_payload(other.index, index);
         return *this;

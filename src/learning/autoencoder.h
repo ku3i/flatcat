@@ -29,12 +29,29 @@ public:
         assert(weights[0].size() == input_size);
         assert(outputs.size() == input_size);
 
-        randomize_weight_matrix(random_weight_range);
+        if (random_weight_range == 0.0)
+            wrn_msg("Weights will be all zeros");
+        else
+            randomize_weight_matrix(random_weight_range);
     }
+
+
 
 
     template <typename InputVector_t>
     void propagate(const InputVector_t& inputs) {
+
+        /* encoder */
+        propagate_forward(inputs);
+
+        /* decoder*/
+        propagate_backward(hidden);
+    }
+
+
+    template <typename InputVector_t>
+    void propagate_forward(const InputVector_t& inputs)
+    {
         assert(inputs.size() == outputs.size());
 
         /* encoder */
@@ -44,18 +61,24 @@ public:
                 act += weights[i][j] * inputs[j];
             hidden[i] = tanh(act);
         }
+    }
+
+    template <typename InputVector_t>
+    void propagate_backward(const InputVector_t& hidden_input)
+    {
+        assert(hidden_input.size() == hidden.size());
 
         /* decoder*/
         for (std::size_t j = 0; j < outputs.size(); ++j) {
             double act = 0.;
-            for (std::size_t i = 0; i < hidden.size(); ++i)
-                act += weights[i][j] * hidden[i];
+            for (std::size_t i = 0; i < hidden_input.size(); ++i)
+                act += weights[i][j] * hidden_input[i];
             outputs[j] = tanh(act);
             /** TODO: The decoder should not use the tanh activation function.
                 This must also be considered in the weight change. */
         }
-
     }
+
 
     template <typename InputVector_t>
     void adapt(const InputVector_t& inputs, const double learning_rate) {
@@ -99,15 +122,49 @@ public:
     vector_t const& get_outputs() const { return outputs; }
     matrix_t const& get_weights() const { return weights; }
 
+
     void randomize_weight_matrix(const double random_weight_range) {
         assert_in_range(random_weight_range, 0.0, 0.1);
-         /**TODO normalize by sqrt(N), N:#inputs */
-        for (std::size_t i = 0; i < weights.size(); ++i)
+        const double normed_std_dev = random_weight_range / sqrt(weights[0].size());
+        assert(normed_std_dev != 0.0);
+
+        for (std::size_t i = 0; i < weights.size(); ++i) {
             for (std::size_t j = 0; j < weights[i].size(); ++j)
-                weights[i][j] = rand_norm_zero_mean(random_weight_range);
+                weights[i][j] = rand_norm_zero_mean(normed_std_dev); // normalized by sqrt(N), N:#inputs
+        }
+    }
+
+    template <typename InputVector_t, typename TargetVector_t>
+    void train(const InputVector_t& inputs, const TargetVector_t& targets, const double learning_rate)
+    {
+        set_hidden(targets);
+        adapt(inputs, learning_rate);
+    }
+
+    vector_t const& get_forward() const { return hidden; }
+
+    template <typename InputVector_t>
+    vector_t const& propagate_forward_and_get(const InputVector_t& inputs) {
+        propagate_forward(inputs);
+        return hidden;
+    }
+
+    template <typename InputVector_t>
+    vector_t const& propagate_backward_and_get(const InputVector_t& hidden_input) {
+        propagate_backward(hidden_input);
+        return outputs;
     }
 
 private:
+
+    template <typename InputVector_t>
+    void set_hidden(const InputVector_t& x) {
+        assert(x.size() == hidden.size());
+        if (is_vector_zero(x))
+            wrn_msg("Assigned hidden vector is all zeros.");
+        hidden = x;
+    }
+
     vector_t hidden;
     vector_t outputs;
     vector_t delta;

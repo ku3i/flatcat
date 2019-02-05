@@ -84,7 +84,7 @@ TEST_CASE( "auto encoder learning", "[autoencoder]")
     learning::Autoencoder autoenc(inputs.size(), 3, 0.1);
     REQUIRE ( squared_distance(inputs, autoenc.get_outputs()) == .0 );
 
-    for (std::size_t trials = 0; trials < 20; ++trials) {
+    for (std::size_t trials = 0; trials < 50; ++trials) {
         inputs.execute_cycle();
         autoenc.propagate(inputs);
         double err0 = squared_distance(inputs, autoenc.get_outputs());
@@ -92,7 +92,7 @@ TEST_CASE( "auto encoder learning", "[autoencoder]")
         autoenc.propagate(inputs);
         double err1 = squared_distance(inputs, autoenc.get_outputs());
 
-        dbg_msg("Prediction Error before %e and %e after adaption.", err0, err1);
+        dbg_msg("Pred. Error before %e and %e after adaption (%u).", err0, err1, trials);
         REQUIRE( err0 > err1 );
     }
 }

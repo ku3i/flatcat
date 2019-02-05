@@ -7,10 +7,6 @@
 
 namespace learning {
 
-namespace constants {
-    const std::size_t default_hidden_size = 3;
-}
-
 class State_Predictor : public Predictor_Base {
 
     State_Predictor(const State_Predictor& other) = delete;
@@ -21,10 +17,11 @@ public:
     State_Predictor( const sensor_vector& inputs
                    , const double         learning_rate
                    , const double         random_weight_range
-                   , const std::size_t    experience_size = 1   /**TODO*/
-                   , const std::size_t    hidden_layer_size = constants::default_hidden_size )
+                   , const std::size_t    experience_size
+                   , const std::size_t    hidden_layer_size
+                   , const std::size_t    time_delay_size)
     : Predictor_Base(inputs, learning_rate, random_weight_range, experience_size)
-    , enc(inputs.size(), inputs.size(), hidden_layer_size, 10, random_weight_range )
+    , enc(inputs.size(), inputs.size(), hidden_layer_size, time_delay_size, random_weight_range )
     {
 //        dbg_msg("Initialize State Predictor using Auto-encoder.");
     }
@@ -35,6 +32,7 @@ public:
         Predictor_Base::operator=(other); // copy base members
         State_Predictor const& rhs = dynamic_cast<State_Predictor const&>(other);
         enc = rhs.enc;
+        dbg_msg("Copying state predictor weights.");
     };
 
     Predictor_Base::vector_t const& get_prediction(void) const override { return enc.get_outputs(); }

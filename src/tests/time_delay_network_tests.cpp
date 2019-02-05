@@ -8,20 +8,6 @@
 namespace local_tests {
 namespace time_delay_network_tests {
 
-template <typename vec_t>
-bool is_vector_zero(const vec_t& vec) {
-    for (auto const& el: vec)
-        if (el != 0.0) return false;
-    return true;
-}
-
-template <typename vec_t>
-void print_vector(const vec_t& vec, const char* name = "") {
-    printf("%s = [", name);
-    for (auto const& el: vec)
-        printf("%f ",el);
-    printf("]\n");
-}
 
 struct TD_Sensor_Space : public sensor_vector {
     TD_Sensor_Space(const robots::Jointvector_t& joints)

@@ -69,21 +69,23 @@ public:
         /* add dummies for intrinsic learning, until state and motor layers are constructed */
         rewards.emplace_back("Intrinsic Motivation"   , [](){ return .0; } );
 
-        rewards.emplace_back("walking forwards"       , [&robot  ](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("walking backwards"      , [&robot  ](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("turning left"           , [&robot  ](){ return +0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
-        rewards.emplace_back("turning right"          , [&robot  ](){ return -0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
-
-        //rewards.emplace_back("jump"                   , [&robot  ](){ return +robot.get_avg_position().z; });
-
-
         switch(robot.robot_ID){
         case 10:
-            /* some crawler specific behavior? */
+            rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
+            rewards.emplace_back("walking backwards"      , [&robot](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
+            rewards.emplace_back("turning left"           , [&robot](){ return +0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
+            rewards.emplace_back("turning right"          , [&robot](){ return -0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
+
             break;
         case 31:
-        //rewards.emplace_back("walking left"           , [&robot](){ return +robot.get_avg_velocity_left();      });
-        //rewards.emplace_back("walking right"          , [&robot](){ return -robot.get_avg_velocity_left();      });
+            rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward();    });
+            //rewards.emplace_back("walking backwards"      , [&robot](){ return -robot.get_avg_velocity_forward()     });
+            //rewards.emplace_back("turning left"           , [&robot](){ return +0.1*robot.get_avg_rotational_speed() });
+            //rewards.emplace_back("turning right"          , [&robot](){ return -0.1*robot.get_avg_rotational_speed() });
+            //rewards.emplace_back("stopping"               , [&robot](){ return -1.0/(1. + robot.get_normalized_mechanical_power())*/;   });
+            //rewards.emplace_back("get_up"                 , [&robot](){ return +robot.get_avg_position().z - robot.get_accels()[0].v.y; });
+            //rewards.emplace_back("walking left"           , [&robot](){ return +robot.get_avg_velocity_left();       });
+            //rewards.emplace_back("walking right"          , [&robot](){ return -robot.get_avg_velocity_left();       });
             break;
 
         default:

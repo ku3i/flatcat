@@ -72,12 +72,13 @@ public:
                  , const sensor_vector&      input
                  , const double              local_learning_rate
                  , const std::size_t         experience_size
-                 , const std::size_t         hidden_size )
+                 , const std::size_t         hidden_layer_size
+                 , const std::size_t         time_delay_size )
     : Expert_Vector(max_number_of_experts, payloads)
     {
         assert(local_learning_rate > 0.);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            experts.emplace_back( Predictor_ptr( new learning::State_Predictor(input, local_learning_rate, gmes_constants::random_weight_range, experience_size, hidden_size) )
+            experts.emplace_back( Predictor_ptr( new learning::State_Predictor(input, local_learning_rate, gmes_constants::random_weight_range, experience_size, hidden_layer_size, time_delay_size) )
                                 , max_number_of_experts );
     }
 

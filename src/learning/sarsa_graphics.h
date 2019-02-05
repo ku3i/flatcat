@@ -32,7 +32,7 @@ public:
     , num_policies(sarsa.get_number_of_policies())
     , last_policy(sarsa.get_current_policy())
     , table(4)
-    , axis_reward_total(-0.0, -0.8, 0.0, 1.98, 0.38, 0, "total")
+    , axis_reward_total(-0.0, -0.8, 0.0, 1.98, 0.38, 0, "total", 0.1)
     , axis_reward_systemstep()
     , axis_reward_eigenstep ()
     , axis_reward_trial     ()

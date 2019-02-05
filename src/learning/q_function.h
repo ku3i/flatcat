@@ -51,7 +51,7 @@ public:
         for (std::size_t a = 0; a < qvalues.size(); ++a)
             if (actions.exists(a))
                 qvalues[a] = other.qvalues[a]
-                           + random_value(-0.05 * other.qvalues[a],
+                           + random_value(-0.05 * other.qvalues[a], /**TODO this is imprecise and may cause the trouble !!!*/
                                           +0.05 * other.qvalues[a]); /** TODO: put into method and use gaussian noise */
     }
 

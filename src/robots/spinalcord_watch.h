@@ -40,7 +40,7 @@ public:
     , plot_voltage()
     , subspace_axes()
     , subspace_portrait()
-    , axes_accel(0.,-1.25, 0., 4.0, 0.25, 1, "Accel")
+    , axes_accel(0.,-1.25, 0., 2.0, 0.25, 1, "Accel")
     , plot_accel_x(1000, axes_accel, colors::cyan   )
     , plot_accel_y(1000, axes_accel, colors::orange )
     , plot_accel_z(1000, axes_accel, colors::magenta)
