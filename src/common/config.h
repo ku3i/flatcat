@@ -13,7 +13,7 @@
 #include "./log_messages.h"
 #include "./modules.h"
 
-#define MAX_LINES 32
+#define MAX_LINES 64
 #define MAX_NAME_LENGTH 32
 #define MAX_VALUE_LENGTH 1024
 

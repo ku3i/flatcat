@@ -17,6 +17,7 @@
 #include <common/misc.h>
 #include <common/gui.h>
 #include <common/modules.h>
+#include <common/timer.h>
 #include <draw/draw.h>
 #include <external/gl2ps/gl2ps.h>
 

@@ -3,11 +3,13 @@
 
 namespace robots {
 
-Simloid::Simloid( const unsigned short port,
-                  const unsigned int robot_ID,
-                  const unsigned int scene_ID,
-                  const bool visuals,
-                  const bool realtime)
+Simloid::Simloid( unsigned short port,
+                  unsigned int robot_ID,
+                  unsigned int scene_ID,
+                  bool visuals,
+                  bool realtime,
+                  std::vector<double> modelparams
+                )
                 : port(port)
                 , robot_ID(robot_ID)
                 , scene_ID(scene_ID)
@@ -40,7 +42,12 @@ Simloid::Simloid( const unsigned short port,
     if (connection_established)
     {
         sts_msg("Connection established.");
-        init_robot();
+
+        if (0 == modelparams.size()) init_robot();
+        else {
+            read_sensor_data();
+            reinit_robot_model(modelparams);
+        }
     }
     else
         wrn_msg("Cannot connect to robot.");
@@ -363,6 +370,14 @@ void
 Simloid::send_pause_command(void) { client.send("PAUSE\nDONE\n"); }
 
 void
+Simloid::set_low_sensor_quality(bool low_quality) {
+    if (low_quality)
+        client.send("SENSORS POOR\n");
+    else
+        client.send("SENSORS GOOD\n");
+}
+
+void
 Simloid::update_avg_position(void)
 {
     Vector3 position(.0);
@@ -512,20 +527,25 @@ Simloid::get_max_feet_pos(void) const {
                   , std::max(configuration.bodies[left_id].position.z, configuration.bodies[rift_id].position.z) };
 }
 
-void
-Simloid::randomize_model(double rnd_amplitude)
+uint64_t
+Simloid::randomize_model(double rnd_amplitude, uint64_t rnd_instance)
 {
-    uint64_t rnd_instance = time(NULL);
+    if (0 == rnd_instance) {/* not initialized yet? */
+        rnd_instance = time(NULL);
+        sts_msg("Initializing random seed, instance is: %lu", rnd_instance);
+    }
+
     sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
     client.send("MODEL %u 2 %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
     configuration.read_robot_info( client.recv(5*constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
     init_robot();
+    return rnd_instance;
 }
 
 void
-Simloid::reinit_robot_model(std::vector<double> params)
+Simloid::reinit_robot_model(std::vector<double> const& params)
 {
     sts_msg("Requesting new model for robot_id %u with %u params", robot_ID, params.size());
     client.send("MODEL %u %u %s\nDONE\n", robot_ID, params.size(), common::to_string(params).c_str());
@@ -536,7 +556,7 @@ Simloid::reinit_robot_model(std::vector<double> params)
 }
 
 void
-Simloid::reinit_motor_model(std::vector<double> params)
+Simloid::reinit_motor_model(std::vector<double> const& params)
 {
     sts_msg("Requesting new motor model with %u params", params.size());
     client.send("MOTOR %u %s\nDONE\n", params.size(), common::to_string(params).c_str());

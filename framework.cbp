@@ -60,6 +60,7 @@
 		</Linker>
 		<Unit filename="src/common/application_base.h" />
 		<Unit filename="src/common/autopause.h" />
+		<Unit filename="src/common/backed.h" />
 		<Unit filename="src/common/basic.cpp" />
 		<Unit filename="src/common/basic.h" />
 		<Unit filename="src/common/config.cpp" />
@@ -79,6 +80,7 @@
 		<Unit filename="src/common/lock.h" />
 		<Unit filename="src/common/log_messages.cpp" />
 		<Unit filename="src/common/log_messages.h" />
+		<Unit filename="src/common/median3.h" />
 		<Unit filename="src/common/misc.cpp" />
 		<Unit filename="src/common/misc.h" />
 		<Unit filename="src/common/modules.cpp" />
@@ -94,6 +96,7 @@
 		<Unit filename="src/common/socket_client.h" />
 		<Unit filename="src/common/static_vector.h" />
 		<Unit filename="src/common/stopwatch.h" />
+		<Unit filename="src/common/timer.h" />
 		<Unit filename="src/common/vector2.h" />
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/view_manager.h" />
@@ -123,6 +126,7 @@
 		<Unit filename="src/draw/axes.h" />
 		<Unit filename="src/draw/axes3D.cpp" />
 		<Unit filename="src/draw/axes3D.h" />
+		<Unit filename="src/draw/barplot.h" />
 		<Unit filename="src/draw/color_table.h" />
 		<Unit filename="src/draw/display.cpp" />
 		<Unit filename="src/draw/display.h" />

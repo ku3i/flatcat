@@ -22,6 +22,8 @@ process_application(void *data)
     auto cur_time = std::chrono::high_resolution_clock::now();
     auto lst_time = cur_time;
 
+    SimpleTimer tim = SimpleTimer(10*1000/*us*/, true); // 10 ms timer
+
     Application_Base *a = static_cast<Application_Base *>(data);
     sts_msg("Setting up application.");
     do_drawing.enable(); // enable drawing
@@ -47,8 +49,11 @@ process_application(void *data)
                 sts_msg("Application main loop has terminated.");
                 break;
             }
-            if (!fast_forward.status())
-                usleep((int) t_delay_ms*1000); //TODO rate controller
+
+            if (!fast_forward.status()) {
+                while(!tim.check_if_timed_out_and_restart((unsigned)t_delay_ms*1000))
+                    usleep(100);
+            }
         }
     }
     sts_msg("Finishing application.");

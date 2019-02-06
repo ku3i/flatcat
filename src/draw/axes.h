@@ -25,11 +25,12 @@ private:
     unsigned int countNum;
     float max_amplitude;
     float min_amplitude;
-    const float font_height;
+    float font_height;
     std::string name;
 
 public:
     axes(float x, float y, float z, float w, float h, int flags, std::string name, float def_amp = 1.0f);
+    void set_fontheight(float f) { font_height = f; }
     void draw(void) const;
 };
 

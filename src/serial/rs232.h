@@ -3,7 +3,7 @@
 *
 * Author: Teunis van Beelen
 *
-* Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Teunis van Beelen
+* Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Teunis van Beelen
 *
 * Email: teuniz@gmail.com
 *
@@ -25,7 +25,7 @@
 ***************************************************************************
 */
 
-/* Last revision: July 10, 2016 */
+/* Last revision: August 5, 2017 */
 
 /* For more info and how to use this library, visit: http://www.teuniz.net/RS-232/ */
 

@@ -40,6 +40,8 @@ public:
             logfile.flush();
     }
 
+    void set_enable(bool en) { enabled = en; }
+
     bool is_enabled(void) const { return enabled; }
     bool is_video_included(void) const { return enabled and incl_video; }
 

@@ -50,6 +50,7 @@ public:
 
 private:
     Evaluation_Interface& evaluation;
+    const Setting&        settings;
     const std::string     projectname;
     const std::string     conffilename;
     config                configuration;

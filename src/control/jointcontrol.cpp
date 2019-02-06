@@ -388,4 +388,14 @@ Control_Vector param_factory( const robots::Robot_Interface& robot
     return params;
 }
 
+double Jointcontrol::get_L1_norm(void)
+{
+    /** think about: shall we exclude bias weights*/
+    double sum_abs_weights = .0;
+    for (auto const& wi: core.weights)
+        for (auto const& wik: wi)
+            sum_abs_weights += std::abs(wik);
+    return sum_abs_weights/number_of_params_asym;
+}
+
 } // namespace control

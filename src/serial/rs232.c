@@ -3,7 +3,7 @@
 *
 * Author: Teunis van Beelen
 *
-* Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Teunis van Beelen
+* Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Teunis van Beelen
 *
 * Email: teuniz@gmail.com
 *
@@ -26,7 +26,7 @@
 */
 
 
-/* Last revision: July 10, 2016 */
+/* Last revision: November 22, 2017 */
 
 /* For more info and how to use this library, visit: http://www.teuniz.net/RS-232/ */
 
@@ -39,8 +39,7 @@
 #define RS232_PORTNR  38
 
 
-int Cport[RS232_PORTNR],
-    error;
+int Cport[RS232_PORTNR];
 
 struct termios new_port_settings,
        old_port_settings[RS232_PORTNR];
@@ -209,28 +208,29 @@ http://man7.org/linux/man-pages/man3/termios.3.html
     return(1);
   }
 
-  error = tcgetattr(Cport[comport_number], old_port_settings + comport_number);
-  if(error==-1)
+  memset(old_port_settings, 0, sizeof(old_port_settings[0])*RS232_PORTNR);  /* clear the struct */
+
+  if(-1 == tcgetattr(Cport[comport_number], old_port_settings + comport_number) )
   {
     close(Cport[comport_number]);
     flock(Cport[comport_number], LOCK_UN);  /* free the port so that others can use it. */
-    perror("unable to read portsettings ");
+    perror("unable to read port settings ");
     return(1);
   }
+
   memset(&new_port_settings, 0, sizeof(new_port_settings));  /* clear the new struct */
 
   new_port_settings.c_cflag = cbits | cpar | bstop | CLOCAL | CREAD;
   new_port_settings.c_iflag = ipar;
   new_port_settings.c_oflag = 0;
   new_port_settings.c_lflag = 0;
-  new_port_settings.c_cc[VMIN] = 0;      /* block untill n bytes are received */
-  new_port_settings.c_cc[VTIME] = 0;     /* block untill a timer expires (n * 100 mSec.) */
+  new_port_settings.c_cc[VMIN] = 0;      /* block until n bytes are received */
+  new_port_settings.c_cc[VTIME] = 0;     /* block until a timer expires (n * 100 mSec.) */
 
   cfsetispeed(&new_port_settings, baudr);
   cfsetospeed(&new_port_settings, baudr);
 
-  error = tcsetattr(Cport[comport_number], TCSANOW, &new_port_settings);
-  if(error==-1)
+  if(-1 == tcsetattr(Cport[comport_number], TCSANOW, &new_port_settings) )
   {
     tcsetattr(Cport[comport_number], TCSANOW, old_port_settings + comport_number);
     close(Cport[comport_number]);
@@ -309,11 +309,11 @@ int RS232_SendBuf(int comport_number, unsigned char *buf, int size)
     }
     else
     {
-      return 1;
+      return -1;
     }
   }
 
-  return(0);
+  return(n);
 }
 
 

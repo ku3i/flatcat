@@ -5,6 +5,7 @@
 /* constructor for a new evolution */
 Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, const std::vector<double>& seed_genome)
 : evaluation(evaluation)
+, settings(settings)
 , projectname(create_project_name_and_folder(settings.project_name))
 , conffilename(FOLDER_PREFIX + projectname + "/evolution.conf")
 , configuration(settings.save_to_projectfile(conffilename))
@@ -65,6 +66,7 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
 /* constructor for resuming previous evolution */
 Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, bool playback_only)
 : evaluation(evaluation)
+, settings(settings)
 , projectname(settings.project_name)
 , conffilename(FOLDER_PREFIX + projectname + "/evolution.conf")
 , configuration(conffilename)
@@ -172,6 +174,7 @@ bool Evolution::loop(void)
             sts_msg("Finished.");
             configuration.load();
             configuration.writeINT("STATUS", 2);
+            configuration.writeUINT("RANDOM_INIT", settings.rnd.init);
             strategy->save_config(configuration);
             configuration.finish();
             state = Evolution_State::stopped;
@@ -205,6 +208,7 @@ Evolution::prepare_quit(void)
         sts_msg("Saving data.");
         configuration.load();
         configuration.writeINT("STATUS", 1);
+        configuration.writeUINT("RANDOM_INIT", settings.rnd.init);
         strategy->save_config(configuration);
         configuration.finish();
     }

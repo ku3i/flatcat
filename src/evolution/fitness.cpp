@@ -7,7 +7,7 @@ Fitness_ptr assign_fitness( const robots::Simloid& robot
     Fitness_ptr fitness_function;
     const std::string& fitness(settings.fitness_function);
 
-         if ("FORWARDS"     == fitness) fitness_function = Fitness_ptr(new Fitness_Forwards (robot, settings.drop_penalty, settings.out_of_track_penalty));
+         if ("FORWARDS"     == fitness) fitness_function = Fitness_ptr(new Fitness_Forwards (robot, settings.drop_penalty, settings.out_of_track_penalty, true , settings.target));
     else if ("FORWARDS_MIN" == fitness) fitness_function = Fitness_ptr(new Fitness_Forwards (robot, settings.drop_penalty, settings.out_of_track_penalty, false));
     else if ("FORWARDS_FEET"== fitness) fitness_function = Fitness_ptr(new Fitness_Forwards_Feet(robot, settings.drop_penalty, settings.out_of_track_penalty, settings.stop_penalty));
     else if ("BACKWARDS"    == fitness) fitness_function = Fitness_ptr(new Fitness_Backwards(robot, settings.drop_penalty, settings.out_of_track_penalty));

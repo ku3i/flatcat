@@ -5,7 +5,7 @@ Url:     http://www.teuniz.net/RS-232/
 E-mail:  teuniz@gmail.com
 License: GPLv3
 
-Last revision: July 10, 2016
+Last revision: November 22, 2017
 
 
 
@@ -23,7 +23,8 @@ int RS232_PollComport(int comport_number, unsigned char *buf, int size)
 
   Gets characters from the serial port (if any). Buf is a pointer to a buffer
   and size the size of the buffer in bytes.
-  Returns the amount of received characters into the buffer.
+  Returns the amount of received characters into the buffer. This can be less than size or zero!
+  It does not block or wait, it returns immediately, no matter if any characters have been received or not.
   After succesfully opening the COM-port, connect this function to a timer.
   The timer should have an interval of approx. 20 to 100 milliSeconds.
   Do not forget to stop the timer before closing the COM-port.

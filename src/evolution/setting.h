@@ -58,14 +58,26 @@ class Setting
         double       param_d;
         double       param_m;
 
-        unsigned int push_mode; /** TODO make a struct from that */
-        unsigned int push_body;
-        unsigned int push_cycle;
-        unsigned int push_steps;
-        double       push_strength;
+        struct Push_Settings {
+            unsigned int mode;
+            unsigned int body;
+            unsigned int cycle;
+            unsigned int steps;
+            double       strength;
+        } push;
 
         std::string  fitness_function;
-        bool         random_mode;
+
+        struct Random_Mode_Settings {
+            std::string mode;
+            double value;
+            mutable uint64_t init;
+        } rnd;
+
+        bool         low_sensor_quality;
+        bool         L1_normalization;
+
+        double       target;
 
         Setting(int argc, char **argv);
         void read_setting_file(const std::string& setting_name);
