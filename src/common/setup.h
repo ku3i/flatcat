@@ -61,7 +61,7 @@ int main(int argc, char* argv[])                                                
                                                                                                             \
     init_SDL(app.visuals_enabled(), app.window_width, app.window_height, app.name);                         \
                                                                                                             \
-    /*GUI_Starter gui(app.visuals_enabled());*/                                                                 \
+    /*GUI_Starter gui(app.visuals_enabled());*/                                                             \
                                                                                                             \
     atexit(quit);                                                                                           \
     std::thread app_thread(process_application, &app);                                                      \

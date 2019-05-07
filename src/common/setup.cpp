@@ -26,6 +26,8 @@ process_application(void *data)
 
     Application_Base *a = static_cast<Application_Base *>(data);
     sts_msg("Setting up application.");
+
+    /**TODO better place?*/
     do_drawing.enable(); // enable drawing
 
     sts_msg("Entering application main loop.");

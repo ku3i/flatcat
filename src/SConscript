@@ -1,0 +1,42 @@
+""" 
+ +----------------------------------+ 
+ | Framework                        |
+ | Build Script                     |
+ | Matthias Kubisch                 |
+ | kubisch@informatik.hu-berlin.de  |
+ | May 2019                         |
+ +----------------------------------+
+
+"""
+
+import os
+
+for root, dirs, files in os.walk("."):
+    for file in files:
+        if file.endswith(".cpp"):
+             print(os.path.join(root, file))
+
+cpppaths = ['.','../../simloidTCP/src']
+
+
+
+
+src_files = [ 'common/log_messages.cpp'
+            , 'common/modules.cpp'
+            , 'common/settings.cpp'
+            , 'common/basic.cpp'
+            , 'control/jointcontrol.cpp'
+            , 'control/controlparameter.cpp'
+            , 'control/control_vector.cpp'
+            , 'serial/rs232.c'
+            ]
+
+# common flags
+cppflags = ['-O2', '-Wall', '-Wextra']
+
+# c++ only flags
+cxxflags = ['-std=c++11']
+
+
+
+Library('../libframework', source = src_files, CPPPATH=cpppaths, CPPFLAGS=cppflags, CXXFLAGS=cxxflags)
