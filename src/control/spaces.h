@@ -70,14 +70,14 @@ public:
         rewards.emplace_back("Intrinsic Motivation"   , [](){ return .0; } );
 
         switch(robot.robot_ID){
-        case 10:
+        case 10: /* Tadpole */
             rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
             rewards.emplace_back("walking backwards"      , [&robot](){ return -robot.get_avg_velocity_forward()/* - std::abs(robot.get_avg_velocity_left()) - std::abs(robot.get_avg_rotational_speed()) )/(1. + robot.get_normalized_mechanical_power())*/;   });
             rewards.emplace_back("turning left"           , [&robot](){ return +0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
             rewards.emplace_back("turning right"          , [&robot](){ return -0.1*robot.get_avg_rotational_speed()/*/(1. + robot.get_normalized_mechanical_power())*/;   });
 
             break;
-        case 31:
+        case 31: /* Fourlegged */
             rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward();    });
             //rewards.emplace_back("walking backwards"      , [&robot](){ return -robot.get_avg_velocity_forward()     });
             //rewards.emplace_back("turning left"           , [&robot](){ return +0.1*robot.get_avg_rotational_speed() });
@@ -88,6 +88,10 @@ public:
             //rewards.emplace_back("walking right"          , [&robot](){ return -robot.get_avg_velocity_left();       });
             break;
 
+        case 38: /* Hannah */
+            rewards.emplace_back("walking forwards"       , [&robot](){ return +robot.get_avg_velocity_forward();    });
+            sts_msg("Reward for Hannah.");
+            break;
         default:
             break;
         }

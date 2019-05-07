@@ -7,10 +7,14 @@ namespace control {
     Control_Parameter::Control_Parameter( const std::string& filename
                                         , std::size_t number_of_params
                                         , bool symmetric
-                                        , bool mirrored )
+                                        , bool mirrored
+                                        , unsigned robot_id
+                                        , uint64_t rnd_init )
     : parameter()
     , symmetric(symmetric)
-    , mirrored(mirrored)
+    , mirrored (mirrored )
+    , robot_id (robot_id )
+    , rnd_init (rnd_init )
     {
         sts_msg("Loading controller weights from CSV file:\n   '%s'", filename.c_str());
         file_io::CSV_File<double> csv_file(filename, 1, number_of_params);
@@ -25,21 +29,27 @@ namespace control {
     Control_Parameter::Control_Parameter(const std::string& filename)
     : parameter()
     , symmetric()
-    , mirrored()
+    , mirrored ()
+    , robot_id ()
+    , rnd_init ()
     {
-        sts_msg("Loading controller weights from DAT file:\n   '%s'", filename.c_str());
-        file_io::Data_Reader dat_file(filename);
+        sts_msg("Loading controller file: '%s'", filename.c_str());
+        file_io::Data_Reader dat_file(filename, /*verbose=*/false);
         assert(dat_file.read("parameter", parameter)); /** TODO: remove assert dependence */
 
         symmetric = ("symmetric" == dat_file.read_string("symmetry"   )) ? true : false;
         mirrored  = ("original"  == dat_file.read_string("propagation")) ? false : true;
+        robot_id  = dat_file.read_unsigned("robot_id", 0);
+        rnd_init  = dat_file.read_unsigned("random_init", 0);
     }
 
 
-    Control_Parameter::Control_Parameter(const std::vector<double>& parameter, bool symmetric, bool mirrored)
+    Control_Parameter::Control_Parameter(const std::vector<double>& parameter, bool symmetric, bool mirrored, unsigned robot_id, uint64_t rnd_init)
     : parameter(parameter)
     , symmetric(symmetric)
-    , mirrored(mirrored)
+    , mirrored (mirrored )
+    , robot_id (robot_id )
+    , rnd_init (rnd_init )
     {}
 
     void Control_Parameter::set_from_matrix(matrix_t const& weights)
@@ -56,9 +66,12 @@ namespace control {
     }
 
     Control_Parameter::Control_Parameter(const Control_Parameter& other)
-    : parameter(other.parameter)
+    : noncopyable()
+    , parameter(other.parameter)
     , symmetric(other.symmetric)
-    , mirrored(other.mirrored)
+    , mirrored (other.mirrored )
+    , robot_id (other.robot_id )
+    , rnd_init (other.rnd_init )
     { /*dbg_msg("Copying control parameter.");*/ }
 
 
@@ -69,6 +82,8 @@ namespace control {
             parameter = other.parameter;
             symmetric = other.symmetric;
             mirrored  = other.mirrored;
+            robot_id  = other.robot_id;
+            rnd_init  = other.rnd_init;
         }
         return *this;
     }
@@ -81,7 +96,6 @@ namespace control {
         }
     }
 
-
     void Control_Parameter::print() const {
         for ( auto const& p : parameter ) printf("% 5.2f ", p);
         printf("\n");
@@ -93,12 +107,14 @@ namespace control {
         FILE* ctrl = open_file("w", filename.c_str());
 
         fprintf(ctrl, "name = \"motor-expert-%lu\"\n", id);
+        if (robot_id > 0) fprintf(ctrl, "robot_id = %u\n", robot_id);
+        if (rnd_init > 0) fprintf(ctrl, "random_init = %lu\n", rnd_init);
         fprintf(ctrl, "symmetry = \"%s\"\n", symmetric ? "symmetric" : "asymmetric");
-        fprintf(ctrl, "propagation = \"original\"\n");
+        fprintf(ctrl, "propagation = \"%s\"\n", mirrored ? "mirrored" : "original");
         fprintf(ctrl, "parameter = { ");
         for ( auto const& p : parameter ) fprintf(ctrl, "%e ", p);
         fprintf(ctrl, "}\n\n");
         fclose(ctrl);
     }
 
-} // namespace control
+} /* namespace control */

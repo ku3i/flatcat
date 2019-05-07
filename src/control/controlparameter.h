@@ -20,17 +20,21 @@ public:
     explicit Control_Parameter( const std::string& filename
                               , std::size_t number_of_params
                               , bool symmetric
-                              , bool mirrored = false );
+                              , bool mirrored = false
+                              , unsigned robot_id = 0
+                              , uint64_t rnd_init = 0 );
 
     explicit Control_Parameter(const std::string& filename);
 
     explicit Control_Parameter( const std::vector<double>& parameter
                               , bool symmetric = false
-                              , bool mirrored = false );
+                              , bool mirrored = false
+                              , unsigned robot_id = 0
+                              , uint64_t rnd_init = 0 );
 
     void set_from_matrix( matrix_t const& weights );
 
-    explicit Control_Parameter() : parameter(), symmetric(), mirrored() { assert(false and "Should not be used."); }
+    explicit Control_Parameter() : parameter(), symmetric(), mirrored(), robot_id(), rnd_init() { assert(false and "Should not be used."); }
 
     Control_Parameter(const Control_Parameter& other);
 
@@ -48,6 +52,9 @@ public:
     bool is_symmetric(void) const { return symmetric; }
     bool is_mirrored (void) const { return mirrored;  }
 
+    unsigned get_robot_id(void) const { return robot_id; }
+    uint64_t get_rnd_init(void) const { return rnd_init; }
+
     void add_gaussian_noise(double sigma);
 
     void print() const;
@@ -59,7 +66,8 @@ private:
     std::vector<double> parameter;
     bool                symmetric;
     bool                mirrored;
-
+    unsigned            robot_id;
+    uint64_t            rnd_init;
 
 };
 

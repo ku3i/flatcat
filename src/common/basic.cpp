@@ -42,7 +42,7 @@ make_directory(const char *format, ...)
 
 Filelist list_directory(const char* target_dir, const char* filter)
 {
-    const unsigned max_files = 64;
+    const unsigned max_files = 1024;
     std::vector<std::string> files_in_directory;
     struct dirent *epdf;
     DIR *dpdf;
@@ -62,9 +62,10 @@ Filelist list_directory(const char* target_dir, const char* filter)
         sts_msg("Read %u files in directory %s", files_in_directory.size(), target_dir);
         for (std::size_t i = 0; i < std::min(10lu, files_in_directory.size()); ++i)
             sts_msg("\t%s", files_in_directory[i].c_str());
+        if (files_in_directory.size()>10)
+            sts_msg("\t...truncated.");
     } else err_msg(__FILE__, __LINE__, "Could not open directory %s", target_dir);
 
-    //for (unsigned i = 0; i < files_in_directory.size(); ++i) dbg_msg("%s", files_in_directory[i].c_str());
     return files_in_directory;
 }
 
@@ -91,4 +92,4 @@ std::string get_timestamp(void) {
     return timestamp;
 }
 
-} // namespace basic
+} /* namespace basic */

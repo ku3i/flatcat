@@ -4,24 +4,20 @@
  | July 2017                       |
  +---------------------------------*/
 
-#ifndef SIMLOID_GRAPHICS_H_INCLUDED
-#define SIMLOID_GRAPHICS_H_INCLUDED
+#ifndef SIMLOID_GRAPHICS_H
+#define SIMLOID_GRAPHICS_H
 
 #include <robots/simloid.h>
 #include <draw/draw.h>
 #include <draw/axes.h>
 #include <draw/plot2D.h>
 
-/**TODO:
- * make position of that graphic changeable
- */
-
 namespace robots {
 namespace constants {
     const double bsize = 0.01;
 }
 
-class Simloid_Graphics : Graphics_Interface {
+class Simloid_Graphics : public Graphics_Interface {
     const Simloid& simloid;
     axes           axis_position;
     plot2D         plot_position;
@@ -29,11 +25,10 @@ class Simloid_Graphics : Graphics_Interface {
 public:
     Simloid_Graphics(const Simloid& simloid)
     : simloid(simloid)
-    , axis_position(2.0, 0.0, 0.0, 1.0, 1.0, 0, "pos xy")
+    , axis_position(.5, .5, 0.0, 1.0, 1.0, 0, "pos xy")
     , plot_position(1000, axis_position, colors::magenta)
     {}
 
-    /**TODO: extend the drawing area to -1,+1*/
     void draw_body_position(void) const
     {
         const Bodyvector_t& bodies = simloid.get_bodies();
@@ -59,8 +54,6 @@ public:
         glColor3f(0.0, 1.0, 1.0);
         draw_line(0.0, 0.0, bodyvel_left, -bodyvel_forward);
 
-        axis_position.draw();
-        plot_position.draw();
     }
 
     void draw_body_rotation(void) const
@@ -90,24 +83,30 @@ public:
 
     }
 
-    void draw(const pref& /*p*/) const {
+    void draw(const pref& /*p*/) const
+    {
         glPushMatrix();
-        glTranslatef(0.0, 2.0, 0.); /**TODO make dependent on pref p */
+        glTranslatef(-0.5, 0.5, 0.);
 
         glColor4f(1.0, 1.0, 1.0, 0.25);
         draw_rect(0.0, 0.0, 1.0, 1.0);
-
         draw_body_position();
         draw_body_rotation();
+
         glPopMatrix();
+
+        axis_position.draw();
+        plot_position.draw();
     }
 
     void execute_cycle(void) {
         const Vector3& bodypos = simloid.get_avg_position();
         plot_position.add_sample(bodypos.x, bodypos.y);
     }
+
+    void reset(void) { plot_position.reset(); }
 };
 
-} // namespace robots
+} /* namespace robots */
 
-#endif // SIMLOID_GRAPHICS_H_INCLUDED
+#endif /* SIMLOID_GRAPHICS_H */

@@ -36,7 +36,7 @@ struct Visuals
     , show_fps(true)
     , snap(1.0)
     {
-        sts_msg("Initialized settings for visuals.");
+        sts_msg("Window size %u x %u.", window_size_x, window_size_y);
     }
 
     void reset(void) {

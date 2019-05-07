@@ -66,8 +66,10 @@ class Data_Reader : public noncopyable{
     std::map<key_t, string_t> map_str;
     std::map<key_t,   sint_t> map_int;
 
+    bool verbose;
+
 public:
-    Data_Reader(const std::string& filename)
+    Data_Reader(const std::string& filename, bool verbose = true)
     : fd(open_file("r", filename.c_str()))
     , file_size(basic::get_file_size(fd))
     , txtbuf((char*) malloc (sizeof(char) * file_size))
@@ -76,8 +78,9 @@ public:
     , map_vec()
     , map_str()
     , map_int()
+    , verbose(verbose)
     {
-        dbg_msg("Reading file %s \n      with size: %lu bytes.", filename.c_str(), file_size);
+        if (verbose) sts_msg("Reading file %s \n      with size: %lu bytes.", filename.c_str(), file_size);
 
         if (nullptr == txtbuf)
             err_msg(__FILE__, __LINE__, "Cannot allocate memory.");
@@ -134,28 +137,33 @@ private:
             if (2 == sscanf(txtbuf, pattern_vec, key, str_val, &offset))
             {
                 vector_t data = decode(str_val);
-                printf("%s = ( ", key);
-                for (unsigned i = 0; i < data.size(); ++i)
-                    printf("%1.2f ", data[i]);
-                printf(") \n");
+                if (verbose) {
+                    printf("\t%s = ( ", key);
+                    for (unsigned i = 0; i < std::min(8lu,data.size()); ++i)
+                        printf("%1.2f ", data[i]);
+                    if (data.size() > 8)
+                        printf("... ) N=%lu\n", data.size());
+                    else
+                        printf(") \n");
+                }
                 if (0 == map_vec.count(key))
                     map_vec.emplace(key, data);
-                else sts_msg("Skipping vector %s, already in list.", key);
+                else wrn_msg("\tSkipping vector %s, already in list.", key);
             }
             else if (2 == sscanf(txtbuf, pattern_str, key, str_val, &offset)) {
-                sts_msg("%s = \'%s\'", key, str_val);
+                if (verbose) sts_msg("\t%s = \'%s\'", key, str_val);
                 if (0 == map_str.count(key))
                     map_str.emplace(key, str_val);
-                else sts_msg("Skipping string %s, already in list.", key);
+                else wrn_msg("\tSkipping string %s, already in list.", key);
             }
             else if (2 == sscanf(txtbuf, pattern_int, key, &int_val, &offset)) {
-                sts_msg("%s = <%ld>", key, int_val);
+                if (verbose) sts_msg("\t%s = <%ld>", key, int_val);
                 if (0 == map_int.count(key))
                     map_int.emplace(key, int_val);
-                else sts_msg("Skipping integer %s, already in list.", key);
+                else wrn_msg("\tSkipping integer %s, already in list.", key);
             }
             else {
-                dbg_msg("Stop reading");
+                if (verbose) sts_msg("Done reading");
                 break;
             }
             txtbuf += offset;

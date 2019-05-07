@@ -25,7 +25,7 @@ public:
     : pos(px, py, pz), scale(s) {}
 
     virtual ~Graphics_Interface() {}
-    virtual void draw(const pref&) const = 0;
+    virtual void draw(const pref&) const = 0; // consider to make this protected/private
 
     void drawing(const pref& p) const {
         glPushMatrix();
