@@ -139,7 +139,7 @@ private:
                 vector_t data = decode(str_val);
                 if (verbose) {
                     printf("\t%s = ( ", key);
-                    for (std::size_t i = 0; i < std::min((std::size_t)8, data.size()); ++i)
+                    for (std::size_t i = 0; i < std::min(std::size_t{8}, data.size()); ++i)
                         printf("%1.2f ", data[i]);
                     if (data.size() > 8)
                         printf("... ) N=%lu\n", data.size());

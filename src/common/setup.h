@@ -67,7 +67,7 @@ int main(int argc, char* argv[])                                                
     std::thread app_thread(process_application, &app);                                                      \
                                                                                                             \
     if (app.visuals_enabled()) ui_main_loop(do_quit, do_drawing, em, app);                                  \
-                                                                                                            \
+    sts_msg("waiting for main thread to join.");                                                            \
     app_thread.join();                                                                                      \
                                                                                                             \
     sts_msg("Bye.");                                                                                        \

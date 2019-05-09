@@ -60,7 +60,7 @@ Filelist list_directory(const char* target_dir, const char* filter)
         if (files_in_directory.size() > 1)
             std::sort(files_in_directory.begin(), files_in_directory.end());
         sts_msg("Read %u files in directory %s", files_in_directory.size(), target_dir);
-        for (std::size_t i = 0; i < std::min((std::size_t)10, files_in_directory.size()); ++i)
+        for (std::size_t i = 0; i < std::min(std::size_t{10}, files_in_directory.size()); ++i)
             sts_msg("\t%s", files_in_directory[i].c_str());
         if (files_in_directory.size()>10)
             sts_msg("\t...truncated.");

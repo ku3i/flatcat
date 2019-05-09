@@ -46,13 +46,24 @@ wrn_msg(const char* format, ...)
 void
 err_msg(const char* file, unsigned int line, const char* format, ...)
 {
-    static unsigned long err_msg_cnt = 0;
     va_list args;
     va_start(args, format);
-    printf("%sERROR %ld:%s ", KRED, ++err_msg_cnt, KNRM);
+    printf("%sERROR:%s ", KRED, KNRM);
     vprintf(format, args);
     printf("%s File %s in line %d%s\n", KWHT, file, line, KNRM);
     va_end(args);
     exit(EXIT_FAILURE);
 }
 
+void
+promise(bool condition, const char* file, unsigned int line, const char* format, ...)
+{
+    if (condition) return;
+    va_list args;
+    va_start(args, format);
+    printf("%sASSERTION:%s ", KCYN, KNRM);
+    vprintf(format, args);
+    printf("%s\nFile %s in line %d%s\n", KWHT, file, line, KNRM);
+    va_end(args);
+    exit(EXIT_FAILURE);
+}
