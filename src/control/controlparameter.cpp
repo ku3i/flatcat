@@ -106,9 +106,9 @@ namespace control {
 
         FILE* ctrl = open_file("w", filename.c_str());
 
-        fprintf(ctrl, "name = \"motor-expert-%lu\"\n", id);
+        fprintf(ctrl, "name = \"motor-expert-%zu\"\n", id);
         if (robot_id > 0) fprintf(ctrl, "robot_id = %u\n", robot_id);
-        if (rnd_init > 0) fprintf(ctrl, "random_init = %lu\n", rnd_init);
+        if (rnd_init > 0) fprintf(ctrl, "random_init = %zu\n", rnd_init);
         fprintf(ctrl, "symmetry = \"%s\"\n", symmetric ? "symmetric" : "asymmetric");
         fprintf(ctrl, "propagation = \"%s\"\n", mirrored ? "mirrored" : "original");
         fprintf(ctrl, "parameter = { ");

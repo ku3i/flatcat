@@ -196,8 +196,7 @@ public:
 
     template <typename T>
 	Sendbuffer& add(T var) {
-	    uint8_t bytes[sizeof(T)];
-        memcpy(bytes, (uint8_t*) (&var), sizeof(T)); /**TODO accessing bytes directly */
+	    const uint8_t * const bytes = (const uint8_t *) &var;
         for (unsigned i = 0; i < sizeof(T); ++i)
             add_byte(bytes[i]);
         return *this;

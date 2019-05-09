@@ -110,17 +110,17 @@ Jointcontrol::print_parameter(void) const
     robots::Jointvector_t const& joints = robot.get_joints();
 
     sts_msg("Printing controller parameter:");
-    printf("joints:%lu inputs:%lu\n", robot.get_number_of_joints(), get_number_of_inputs(robot));
+    printf("joints:%zu inputs:%zu\n", robot.get_number_of_joints(), get_number_of_inputs(robot));
     /*print header*/
     printf(" #  |");
     for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
         if (!symmetric_controller or joints[i].type == robots::Joint_Type_Normal)
-            printf("%4lu  |", i);
+            printf("%4zu  |", i);
     printf("\n");
 
     for (std::size_t k = 0; k < get_number_of_inputs(robot); ++k)
     {
-        printf("%2lu: |", k);
+        printf("%2zu: |", k);
         for (std::size_t i = 0; i < robot.get_number_of_joints(); ++i)
         {
             if (!symmetric_controller or joints[i].type == robots::Joint_Type_Normal)
