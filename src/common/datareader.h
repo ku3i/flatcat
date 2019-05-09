@@ -80,7 +80,7 @@ public:
     , map_int()
     , verbose(verbose)
     {
-        if (verbose) sts_msg("Reading file %s \n      with size: %lu bytes.", filename.c_str(), file_size);
+        if (verbose) sts_msg("Reading file %s \n      with size: %zu bytes.", filename.c_str(), file_size);
 
         if (nullptr == txtbuf)
             err_msg(__FILE__, __LINE__, "Cannot allocate memory.");
@@ -142,7 +142,7 @@ private:
                     for (std::size_t i = 0; i < std::min(std::size_t{8}, data.size()); ++i)
                         printf("%1.2f ", data[i]);
                     if (data.size() > 8)
-                        printf("... ) N=%lu\n", data.size());
+                        printf("... ) N=%zu\n", data.size());
                     else
                         printf(") \n");
                 }
