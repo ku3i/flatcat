@@ -16,7 +16,7 @@
 #include <robots/joint.h>
 
 /**
-    "There is a chance that that mouse is going to say ‘yes I see the best move, but...the hell with it’ and jump over the edge!
+    "There is a chance that the mouse is going to say ‘yes I see the best move, but...the hell with it’ and jump over the edge!
     All in the name of exploration."
 
     --Travis DeWolf--
@@ -59,6 +59,7 @@ public:
         assert(number_of_actions > 0);
         assert_in_range(learning_rates, 0.0001, 0.5);
         assert(learning_rates.size() >= number_of_policies);
+        assert(states[0].policies.size() == rewards.get_number_of_policies() );
     }
 
     double      get_current_reward    (std::size_t index) const { return rewards.get_current_reward(index); }
@@ -86,21 +87,45 @@ public:
                 states[s].eligibility_trace[a].decay();
     }
 
+
+
+
+    void execute_cycle(RL::State new_state, RL::Action new_action)
+    {
+        save_prev_state_and_action();
+        current_state = new_state;
+        current_action = new_action;
+        learning_step();
+    }
+
     void execute_cycle(RL::State new_state)
     {
-        /* save old states */
-        last_state  = current_state;
-        last_action = current_action;
+        save_prev_state_and_action();
 
         /* set new state */
         current_state = new_state;
 
+        /** action selection should not be part of Sarsa module */
         /* action selection (e.g.Epsilon Greedy or Boltzmann)  */
         if (not random_actions)
             current_action = action_selection.select_action(current_state, current_policy);
         else
             current_action = action_selection.select_randomized();
 
+        learning_step();
+    }
+
+    void toggle_random_actions(void) {
+        random_actions = not random_actions;
+        sts_msg("Random actions: %s", random_actions? "ON":"OFF");
+    }
+
+    void enable_learning(bool enable) { assert(false); /**TODO*/ }
+
+private:
+
+    void learning_step(void)
+    {
         /* Q-learning (SARSA) */
         assert(deltaQ.size() == number_of_policies);
         assert(states[last_state].eligibility_trace.size() == number_of_actions);
@@ -124,11 +149,8 @@ public:
                     states[s].policies[pi].qvalues[a] += learning_rates[pi] * deltaQ[pi] * states[s].eligibility_trace[a].get();
     }
 
-    void toggle_random_actions(void) {
-        random_actions = not random_actions;
-        sts_msg("Random actions: %s", random_actions? "ON":"OFF"); }
 
-private:
+    void save_prev_state_and_action(void) { last_state = current_state; last_action = current_action; }
 
     static_vector<State_Payload>& states;
     const reward_base&            rewards;
