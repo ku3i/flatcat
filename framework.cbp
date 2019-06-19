@@ -71,8 +71,6 @@
 		<Unit filename="src/common/event_manager.h" />
 		<Unit filename="src/common/file_io.h" />
 		<Unit filename="src/common/globalflag.h" />
-		<Unit filename="src/common/graph.cpp" />
-		<Unit filename="src/common/graph.h" />
 		<Unit filename="src/common/gui.cpp" />
 		<Unit filename="src/common/gui.h" />
 		<Unit filename="src/common/incremental_average.h" />
@@ -133,8 +131,6 @@
 		<Unit filename="src/draw/draw.cpp" />
 		<Unit filename="src/draw/draw.h" />
 		<Unit filename="src/draw/graphics.h" />
-		<Unit filename="src/draw/network2D.cpp" />
-		<Unit filename="src/draw/network2D.h" />
 		<Unit filename="src/draw/network3D.cpp" />
 		<Unit filename="src/draw/network3D.h" />
 		<Unit filename="src/draw/plot1D.cpp" />
@@ -198,8 +194,6 @@
 		<Unit filename="src/learning/q_function.h" />
 		<Unit filename="src/learning/reinforcement_learning.h" />
 		<Unit filename="src/learning/reward.h" />
-		<Unit filename="src/learning/rl.cpp" />
-		<Unit filename="src/learning/rl.h" />
 		<Unit filename="src/learning/sarsa.h" />
 		<Unit filename="src/learning/sarsa_constants.h" />
 		<Unit filename="src/learning/sarsa_graphics.h" />

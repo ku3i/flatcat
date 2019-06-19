@@ -12,8 +12,6 @@ class axes3D
     friend class plot2D;
     friend class plot3D;
     friend class network3D;
-    friend class Vertices;
-    friend class Graph;
 
 private:
     float px, py, pz;

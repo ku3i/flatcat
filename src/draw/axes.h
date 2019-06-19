@@ -15,7 +15,6 @@ class axes
 {
     friend class plot1D;
     friend class plot2D;
-    friend class network2D;
 
 private:
     float px, py, pz;
