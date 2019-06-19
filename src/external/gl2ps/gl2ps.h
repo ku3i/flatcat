@@ -1,3 +1,6 @@
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
 /*
  * GL2PS, an OpenGL to PostScript Printing Library
  * Copyright (C) 1999-2017 C. Geuzaine
