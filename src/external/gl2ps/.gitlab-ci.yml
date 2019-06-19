@@ -1,0 +1,58 @@
+#  GL2PS, an OpenGL to PostScript Printing Library
+#  Copyright (C) 1999-2017 C. Geuzaine
+
+variables:
+  EXTRA_VERSION: "-git-$CI_COMMIT_SHA"
+
+.ssh_config: &ssh_config
+  before_script:
+    - echo "$SSH_TOKEN" > ~/.ssh/id_rsa
+    - echo "Host *" > ~/.ssh/config
+    - echo "StrictHostKeyChecking no" >> ~/.ssh/config
+    - chmod 700 ~/.ssh/id_rsa ~/.ssh/config
+
+# -----------------------
+# Builds for all branches
+# -----------------------
+
+linux64_docker:
+  image: onelab/ubuntu18.10
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DGL2PS_EXTRA_VERSION=${EXTRA_VERSION:0:13} ..
+    - make -j 4
+  tags:
+    - linux64
+    - docker
+
+windows64_msvc:
+  script:
+    - md build
+    - cd build
+    - cmake -DGL2PS_EXTRA_VERSION=%EXTRA_VERSION:~0,13% ..
+    - msbuild package.vcxproj
+  tags:
+    - windows64
+    - official
+
+# ----------------------------------------------
+# Official source snapshots (master branch only)
+# ----------------------------------------------
+
+source_official:
+  image: onelab/ubuntu18.10
+  only:
+    - master@gl2ps/gl2ps
+  <<: *ssh_config
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DGL2PS_EXTRA_VERSION=${EXTRA_VERSION:0:13} ..
+    - make
+    - make package_source
+    - PKG=`ls gl2ps-*.tar*`
+    - scp ${PKG} geuzaine@geuz.org:.www/gl2ps/src/${PKG/\.tar\.gz/\.tgz}
+  tags:
+    - linux64
+    - docker

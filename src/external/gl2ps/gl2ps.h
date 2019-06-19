@@ -33,8 +33,8 @@
  * Please report all bugs and problems to <gl2ps@geuz.org>.
  */
 
-#ifndef __GL2PS_H__
-#define __GL2PS_H__
+#ifndef GL2PS_H
+#define GL2PS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +47,9 @@
 #    pragma warning(disable:4127)
 #    pragma warning(disable:4996)
 #  endif
-#  define NOMINMAX
+#  if !defined(NOMINMAX)
+#    define NOMINMAX
+#  endif
 #  include <windows.h>
 #  undef NOMINMAX
 #  if defined(GL2PSDLL)
@@ -87,7 +89,7 @@
 
 #define GL2PS_MAJOR_VERSION 1
 #define GL2PS_MINOR_VERSION 4
-#define GL2PS_PATCH_VERSION 0
+#define GL2PS_PATCH_VERSION 1
 #define GL2PS_EXTRA_VERSION ""
 
 #define GL2PS_VERSION (GL2PS_MAJOR_VERSION + \
@@ -216,6 +218,9 @@ GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
 GL2PSDLL_API GLint gl2psTextOptColor(const char *str, const char *fontname,
                                      GLshort fontsize, GLint align, GLfloat angle,
                                      GL2PSrgba color);
+GL2PSDLL_API GLint gl2psTextOptColorBL(const char *str, const char *fontname,
+                                       GLshort fontsize, GLint align, GLfloat angle,
+                                       GL2PSrgba color, GLfloat blx, GLfloat bly);
 GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str);
 GL2PSDLL_API GLint gl2psSpecialColor(GLint format, const char *str, GL2PSrgba rgba);
 GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
@@ -228,6 +233,7 @@ GL2PSDLL_API GLint gl2psLineCap(GLint value);
 GL2PSDLL_API GLint gl2psLineJoin(GLint value);
 GL2PSDLL_API GLint gl2psLineWidth(GLfloat value);
 GL2PSDLL_API GLint gl2psBlendFunc(GLenum sfactor, GLenum dfactor);
+GL2PSDLL_API GLint gl2psSorting(GLint mode);
 
 /* referenced in the documentation, but not fully documented */
 GL2PSDLL_API GLint gl2psForceRasterPos(GL2PSvertex *vert);
@@ -250,4 +256,4 @@ GL2PSDLL_API GLint gl2psGetFileFormat();
 }
 #endif
 
-#endif /* __GL2PS_H__ */
+#endif /* GL2PS_H */
