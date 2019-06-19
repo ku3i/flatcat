@@ -88,6 +88,8 @@ public:
     void toggle_learning(void)   { gmes.enable_learning(not gmes.is_learning_enabled()); }
     double get_learning_progress(void) const override { return gmes.get_learning_progress(); }
 
+    std::size_t get_state(void) const { return gmes.get_state(); }
+
     bool is_learning_enabled(void) const { return gmes.is_learning_enabled(); }
 
     /** This is somewhat ugly. But the only way I have figured out to do that. */
@@ -107,21 +109,21 @@ public:
     void save(const std::string& foldername) const {
         const std::size_t num_experts = get_cur_number_of_experts();
         sts_msg("Saving %lu motor expert%s to folder %s", num_experts, (num_experts>1?"s":""), foldername.c_str());
-        const std::string folder = basic::make_directory((foldername + "_" + basic::get_timestamp()).c_str());
+        const std::string folder = basic::make_directory((foldername + "/motor").c_str());
         for (std::size_t i = 0; i < num_experts; ++i)
         {
             auto const& ctrl = get_controller_weights(i);
             ctrl.save_to_file(folder + "/motor_expert_" + std::to_string(i) + ".dat", i);
         }
-
     }
 
     void connect_payloads(static_vector<State_Payload>* s) {
+        dbg_msg("Connecting payloads");
         for (std::size_t i = 0; i < payloads.size(); ++i)
             payloads[i].connect(i, s);
     }
 
-    control::Control_Vector      params; /**TODO: check if this can be removed, finally */
+    control::Control_Vector      params;
     static_vector<Motor_Payload> payloads;
     Motor_Space                  motorspace;
     Expert_Vector                experts;
@@ -197,7 +199,7 @@ public:
     , max_experts(motor_layer.gmes.get_max_number_of_experts())
     , winner()
     , subspace()
-    , colortable(4, /*randomized*/true)
+    , colortable(5, /*randomized*/true)
     {
         /** TODO
             + also for the rest of the joints
@@ -218,11 +220,15 @@ public:
 
     void draw(const pref& p) const {
         glColor3f(1.0, 1.0, 1.0);
-        glprintf(-0.95, 0.95, 0., 0.025, "%03u (%03u/%03u)", winner, num_experts, max_experts);
+        glprintf(1.05, 0.95, 0.0, 0.05, "no. exp. = %03u (%03u/%03u)", winner, num_experts, max_experts);
+
+        auto const learning = motor_layer.is_learning_enabled();
+        if (!learning) glColor3f(.3f,.3f,.3f);
+        glprintf(1.05, 0.90, 0.0, 0.05, "learning: %s", learning ? "enabled" : "disabled");
+
 
         for (auto& s: subspace)
             s.draw(p);
-
 
         for (std::size_t i = 0; i < motor_layer.experts.size(); ++i)
         {
@@ -242,13 +248,6 @@ public:
             pred.draw();
             glPopMatrix();
         }
-
-
-        const bool learning = motor_layer.is_learning_enabled();
-        if (learning) glColor3f(.9f,.9f,.9f);
-        else          glColor3f(.3f,.3f,.3f);
-
-        glprintf(-1.0, -1.4, 0.0, 0.05, "learning: %s", learning ? "enabled" : "disabled");
 
     };
 

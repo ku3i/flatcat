@@ -82,6 +82,17 @@ public:
     void enable_learning(bool b) override { gmes.enable_learning(b); }
     void toggle_learning(void) { gmes.enable_learning(not gmes.is_learning_enabled()); }
 
+    void save(const std::string& foldername) const {
+        const std::size_t num_experts = gmes.get_number_of_experts();
+        sts_msg("Saving %lu state expert%s to folder %s", num_experts, (num_experts>1?"s":""), foldername.c_str());
+        const std::string folder = basic::make_directory((foldername + "/state").c_str());
+        for (std::size_t i = 0; i < num_experts; ++i)
+        {
+            //auto const& ctrl = get_controller_weights(i);
+            //ctrl.save_to_file(folder + "/motor_expert_" + std::to_string(i) + ".dat", i);
+        }
+    }
+
     std::size_t                  max_num_state_experts;
     static_vector_interface&     payloads;
     State_Space                  statespace;
@@ -155,7 +166,7 @@ public:
     , max_experts(state_layer.gmes.get_max_number_of_experts())
     , winner()
     , subspace()
-    , colortable(4, /*randomized*/true)
+    , colortable(5, /*randomized*/true)
     , integrator()
     , axis_dt(-0.5,-1.50, 0.0, 1.0, 1.0, 1, "PredErr")
     , axis_ne(-0.5,-1.75, 0.0, 1.0, 0.5, 1, "#Experts")
@@ -168,7 +179,7 @@ public:
             + consider grouping the graphs in legs (4x 3D) instead of 6x 2D
         */
         const unsigned N = robot.get_number_of_symmetric_joints();
-        const double size = 2.0/N;
+        const float size = 2.0/N;
         subspace.reserve(N);
         Vector3 pos(-1.0, 1.0, 0.);
         for (auto const& j0: robot.get_joints()) {
@@ -208,7 +219,7 @@ public:
 
         integrator.add(state_layer.gmes.get_min_prediction_error());
         if (integrator.get_number_of_samples()==1000) {
-            const double val = 100.0*integrator.get_avg_value_and_reset();
+            const float val = 100.0*integrator.get_avg_value_and_reset();
             avg_err = 0.99*avg_err + 0.01*val;
             pred_err.add_sample(val);
             pred_err_avg.add_sample(avg_err);
@@ -225,7 +236,7 @@ public:
     ColorTable                            colortable;
 
     Integrator integrator;
-    double     avg_err = 0.0;
+    float      avg_err = 0.0;
     axes       axis_dt;
     axes       axis_ne;
     plot1D     pred_err,pred_err_avg;

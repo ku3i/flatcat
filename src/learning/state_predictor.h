@@ -1,5 +1,5 @@
-#ifndef STATE_PREDICTOR_H_INCLUDED
-#define STATE_PREDICTOR_H_INCLUDED
+#ifndef STATE_PREDICTOR_H
+#define STATE_PREDICTOR_H
 
 #include <learning/predictor.h>
 #include <learning/autoencoder.h>
@@ -23,7 +23,7 @@ public:
     : Predictor_Base(inputs, learning_rate, random_weight_range, experience_size)
     , enc(inputs.size(), inputs.size(), hidden_layer_size, time_delay_size, random_weight_range )
     {
-//        dbg_msg("Initialize State Predictor using Auto-encoder.");
+        dbg_msg("Initialize State Predictor using TDNN.");
     }
 
     virtual ~State_Predictor() = default;
@@ -60,16 +60,19 @@ public:
 
     void draw(void) const { assert(false); /*not implemented*/ }
 
+    void save(std::string folder) { /*TODO implement */ }
+    void load(std::string folder) { /*TODO implement */ }
+
 private:
 
     void learn_from_input_sample(void) override { enc.adapt(input, learning_rate); };
     void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); };
 
-    Timedelay_Network enc;//Autoencoder enc;
+    Timedelay_Network enc;
 
     friend class Predictor_Graphics;
 };
 
-} // namespace learning
+} /* namespace learning */
 
-#endif // STATE_PREDICTOR_H_INCLUDED
+#endif /* STATE_PREDICTOR_H */

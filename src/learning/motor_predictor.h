@@ -82,13 +82,10 @@ public:
     }
 
     void draw(void) const {
-        unsigned I = core.weights.size();
+        float s = 2.0/core.weights.size();
         unsigned i = 0;
-        for (auto const& wi : core.weights) {
-            //draw_vector2(-.5, 0.0 - 0.05 * i++, 0.045, 1.0, wi, 3.0);
-            //TODO correct this draw_rect   (0.0 - I/2*0.5 +  0.5*i ,  0.0, 0.5, 0.045);
-            draw_vector2(0.0 - I/2*0.5 +  0.5*i++, 0.0, 0.045, 0.5, wi, 3.0);
-        }
+        for (auto const& wi : core.weights)
+            draw_vector2(0.0 + s*i++, 0.0, 0.045, s, wi, 3.0);
     }
 
 private:
