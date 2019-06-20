@@ -18,6 +18,8 @@
 #include <common/globalflag.h>
 #include <common/log_messages.h>
 
+namespace network {
+
 namespace constants {
     const unsigned seconds_us   = 1000*1000;
     const unsigned default_port = 7777;
@@ -52,5 +54,6 @@ private:
     bool connection_established;
 };
 
+} /* namespace network */
 
 #endif /* SOCKET_CLIENT_H */

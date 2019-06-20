@@ -1,30 +1,33 @@
 #ifndef UDP_HPP
 #define UDP_HPP
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <time.h>
 
 #include <common/log_messages.h>
 #include <common/lock.h>
 
 /*
-
-  UDP Multicast Sender and Receiver
-
-  setting examples:
+    This UDP class is optionally able to do a multicast connection.
+    Attention: this might spam the network if datagram size and frequency is large.
+    Example usage for UDP Multicast Sender and Receiver
     group: 239.255.255.252
     port:  1900
 
+    Otherwise, just specify address (group) and port.
+
 */
 
-namespace UDP {
+namespace network {
+
+    const uint16_t default_port = 7331;
 
     template <typename T, typename B>
     std::size_t getfrom(T& var, const B* buf, std::size_t offset)
@@ -45,7 +48,7 @@ namespace UDP {
 
 
 template <unsigned NBytes>
-class Sender {
+class UDPSender {
 
     int sockfd;
     struct sockaddr_in addr{};
@@ -57,7 +60,7 @@ class Sender {
     bool tx_ready = false;
 
 public:
-    Sender(std::string const& group, unsigned port)
+    UDPSender(std::string const& group, uint16_t port = default_port)
     : sockfd(socket(AF_INET, SOCK_DGRAM, 0)) /* create UDP socket */
     , msg(), buf()
     {
@@ -69,7 +72,7 @@ public:
         memset(&addr, 0, sizeof(addr)); //TODO constructor
         addr.sin_family = AF_INET;
         addr.sin_addr.s_addr = inet_addr(group.c_str());
-        addr.sin_port = htons((int) port);
+        addr.sin_port = htons(port);
     }
 
     void transmit(void)
@@ -99,7 +102,7 @@ public:
 
 
 template <unsigned NBytes>
-class Receiver {
+class UDPReceiver {
 
     int sockfd;
     struct sockaddr_in addr{};
@@ -108,7 +111,7 @@ class Receiver {
     bool rx_ready = false;
 
 public:
-    Receiver(const char* group, int port)
+    UDPReceiver(const char* group, uint16_t port = default_port, bool multicast = false)
     : sockfd(socket(AF_INET, SOCK_DGRAM, 0)) /* create UDP socket */
     , msg()
     {
@@ -118,7 +121,7 @@ public:
 
         /* allow multiple sockets to use the same port */
         unsigned optval = 1;
-        if ( setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*) &optval, sizeof(optval) ) < 0)
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*) &optval, sizeof(optval)) < 0)
             err_msg(__FILE__,__LINE__,"Reusing address failed. Cannot allow multiple sockets to use the same port.\n%s", strerror(errno));
 
         /* set destination */
@@ -131,13 +134,14 @@ public:
         if (bind(sockfd, (struct sockaddr*) &addr, sizeof(addr)) < 0)
             err_msg(__FILE__,__LINE__,"Cannot bind receive address.\n%s", strerror(errno));
 
-        /* request the kernel to join a multicast group */
-        struct ip_mreq mreq;
-        mreq.imr_multiaddr.s_addr = inet_addr(group);
-        mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-        if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &mreq, sizeof(mreq)) < 0)
-            err_msg(__FILE__,__LINE__,"Cannot set socket options for multicast group.\n%s", strerror(errno));
-
+        if (multicast) {
+            /* request the kernel to join a multicast group */
+            struct ip_mreq mreq;
+            mreq.imr_multiaddr.s_addr = inet_addr(group);
+            mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+            if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &mreq, sizeof(mreq)) < 0)
+                err_msg(__FILE__,__LINE__,"Cannot set socket options for multicast group.\n%s", strerror(errno));
+        }
 
         struct timeval read_timeout;
         read_timeout.tv_sec = 1;
@@ -216,6 +220,6 @@ public:
 
 }; /* Sendbuffer */
 
-} /* namespace UDP */
+} /* namespace network */
 
 #endif /* UDP_HPP */

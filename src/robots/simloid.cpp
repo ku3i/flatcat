@@ -20,7 +20,7 @@ Simloid::Simloid( unsigned short port,
                 , client()
                 , connection_established(open_connection())
                 , record_frame(false)
-                , configuration(client.recv(5*constants::seconds_us))
+                , configuration(client.recv(5*network::constants::seconds_us))
                 , timestamp()
                 , body_position0(configuration.number_of_bodies)
                 , average_position()
@@ -127,17 +127,17 @@ Simloid::set_robot_to_default_position(void)
     double sec = 2; // should be enough
     sts_msg("Setting robot to default joint position.");
 
-    char msg[constants::msglen];
+    char msg[network::constants::msglen];
     /* pass 100 time steps per second */
     for (unsigned i = 0; i < round(100.0 * sec); ++i)
     {
         read_sensor_data();
 
-        short n = snprintf(msg, constants::msglen, "PX");
+        short n = snprintf(msg, network::constants::msglen, "PX");
         for (auto& j: configuration.joints)
-            n += snprintf(msg + n, constants::msglen - n, " %lf", j.default_pos);
+            n += snprintf(msg + n, network::constants::msglen - n, " %lf", j.default_pos);
 
-        snprintf(msg + n, constants::msglen - n, "\nDONE\n");
+        snprintf(msg + n, network::constants::msglen - n, "\nDONE\n");
         client.send(msg);
     }
     read_sensor_data();
@@ -305,7 +305,7 @@ Simloid::read_sensor_data(void)
     static std::string srv_msg;
     unsigned charcount = 0;
 
-    srv_msg = client.recv(60*constants::seconds_us);
+    srv_msg = client.recv(60*network::constants::seconds_us);
 
     if (0 == srv_msg.length())
     {
@@ -343,19 +343,19 @@ Simloid::read_sensor_data(void)
 void
 Simloid::write_motor_data(void)
 {
-    static char msg[constants::msglen];
-    unsigned n = snprintf(msg, constants::msglen, "UX");
+    static char msg[network::constants::msglen];
+    unsigned n = snprintf(msg, network::constants::msglen, "UX");
 
     for (auto& j: configuration.joints)
-        n += snprintf(msg + n, constants::msglen - n, " %lf", clip(j.motor.get()));
+        n += snprintf(msg + n, network::constants::msglen - n, " %lf", clip(j.motor.get()));
 
     auto const& bodies = configuration.bodies;
     for (unsigned i = 0; i < bodies.size(); ++i)
         if (bodies[i].force.length() > .0)
-            n += snprintf(msg + n, constants::msglen - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
-                                                                                    bodies[i].force.y,
-                                                                                    bodies[i].force.z);
-    snprintf(msg + n, constants::msglen - n, "\n%sDONE\n", record_frame ? "RECORD\n" : "");
+            n += snprintf(msg + n, network::constants::msglen - n, "\nFI %u %lf %lf %lf", i, bodies[i].force.x,
+                                                                                             bodies[i].force.y,
+                                                                                             bodies[i].force.z);
+    snprintf(msg + n, network::constants::msglen - n, "\n%sDONE\n", record_frame ? "RECORD\n" : "");
     client.send(msg);
 
     /* transfer motor data u(t) to u(t-1) */
@@ -537,7 +537,7 @@ Simloid::randomize_model(double rnd_amplitude, uint64_t rnd_instance)
 
     sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
     client.send("MODEL %u 2 %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
-    configuration.read_robot_info( client.recv(5*constants::seconds_us) );
+    configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
     init_robot();
@@ -549,7 +549,7 @@ Simloid::reinit_robot_model(std::vector<double> const& params)
 {
     sts_msg("Requesting new model for robot_id %u with %u params", robot_ID, params.size());
     client.send("MODEL %u %u %s\nDONE\n", robot_ID, params.size(), common::to_string(params).c_str());
-    configuration.read_robot_info( client.recv(5*constants::seconds_us) );
+    configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
     init_robot();

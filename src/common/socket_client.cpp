@@ -4,6 +4,8 @@
 
 extern GlobalFlag do_quit;
 
+namespace network {
+
 bool
 Socket_Client::open_connection(const unsigned short port)
 {
@@ -113,4 +115,4 @@ Socket_Client::recv(unsigned int timeout_us = 0)
     return std::string(buffer);
 }
 
-
+} /* namespace network */

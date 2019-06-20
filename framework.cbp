@@ -40,7 +40,7 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-std=c++11" />
+			<Add option="-std=c++14" />
 			<Add option="`sdl2-config --cflags`" />
 			<Add option="`pkg-config --cflags gtk+-2.0 gmodule-2.0`" />
 			<Add option="-D__LINUX_ALSA__" />
@@ -92,9 +92,11 @@
 		<Unit filename="src/common/setup.h" />
 		<Unit filename="src/common/socket_client.cpp" />
 		<Unit filename="src/common/socket_client.h" />
+		<Unit filename="src/common/socket_server.h" />
 		<Unit filename="src/common/static_vector.h" />
 		<Unit filename="src/common/stopwatch.h" />
 		<Unit filename="src/common/timer.h" />
+		<Unit filename="src/common/udp.hpp" />
 		<Unit filename="src/common/vector2.h" />
 		<Unit filename="src/common/vector_n.h" />
 		<Unit filename="src/common/view_manager.h" />

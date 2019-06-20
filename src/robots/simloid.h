@@ -44,7 +44,7 @@ private:
     pid_t child_pid;
     common::mutex_t mtx;
 
-    Socket_Client client;
+    network::Socket_Client client;
     bool connection_established;
     bool record_frame;
     Robot_Configuration configuration;
