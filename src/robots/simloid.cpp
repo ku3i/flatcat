@@ -104,7 +104,7 @@ Simloid::open_connection(void)
     sleep(1);
     sts_msg("Continuing.");
 
-    return client.open_connection(port);
+    return client.open_connection("127.0.0.1", port);
 }
 
 void

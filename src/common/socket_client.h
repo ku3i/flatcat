@@ -10,11 +10,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
 #include <string>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
+#include <netdb.h>
 #include <common/globalflag.h>
 #include <common/log_messages.h>
 
@@ -25,6 +26,8 @@ namespace constants {
     const unsigned default_port = 7777;
     const unsigned msglen       = 8192;
 }
+
+std::string hostname_to_ip(const char* hostname);
 
 class Socket_Client
 {
@@ -41,7 +44,7 @@ public:
 
     ~Socket_Client(void) { sts_msg("Destroying client socket."); }
 
-    bool open_connection(const unsigned short port);
+    bool open_connection(const char* server_addr, const unsigned short port);
     void close_connection(void);
 
     std::string recv(unsigned int time_out_us);

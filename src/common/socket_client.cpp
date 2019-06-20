@@ -6,8 +6,26 @@ extern GlobalFlag do_quit;
 
 namespace network {
 
+
+std::string hostname_to_ip(const char* hostname)
+{
+    struct hostent * h = gethostbyname(hostname);
+    struct in_addr **addr_list;
+
+    sts_msg("resolving hostname");
+
+    if (h != nullptr)
+    {
+        addr_list = (struct in_addr **) h->h_addr_list;
+        if (addr_list[0] != nullptr)
+            return inet_ntoa(*addr_list[0]);
+    }
+    return std::string{};
+}
+
+
 bool
-Socket_Client::open_connection(const unsigned short port)
+Socket_Client::open_connection(const char* server_addr, const unsigned short port)
 {
     if (connection_established)
     {
@@ -25,7 +43,7 @@ Socket_Client::open_connection(const unsigned short port)
 
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_port = htons(port);
-    int result = inet_pton(AF_INET, "127.0.0.1", &srv_addr.sin_addr);
+    int result = inet_pton(AF_INET, server_addr, &srv_addr.sin_addr);
 
     if (0 > result)
     {
