@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <functional>
 #include <common/log_messages.h>
+#include <common/globalflag.h>
+#include <common/visuals.h>
 
 struct Mouse_Click_Event
 {
@@ -105,5 +107,7 @@ void on_button_pressed_ESCAPE   (void);
 void on_button_pressed_SPACE    (void);
 void on_button_pressed_BACKSPACE(void);
 void on_button_pressed_RETURN   (void);
+void quit(void);
 
-#endif // EVENT_MANAGER_H
+
+#endif /* EVENT_MANAGER_H */

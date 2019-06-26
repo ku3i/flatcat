@@ -1,7 +1,7 @@
 
 #include "./event_manager.h"
-#include "./setup.h"
 
+extern GlobalFlag do_quit;
 extern GlobalFlag do_pause;
 extern GlobalFlag fast_forward;
 extern GlobalFlag draw_grid;
@@ -9,6 +9,18 @@ extern GlobalFlag screenshot;
 
 extern Visuals screen;
 extern float t_delay_ms;
+
+void
+quit()
+{
+    static bool q = false;
+    if (!q) // prevent second call
+    {
+        q = true;
+        sts_msg("Sending signal to exit.");
+        do_quit.enable();
+    }
+}
 
 void
 on_button_pressed_ESCAPE(void)

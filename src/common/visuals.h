@@ -1,6 +1,9 @@
 #ifndef VISUALS_H_INCLUDED
 #define VISUALS_H_INCLUDED
 
+#include <basic/color.h>
+#include <GL/gl.h>
+
 namespace visuals_defaults {
     const unsigned int window_width  = 512;
     const unsigned int window_height = 512;

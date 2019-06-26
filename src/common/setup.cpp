@@ -314,18 +314,6 @@ draw_screen(const double& fps, const Application_Base& app)
 }
 
 void
-quit()
-{
-    static bool q = false;
-    if (!q) // prevent second call
-    {
-        q = true;
-        sts_msg("Sending signal to exit.");
-        do_quit.enable();
-    }
-}
-
-void
 signal_terminate_handler(int signum)
 {
     sts_msg("Got a SIGINT(%d) from user\n", signum);
