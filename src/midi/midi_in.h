@@ -16,18 +16,19 @@
 */
 
 /* [0,1] -> [-1,1] */
-inline double normed(double value) { return 2 * value - 1; }
+inline float normed(float value) { return 2 * value - 1; }
 
 class MidiIn
 {
     struct Data_t {
-        Data_t() : raw(.0), unlocked(false) {}
-        double raw;
+        Data_t() : raw(.0), unlocked(false), changed(false) {}
+        float raw;
         mutable bool unlocked;
+        mutable bool changed;
     };
 
     static constexpr std::size_t max_channel = 256;
-    const Data_t      default_val = Data_t{};
+    const Data_t default_val = Data_t{};
 
     std::unique_ptr<RtMidiIn>  midi_ptr;
     std::vector<unsigned char> message;
@@ -80,15 +81,19 @@ public:
         if (not init_success) return false;
 
         try {
-            const double dt = midi_ptr->getMessage( &message );
-            const std::size_t num_bytes = message.size();
+            std::size_t num_bytes = 0;
+            do {
+                const float dt = midi_ptr->getMessage( &message );
+                num_bytes = message.size();
 
-            if (num_bytes >= 2) {
-                const unsigned char channel = message[1];
-                data[channel].raw = static_cast<double>(message[2] / 127.0);
-                if (verbose)
-                    dbg_msg("MIDI(%03u): ch=%03u val=%4.2f dt=%4.2f", message[0], message[1], data[channel].raw, dt);
-            }
+                if (num_bytes >= 2) {
+                    const unsigned char channel = message[1];
+                    data[channel].raw = static_cast<float>(message[2] / 127.0);
+                    data[channel].changed = true;
+                    if (verbose)
+                        dbg_msg("MIDI(%03u): ch=%03u val=%4.2f dt=%4.2f", message[0], message[1], data[channel].raw, dt);
+                }
+            } while (num_bytes >= 2); /* until message queue cleared */
 
         }
         catch (RtMidiError &error) {
@@ -99,11 +104,18 @@ public:
         return true;
     }
 
-    double operator[] (std::size_t index) const { return data.at(index).raw; }
+    bool has_changed(std::size_t index) const {
+        const Data_t& d = data.at(index);
+        bool c = d.changed;
+        d.changed = false;
+        return c;
+    }
+
+    float operator[] (std::size_t index) const { return data.at(index).raw; }
 
     /* normed and unlocked */
-    double get(std::size_t index, double unlock_initial = 0.0) const {
-        const double val = normed(data.at(index).raw);
+    float get(std::size_t index, float unlock_initial = 0.0) const {
+        const float val = normed(data.at(index).raw);
 
         if (data.at(index).unlocked) return val;
         else if (std::abs(val - unlock_initial) <= 1/127.) { /* check if we can unlock */
