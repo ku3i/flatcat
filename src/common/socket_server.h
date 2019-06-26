@@ -26,7 +26,7 @@ class Socket_Server
     uint16_t port;
     struct sockaddr_in serv_addr = {};
     std::string recv_stream = "";
-
+    std::string current_client_addr = "";
 
 public:
     Socket_Server(const uint16_t port)
@@ -93,6 +93,7 @@ public:
         }
 
         sts_msg("Connection opened to client: %s:%u", client_addr, port);
+        current_client_addr = client_addr;
         return true;
     }
 
@@ -155,7 +156,7 @@ public:
         return retstr;
     }
 
-
+    std::string const& get_current_client_address(void) const { return current_client_addr; }
 
 };
 

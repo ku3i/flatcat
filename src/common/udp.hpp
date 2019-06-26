@@ -56,7 +56,8 @@ class UDPSender {
     uint8_t msg[NBytes];
     uint8_t buf[NBytes];
 
-    common::mutex_t mtx{};
+    common::mutex_t l_buf{};
+    common::mutex_t l_adr{};
     bool tx_ready = false;
 
 public:
@@ -69,6 +70,7 @@ public:
             err_msg(__FILE__,__LINE__,"Cannot create UDP socket with group %s and port %u.\n%s", group.c_str(), port, strerror(errno));
 
         /* set destination */
+        common::lock_t lock(l_adr);
         memset(&addr, 0, sizeof(addr)); //TODO constructor
         addr.sin_family = AF_INET;
         addr.sin_addr.s_addr = inet_addr(group.c_str());
@@ -77,9 +79,10 @@ public:
 
     void transmit(void)
     {
+        common::lock_t lock(l_adr);
         int nbytes = sendto(sockfd, msg, NBytes, 0, (struct sockaddr*) &addr, sizeof(addr));
 
-        { common::lock_t lock(mtx);
+        { common::lock_t lock(l_buf);
             std::swap(msg, buf); /* swap buffers */
             tx_ready = false; // reset flag, waiting for data
         } /*end lock*/
@@ -92,12 +95,18 @@ public:
 
     void set_buffer(const uint8_t* src, std::size_t size) {
         assertion(size == NBytes, "Buffer length does not match. %u =!= %u", size, NBytes);
-        common::lock_t lock(mtx);
+        common::lock_t lock(l_buf);
         memcpy(buf, src, NBytes);
         tx_ready = true; // set flag, ready for transmission
     }
 
     bool data_ready(void) const { return tx_ready; }
+
+    void change_destination(std::string const& dest)
+    {
+        common::lock_t lock(l_adr);
+        addr.sin_addr.s_addr = inet_addr(dest.c_str());
+    }
 };
 
 
