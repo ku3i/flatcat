@@ -12,15 +12,17 @@ std::string hostname_to_ip(const char* hostname)
     struct hostent * h = gethostbyname(hostname);
     struct in_addr **addr_list;
 
-    sts_msg("resolving hostname");
+    std::string ipstr = "";
 
     if (h != nullptr)
     {
         addr_list = (struct in_addr **) h->h_addr_list;
         if (addr_list[0] != nullptr)
-            return inet_ntoa(*addr_list[0]);
+            ipstr = inet_ntoa(*addr_list[0]);
     }
-    return std::string{};
+
+    sts_msg("resolving hostname: %s >> %s", hostname, ipstr.c_str());
+    return ipstr;
 }
 
 
@@ -89,17 +91,45 @@ Socket_Client::close_connection(void)
 }
 
 void
-Socket_Client::send(const char* format, ...) const
+Socket_Client::send(const char* format, ...)
 {
-    static char buffer[constants::msglen];
+    char buffer[constants::msglen];
     memset(buffer, 0, constants::msglen);
 
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, constants::msglen, format, args);
     va_end(args);
-    if ((unsigned int) write(sockfd, buffer, strlen(buffer)) != strlen(buffer))
+
+    common::lock_t lock(mtx);
+    if ((unsigned) write(sockfd, buffer, strlen(buffer)) != strlen(buffer))
         err_msg(__FILE__, __LINE__, "Send incomplete.");
+}
+
+void
+Socket_Client::append(const char* format, ...)
+{
+    char buffer[constants::msglen];
+    memset(buffer, 0, constants::msglen);
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, constants::msglen, format, args);
+    va_end(args);
+
+    msgbuf.append(buffer);
+}
+
+void
+Socket_Client::flush(void)
+{
+    if (msgbuf.empty()) return;
+
+    { common::lock_t lock(mtx);
+    if ((unsigned) write(sockfd, msgbuf.c_str(), msgbuf.length()) != msgbuf.length())
+        err_msg(__FILE__, __LINE__, "Flush incomplete.");
+    } // end lock
+    msgbuf.clear();
 }
 
 

@@ -18,6 +18,7 @@
 #include <netdb.h>
 #include <common/globalflag.h>
 #include <common/log_messages.h>
+#include <common/lock.h>
 
 namespace network {
 
@@ -40,6 +41,8 @@ public:
     , server()
     , sockfd(-1)
     , connection_established(false)
+    , msgbuf()
+    , mtx()
     { sts_msg("Creating client socket."); }
 
     ~Socket_Client(void) { sts_msg("Destroying client socket."); }
@@ -48,13 +51,19 @@ public:
     void close_connection(void);
 
     std::string recv(unsigned int time_out_us);
-    void send(const char* format, ...) const;
+    void send(const char* format, ...); /* sends independent messages immediately */
+
+    void append(const char* format, ...);
+    void flush();
 
 private:
     struct sockaddr_in srv_addr;
     struct hostent *server;
     int sockfd;
     bool connection_established;
+
+    std::string msgbuf;
+    common::mutex_t mtx;
 };
 
 } /* namespace network */
