@@ -98,6 +98,8 @@ public:
         data[row_index][0] = value;
     }
 
+    std::string const& get_filename(void) const { return filename; }
+
 private:
     std::size_t nbytes;
     char* txtbuf;
