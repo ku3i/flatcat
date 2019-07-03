@@ -150,7 +150,7 @@ Simloid::reset(void) //non-public
 {
     /* resetting simloid, resetting motor output */
     for (auto& j: configuration.joints)
-        j.motor.set(.0);
+        j.motor.reset();
     client.send("UA 0\nRESET\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
 }
@@ -188,7 +188,7 @@ Simloid::restore_state(void)
     }
 
     /* restoring last snapshot of simloid, resetting motor output */
-    for (auto& j: configuration.joints) j.motor.set(.0);
+    for (auto& j: configuration.joints) j.motor.reset();
     reset_all_forces();
     client.send("UA 0\nNEWTIME\nRESTORE\nDONE\n");
     read_sensor_data(); // note: a reset must be followed by an update
@@ -249,7 +249,7 @@ void Simloid::init_robot(void)
     sts_msg("Initializing robot.");
 
     /* initialize motor voltages */
-    for (auto& j: configuration.joints) j.motor.set(.0);
+    for (auto& j: configuration.joints) j.motor.reset();
     set_robot_to_default_position();
     save_state();
 }

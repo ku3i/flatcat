@@ -173,7 +173,7 @@ void
 Jointcontroller::reset(void)
 {
     for (auto& j : robot.joints)
-        j.motor.set( random_value(-0.01, 0.01) );
+        j.motor = random_value(-0.01, 0.01);
 
     /* reset integrated velocities from acceleration sensors */
     for (auto& a : robot.accels) a.reset();
@@ -234,6 +234,6 @@ Jointcontroller::loop(void)
                 activation[i] += weights[i][k] * X[k];
         }
         //TODO robot.joints[i].motor = tanh(activation[i]);
-        robot.joints[i].motor.set( clip(activation[i], 1.0) );
+        robot.joints[i].motor = clip(activation[i], 1.0);
     }
 }

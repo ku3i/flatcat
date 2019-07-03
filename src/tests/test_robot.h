@@ -59,7 +59,7 @@ public:
         for (auto& jx : set_joints()) {
             jx.s_ang = random_value(-1.0,1.0);
             jx.s_vel = random_value(-1.0,1.0);
-            jx.motor.set(random_value(-1.0,1.0));
+            jx.motor = random_value(-1.0,1.0);
             jx.motor.transfer(); // for filling backed
         }
     }

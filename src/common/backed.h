@@ -11,13 +11,24 @@ class backed_t
 public:
     explicit backed_t(T const& actual = T(), T const& backup = T()) : actual(actual), backup(backup) {}
 
-    void set       (T const& value) { actual = value; }
+    void reset(void) { actual = T{}; backup = T{}; }
+
     void set_backed(T const& value) { backup = value; }
 
     void transfer() { backup = actual; }
 
     T const& get()        const { return actual; }
     T const& get_backed() const { return backup; }
+
+    backed_t& operator=(const T& value) {
+        this->actual = value;
+        return *this;
+    }
+
+    backed_t& operator+=(const T& value) {
+        this->actual += value;
+        return *this;
+    }
 };
 
 } // common

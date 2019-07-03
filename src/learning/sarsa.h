@@ -58,7 +58,9 @@ public:
         assert(number_of_policies > 0);
         assert(number_of_actions > 0);
         assert_in_range(learning_rates, 0.0001, 0.5);
-        assert(learning_rates.size() >= number_of_policies);
+        promise(learning_rates.size() >= number_of_policies, __FILE__, __LINE__
+               , "Number of learning rates %u must be equal to the number of policies %u"
+               , learning_rates.size(), number_of_policies);
         assert(states[0].policies.size() == rewards.get_number_of_policies() );
     }
 
@@ -120,7 +122,7 @@ public:
         sts_msg("Random actions: %s", random_actions? "ON":"OFF");
     }
 
-    void enable_learning(bool enable) { assert(false); /**TODO*/ }
+    void enable_learning(bool /*enable*/) { assert(false); /**TODO*/ }
 
 private:
 

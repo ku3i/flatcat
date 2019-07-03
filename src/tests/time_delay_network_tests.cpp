@@ -39,7 +39,7 @@ TEST_CASE( "FIR Synapse Test" , "[Time Delay Network]")
     for (auto& j: robot.set_joints()) {
         j.s_ang = 1.1;
         j.s_vel = 2.2;
-        j.motor.set(3.3);
+        j.motor = 3.3;
         j.motor.transfer();
     }
 
@@ -59,7 +59,7 @@ TEST_CASE( "FIR Synapse Test" , "[Time Delay Network]")
     for (auto& j: robot.set_joints()) {
         j.s_ang = 1.0;
         j.s_vel = 2.0;
-        j.motor.set(3.0);
+        j.motor = 3.0;
         j.motor.transfer();
     }
 
@@ -99,18 +99,26 @@ TEST_CASE( "time delay network construction" , "[Time Delay Network]")
         REQUIRE( outputs[i] == .0 );
 
     /* check weights are not zero */
-    auto const& weights = tdn.get_weights();
+    auto const& w1 = tdn.get_weights().hi;
     double sum = .0;
     int diff = 0;
-    for (std::size_t i = 0; i < weights.size(); ++i)
-        for (std::size_t j = 0; j < weights[i].size(); ++j) {
-            diff += ( weights[i][j] != .0 )? 0 : 1;
-            sum += weights[i][j];
+    for (std::size_t i = 0; i < w1.size(); ++i)
+        for (std::size_t j = 0; j < w1[i].size(); ++j) {
+            diff += ( w1[i][j] != .0 )? 0 : 1;
+            sum += w1[i][j];
+        }
+    auto const& w2 = tdn.get_weights().oh;
+    sum = .0;
+    diff = 0;
+    for (std::size_t i = 0; i < w2.size(); ++i)
+        for (std::size_t j = 0; j < w2[i].size(); ++j) {
+            diff += ( w2[i][j] != .0 )? 0 : 1;
+            sum += w2[i][j];
         }
 
     /* check randomize_weight_matrix() is executed */
     REQUIRE( diff == 0 );
-    const double max_range = 0.5* random_range * weights.size()*weights[0].size();
+    const double max_range = 0.5* random_range * w1.size()*w1[0].size();
     dbg_msg("Max rand: %e < %e", std::abs(sum), max_range);
     REQUIRE( std::abs(sum) <= max_range ); // check small
     REQUIRE( std::abs(sum) != 0. ); // but not zero

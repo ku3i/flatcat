@@ -30,11 +30,11 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
     /* set constant outputs to learn from */
     auto& joints = robot.set_joints();
     REQUIRE( joints.size() == 5 );
-    joints[0].motor.set(0.4223);
-    joints[1].motor.set(0.3771);
-    joints[2].motor.set(0.2342);
-    joints[3].motor.set(0.1337);
-    joints[4].motor.set(0.9876);
+    joints[0].motor = .4223;
+    joints[1].motor = .3771;
+    joints[2].motor = .2342;
+    joints[3].motor = .1337;
+    joints[4].motor = .9876;
 
     /* assert that motor space is correct */
     motors.execute_cycle();

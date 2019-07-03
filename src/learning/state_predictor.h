@@ -60,8 +60,8 @@ public:
 
     void draw(void) const { assert(false); /*not implemented*/ }
 
-    void save(std::string folder) { /*TODO implement */ }
-    void load(std::string folder) { /*TODO implement */ }
+    void save(std::string /*folder*/) { wrn_msg("FIXME: nothing saved yet."); /*TODO implement */ }
+    void load(std::string /*folder*/) { wrn_msg("FIXME: nothing loaded yet.");/*TODO implement */ }
 
 private:
 

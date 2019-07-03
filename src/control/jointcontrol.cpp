@@ -59,7 +59,10 @@ Jointcontrol::set_control_parameter(const std::vector<double>& params)
 void
 Jointcontrol::reset(void)
 {
-    for (auto& j : robot.set_joints()) j.motor.set( random_value(-0.01, 0.01) );
+    for (auto& j : robot.set_joints()) {
+        j.motor.reset();
+        j.motor = random_value(-0.01, 0.01);
+    }
     for (auto& a : robot.set_accels()) a.reset(); // reset integrated velocities from acceleration sensors
 }
 
@@ -69,7 +72,7 @@ Jointcontrol::insert_motor_command(unsigned index, double value)
 {
     assert(index < robot.set_joints().size());
     auto& j = robot.set_joints()[index];
-    j.motor.set(robot.get_joints()[index].motor.get() + value);
+    j.motor += value;
 }
 
 

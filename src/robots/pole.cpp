@@ -13,7 +13,7 @@ pole::execute_cycle(void)
 
     joints[0].s_ang = wrap2(theta) / M_PI;
     joints[0].s_vel = tanh(theta_dot / (2*M_PI));
-    joints[0].motor.set(force);
+    joints[0].motor = force;
     assert(std::abs(joints[0].s_ang) <= 1.0);
 
     joints[0].motor.transfer();
