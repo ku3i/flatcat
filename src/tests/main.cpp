@@ -162,7 +162,7 @@ TEST_CASE( "backed value", "[common]") {
     REQUIRE( value_double.get_backed() == .9 );
     value_double = .3;
     value_double = .38;
-    value_double += .2;
+    value_double += .02;
     REQUIRE( value_double.get() == .4 );
     REQUIRE( value_double.get_backed() == .9 );
     value_double.transfer();

@@ -358,9 +358,11 @@ Simloid::write_motor_data(void)
     snprintf(msg + n, network::constants::msglen - n, "\n%sDONE\n", record_frame ? "RECORD\n" : "");
     client.send(msg);
 
-    /* transfer motor data u(t) to u(t-1) */
-    for (auto& j: configuration.joints)
+    /* transfer motor data u(t) to u(t-1) and reset value */
+    for (auto& j: configuration.joints) {
         j.motor.transfer();
+        j.motor = .0;
+    }
 
     record_frame = false;
     return;

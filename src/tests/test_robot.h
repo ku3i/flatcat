@@ -49,7 +49,7 @@ public:
           robots::Accelvector_t& set_accels(void)       { return accels; }
 
     bool execute_cycle(void) {
-        for (auto& j: joints) j.motor.transfer();
+        for (auto& j: joints) { j.motor.transfer(); j.motor = .0; }
         return true;
     }
 

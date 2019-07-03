@@ -38,9 +38,7 @@ struct Visuals
     , rot_factor(visuals_defaults::rot_factor)
     , show_fps(true)
     , snap(1.0)
-    {
-        sts_msg("Window size %u x %u.", window_size_x, window_size_y);
-    }
+    {}
 
     void reset(void) {
         x_angle =   .0f;
