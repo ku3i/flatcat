@@ -26,6 +26,7 @@ public:
     std::vector<sym_input>            input;
     std::vector<double>               activation;
 
+    double gain = 1.0;
 
     Fully_Connected_Symmetric_Core(robots::Robot_Interface const& robot)
     : weights(robot.get_number_of_joints(), std::vector<double>(get_number_of_inputs(robot), 0.0))
@@ -82,7 +83,7 @@ public:
         assert(activation.size() == joints.size());
 
         for (std::size_t i = 0; i < activation.size(); ++i)
-            joints[(is_switched ? joints[i].symmetric_joint : i)].motor += clip(activation[i], 1.0);
+            joints[(is_switched ? joints[i].symmetric_joint : i)].motor += gain*clip(activation[i], 1.0);
     }
 
     void apply_weights(robots::Robot_Interface const& /*robot*/, std::vector<double> const& params)
