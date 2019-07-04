@@ -82,7 +82,7 @@ public:
         assert(activation.size() == joints.size());
 
         for (std::size_t i = 0; i < activation.size(); ++i)
-            joints[(is_switched ? joints[i].symmetric_joint : i)].motor = clip(activation[i], 1.0);
+            joints[(is_switched ? joints[i].symmetric_joint : i)].motor += clip(activation[i], 1.0);
     }
 
     void apply_weights(robots::Robot_Interface const& /*robot*/, std::vector<double> const& params)
