@@ -17,7 +17,15 @@ inline std::size_t get_number_of_inputs(robots::Robot_Interface const& robot) {
     return 3 * robot.get_number_of_joints() + 3 * robot.get_number_of_accel_sensors() + 1;
 }
 
-struct sym_input { double x,y; };
+struct sym_input {
+    double x,y;
+
+    sym_input& operator*=(const double& gain)  {
+        this->x *= gain;
+        this->y *= gain;
+        return *this;
+    }
+};
 
 class Fully_Connected_Symmetric_Core
 {
@@ -61,6 +69,10 @@ public:
 
         input[index++] = {constants::initial_bias, constants::initial_bias};
         assert(index == input.size());
+
+        /* apply input gain */
+        for (auto& i : input)
+            i *= gain;
     }
 
     void update_outputs(const robots::Robot_Interface& robot, bool is_symmetric, bool is_switched)
@@ -83,7 +95,7 @@ public:
         assert(activation.size() == joints.size());
 
         for (std::size_t i = 0; i < activation.size(); ++i)
-            joints[(is_switched ? joints[i].symmetric_joint : i)].motor += gain*clip(activation[i], 1.0);
+            joints[(is_switched ? joints[i].symmetric_joint : i)].motor += clip(activation[i], 1.0);
     }
 
     void apply_weights(robots::Robot_Interface const& /*robot*/, std::vector<double> const& params)
