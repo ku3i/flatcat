@@ -80,7 +80,7 @@ public:
 
     double get_L1_norm(void);
 
-    void set_output_gain(double g) { core.gain = clip(g, 0., 1.); }
+    void set_input_gain(double g) { core.gain = clip(g, 0., 1.); }
 
 private:
 
