@@ -23,13 +23,13 @@ public:
     /* 'one-hot' switching */
     void set_active(std::size_t index) {
         for (std::size_t i = 0; i < control.size(); ++i)
-            control[i].set_output_gain((index == i) ? 1. : 0.);
+            control[i].set_input_gain((index == i) ? 1. : 0.);
     }
 
-    void fade(std::size_t i, std::size_t j, float val) {
+    void fade(std::size_t i, std::size_t j, float val, float gain = 1.f) {
         const float g = clip(val, 0.f, 1.f);
-        control.at(i).set_output_gain(1.f - g); // active if g -> 0
-        control.at(j).set_output_gain(      g); // active if g -> 1
+        control.at(i).set_input_gain((1.f - g)* gain); // active if g -> 0
+        control.at(j).set_input_gain(       g * gain); // active if g -> 1
     }
 
     void set_control_parameter(std::size_t index, const Control_Parameter& controller) {
