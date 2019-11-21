@@ -40,7 +40,7 @@ namespace control {
                 }
         }
         if (controls.size() >= max_number_of_parameter_sets)
-            wrn_msg("Maximum number of parameter sets exceeded.");
+            wrn_msg("Maximum number of parameter sets (%lu) exceeded (%lu).\nConsider checking the configuration file.", max_number_of_parameter_sets, controls.size());
     }
 
 
@@ -49,18 +49,18 @@ namespace control {
                             , bool symmetric
                             , bool mirrored )
     {
-        assert(controls.size() < max_number_of_parameter_sets);
+        assert(controls.size() <= max_number_of_parameter_sets);
         controls.emplace_back(filename, number_of_params, symmetric, mirrored);
     }
 
 
     void Control_Vector::add(const std::string& filename) {
-        assert(controls.size() < max_number_of_parameter_sets);
+        assert(controls.size() <= max_number_of_parameter_sets);
         controls.emplace_back(filename);
     }
 
     void Control_Vector::add(const Control_Parameter& params) {
-        assert(controls.size() < max_number_of_parameter_sets);
+        assert(controls.size() <= max_number_of_parameter_sets);
         controls.emplace_back(params);
     }
 

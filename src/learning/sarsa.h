@@ -1,3 +1,11 @@
+/**
+To later make an easier transition from discrete tabular based value functions
+to linear function approximators or neural networks you should encapsulate the
+function lookup as Q(s_t,a_t) where s,a can be scalars (indices) or vectors
+and where the adaption is just taking the reward and adapts accordingly, no matter what mechanism is behind.
+
+*/
+
 #ifndef SARSA_H_INCLUDED
 #define SARSA_H_INCLUDED
 

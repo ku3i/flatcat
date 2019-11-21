@@ -60,6 +60,22 @@ public:
     }
 };
 
+/* these rewards are probably all wrong!!!
+   try using a distance based reward (distance to a virtual goal, e.g. which can hardly be reached)
+   or which can be reached and terminates the trial.
+   however distance to goal is not available on real machines... so can we accumulate positions...?
+
+   Relation to HER:
+   HER (hindsight experience replay)
+   move the goal towards the actual reached position.
+   moving the robot in different directions within the plane can be considered as moving to a specific location.
+   if the action was taken, select the respective reward function of subpolicy that would maximize learning.
+   but we already learn everything simultaneously. so this is a generalization of HER?
+
+   try move over from discrete separate goals to a goal vector.. e.g. for the walking robot...simply the direction in 2D or 3D space to move!
+
+
+ */
 class walking_reward_space : public reward_base
 {
 public:
