@@ -289,7 +289,7 @@ void gl_msg(const float px, const float py, const float pz, const char* format, 
 }
 
 void
-glprintf(const GLfloat x, const GLfloat y, const GLfloat z, const float line_height, const char* format, ...)
+glprintf(float x, float y, float z, float line_height, const char* format, ...)
 {
     char text[256];
     va_list args;
@@ -301,7 +301,7 @@ glprintf(const GLfloat x, const GLfloat y, const GLfloat z, const float line_hei
     {
         glPushMatrix();
         glTranslatef(x, y, z);
-        const float size = line_height / 128.0;
+        const float size = line_height / 128.0f;
         glScalef(size, size, size);
         glLineWidth(1.0f);
         for (int i = 0; i < length; ++i)
@@ -311,7 +311,7 @@ glprintf(const GLfloat x, const GLfloat y, const GLfloat z, const float line_hei
 }
 
 void
-glprintc(const GLfloat x, const GLfloat y, const GLfloat z, const float line_height, const char* str)
+glprintc(float x, float y, float z, float line_height, const char* str)
 {
     if (strlen(str) > 0)
     {
@@ -327,7 +327,7 @@ glprintc(const GLfloat x, const GLfloat y, const GLfloat z, const float line_hei
 }
 
 void
-glprints(const GLfloat x, const GLfloat y, const GLfloat z, const float line_height, const std::string str)
+glprints(float x, float y, float z, float line_height, const std::string str)
 {
     if (str.size() > 0)
     {

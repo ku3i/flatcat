@@ -92,9 +92,9 @@ void output(const GLfloat x, const GLfloat y, const GLfloat z, const char *text)
 
 void gl_msg(const float px, const float py, const float pz, const char* format, ...) __attribute__ ((deprecated));
 
-void glprintf(const GLfloat x, const GLfloat py, const GLfloat pz, const float scale_factor, const char* format, ...);
-void glprintc(const GLfloat x, const GLfloat py, const GLfloat pz, const float scale_factor, const char* str);
-void glprints(const GLfloat x, const GLfloat py, const GLfloat pz, const float scale_factor, const std::string str);
+void glprintf(float x, float py, float pz, float scale_factor, const char* format, ...);
+void glprintc(float x, float py, float pz, float scale_factor, const char* str);
+void glprints(float x, float py, float pz, float scale_factor, const std::string str);
 
 namespace draw {
     void fill_rect(float px, float py, float dx, float dy);
