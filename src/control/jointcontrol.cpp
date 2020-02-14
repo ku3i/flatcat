@@ -143,6 +143,17 @@ Jointcontrol::get_normalized_mechanical_power(void) const
     return power/robot.get_number_of_joints();
 }
 
+/* TODO: find a better term/name. */
+double
+Jointcontrol::get_normalized_control_change(void) const
+{
+    double change = .0;
+    for (auto const& j : robot.get_joints())
+        change += square(j.motor.get() - j.motor.get_backed());
+    return change/robot.get_number_of_joints();
+}
+
+
 Control_Parameter
 get_initial_parameter(robots::Robot_Interface const& robot, const Minimal_Seed_t& seed, bool symmetric = false)
 {

@@ -70,6 +70,7 @@ public:
     void set_control_parameter(const std::vector<double>& params);
 
     double get_normalized_mechanical_power(void) const; /**TODO consider this a simloid method */
+    double get_normalized_control_change(void) const;
 
     void print_parameter(void) const;
 
