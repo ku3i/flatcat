@@ -14,7 +14,7 @@ namespace learning {
 
 /*
     + time expansion through FIR-type synapses DONE
-    + non-linear expansion though tanh or ReLU neurons
+    + non-linear expansion through tanh or ReLU neurons
     + configurable number of hidden layers
 */
 
@@ -187,6 +187,7 @@ public:
     void adapt(const TargetVector_t& targets, double learning_rate)
     {
         assert_in_range(learning_rate, 0.0, 0.5);
+        assert(targets.size() == output.size());
 
         /* delta error */
         for (std::size_t i = 0; i < output.size(); ++i)

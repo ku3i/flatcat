@@ -66,7 +66,7 @@ public:
                                 , max_number_of_experts );
     }
 
-    /* autoencoder sensor state space constructor */
+    /* time-delay network sensor state space constructor */
     Expert_Vector( const std::size_t         max_number_of_experts
                  , static_vector_interface&  payloads
                  , const sensor_vector&      input
