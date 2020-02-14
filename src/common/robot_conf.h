@@ -34,10 +34,13 @@ public:
     robots::Accelvector_t accels;
     Bodyvector_t          bodies;
 
-    Robot_Configuration(std::string const& server_message)
+    bool const interlaced;
+
+    Robot_Configuration(std::string const& server_message, bool interlaced)
     : joints()
     , accels()
     , bodies()
+    , interlaced(interlaced)
     {
         read_robot_info(server_message);
     }

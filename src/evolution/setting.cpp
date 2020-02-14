@@ -12,11 +12,13 @@ Setting::Setting( int argc, char **argv )
                 : project_name()
                 , project_status(NEW)
                 , visuals(not read_option_bool(argc, argv, "--blind", "-b"))
+                , interlaced_mode(false)
                 , tcp_port(read_option_uint(argc, argv, "--port", "-p", network::constants::default_port))
                 , robot_ID(31)
                 , scene_ID(0)
                 , max_steps(1000)
                 , max_power(100)
+                , max_dctrl(100)
                 , initial_steps(0)
                 , efficient(true)
                 , drop_penalty(true)
@@ -91,14 +93,18 @@ Setting::read_configuration(const std::string& filename)
     sts_msg("Reading configuration: %s", filename.c_str());
     config settings_file(filename, true /*quit on fail*/);
 
+    interlaced_mode = settings_file.readBOOL("INTERLACED", interlaced_mode);
+    if (interlaced_mode) dbg_msg("+++ INTERLACED MODE! +++");
+
     robot_ID = settings_file.readINT("ROBOT", robot_ID);
     scene_ID = settings_file.readINT("SCENE", scene_ID);
     dbg_msg("   Robot No. %d and Scene No. %d", robot_ID, scene_ID);
 
     max_steps = settings_file.readUINT("MAX_STEPS", max_steps);
     max_power = settings_file.readUINT("MAX_POWER", max_power);
+    max_dctrl = settings_file.readUINT("MAX_DCTRL", max_dctrl);
     initial_steps = settings_file.readUINT("INITIAL_STEPS");
-    dbg_msg("   Max_Power is %u, max. %u steps a trial and %u initial steps", max_power, max_steps, initial_steps);
+    dbg_msg("   Max_Power is %u, max_dctrl is %u, max. %u steps a trial and %u initial steps", max_power, max_dctrl, max_steps, initial_steps);
 
     push.mode     = settings_file.readUINT("PUSH_MODE"    , push.mode);
     push.body     = settings_file.readUINT("PUSH_BODY"    , push.body);
@@ -161,10 +167,15 @@ Setting::save_to_projectfile(const std::string& filename) const
 {
     sts_msg("Saving to project file.");
     config project_file(filename);
+
+    if (interlaced_mode) /* default is false for evolution, so only write if true */
+        project_file.writeBOOL("INTERLACED", true);
+
     project_file.writeUINT("ROBOT"               , robot_ID);
     project_file.writeUINT("SCENE"               , scene_ID);
     project_file.writeUINT("MAX_STEPS"           , max_steps);
     project_file.writeUINT("MAX_POWER"           , max_power);
+    project_file.writeUINT("MAX_DCTRL"           , max_dctrl);
     project_file.writeUINT("INITIAL_STEPS"       , initial_steps);
     project_file.writeUINT("PUSH_MODE"           , push.mode);
     project_file.writeUINT("PUSH_BODY"           , push.body);

@@ -3,7 +3,8 @@
 
 namespace robots {
 
-Simloid::Simloid( unsigned short port,
+Simloid::Simloid( bool interlaced_mode,
+                  unsigned short port,
                   unsigned int robot_ID,
                   unsigned int scene_ID,
                   bool visuals,
@@ -20,7 +21,7 @@ Simloid::Simloid( unsigned short port,
                 , client()
                 , connection_established(open_connection())
                 , record_frame(false)
-                , configuration(client.recv(5*network::constants::seconds_us))
+                , configuration(client.recv(5*network::constants::seconds_us), interlaced_mode)
                 , timestamp()
                 , body_position0(configuration.number_of_bodies)
                 , average_position()
@@ -34,6 +35,9 @@ Simloid::Simloid( unsigned short port,
                 , left_id(get_body_id_by_name(configuration.bodies, "left"))
                 , rift_id(get_body_id_by_name(configuration.bodies, "rift"))
 {
+    if (interlaced_mode) client.send("INTERLACED MODE\n");
+    else                 client.send("SEQUENTIAL MODE\n");
+
     sts_msg("Done reading robot configuration. Sending acknowledge.");
     client.send("ACK\n");
 
@@ -122,7 +126,7 @@ Simloid::simulation_idle(double sec)
 void
 Simloid::set_robot_to_default_position(void)
 {
-    client.send("GRAVITY OFF\n");
+    client.send("GRAVITY OFF\nFIXED 0\n");
 
     double sec = 2; // should be enough
     sts_msg("Setting robot to default joint position.");
@@ -141,7 +145,7 @@ Simloid::set_robot_to_default_position(void)
         client.send(msg);
     }
     read_sensor_data();
-    client.send("GRAVITY ON\nDONE\n");
+    client.send("FIXED 0\nGRAVITY ON\nDONE\n");
     read_sensor_data();
 }
 

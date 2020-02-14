@@ -1,6 +1,8 @@
 #ifndef BACKED_H_INCLUDED
 #define BACKED_H_INCLUDED
 
+#include <deque>
+
 namespace common {
 
 template <typename T>
@@ -30,6 +32,52 @@ public:
         return *this;
     }
 };
+
+template <typename T>
+class delayed_t
+{
+    T actual;
+    const unsigned steps;
+
+    typedef std::deque<T> buffer_t;
+    buffer_t backup;
+
+public:
+    explicit delayed_t(T const& actual = T(), const unsigned steps = 1)
+    : actual(actual)
+    , steps(steps)
+    , backup()
+    {
+        assert(steps > 0);
+        backup.assign(steps, T{});
+    }
+
+    void reset(void) {
+        backup.assign(steps, T{});
+        actual = T{};
+        assert(backup.size() == steps);
+    }
+
+    void transfer() {
+        backup.push_back(actual);
+        backup.pop_front();
+        assert(backup.size() == steps);
+    }
+
+    T const& get()        const { return actual; }
+    T const& get_backed() const { return backup.front(); }
+
+    delayed_t& operator=(const T& value) {
+        this->actual = value;
+        return *this;
+    }
+
+    delayed_t& operator+=(const T& value) {
+        this->actual += value;
+        return *this;
+    }
+};
+
 
 } // common
 

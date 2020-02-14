@@ -81,7 +81,7 @@ private:
     void update_robot_velocity(void);
 
 public:
-    Simloid(unsigned short port, unsigned int robot_ID, unsigned int scene_ID, bool visuals, bool realtime = true, std::vector<double> modelparams = {});
+    Simloid(bool interlaced_mode, unsigned short port, unsigned int robot_ID, unsigned int scene_ID, bool visuals, bool realtime = true, std::vector<double> modelparams = {});
     ~Simloid(void);
 
     bool update(void); //locking

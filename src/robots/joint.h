@@ -18,11 +18,12 @@ public:
                , const std::string& name
                , double limit_lo
                , double limit_hi
-               , double default_pos)
+               , double default_pos
+               , bool interlaced = false)
     : joint_id(joint_id)
     , s_ang(.0)
     , s_vel(.0)
-    , motor()
+    , motor(.0, interlaced ? 2 : 1)
     , type(type)
     , symmetric_joint(symmetric_joint)
     , name(name)
@@ -30,16 +31,16 @@ public:
     , limit_hi(limit_hi)
     , default_pos(default_pos)
     {
-        sts_msg("Created joint %u '%s'", joint_id, name.c_str());
-        sts_msg("  Limits (%+1.2f, %+1.2f, %+1.2f) (%+3.1f, %+3.1f, %+3.1f)", limit_lo    , limit_hi    , default_pos
-                                                                            , limit_lo*180, limit_hi*180, default_pos*180);
-        sts_msg("  Type: %u, symmetric: %u \n", type, symmetric_joint);
+        sts_add("J=%2u '%16s'", joint_id, name.c_str());
+        sts_add("L=(%+1.2f, %+1.2f, %+1.2f) (%+3.1f, %+3.1f, %+3.1f)", limit_lo    , limit_hi    , default_pos
+                                                                       , limit_lo*180, limit_hi*180, default_pos*180);
+        sts_msg("T=%u, S=%2u [%s]\n", type, symmetric_joint, interlaced ? "I" : "-");
     }
 
     const unsigned int joint_id;
     double s_ang;
     double s_vel;
-    common::backed_t<double> motor;
+    common::delayed_t<double> motor;
 
     Joint_Type type;
     unsigned int symmetric_joint;
@@ -54,6 +55,6 @@ public:
 
 typedef std::vector<Joint_Model> Jointvector_t;
 
-} // namespace robots
+} /* namespace robots */
 
-#endif // JOINT_H
+#endif /* JOINT_H */

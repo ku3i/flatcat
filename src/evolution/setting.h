@@ -23,6 +23,7 @@ class Setting
         std::string project_name;
         PStatus     project_status;
         bool        visuals;
+        bool        interlaced_mode;
 
         /* simloid */
         unsigned short tcp_port;
@@ -32,6 +33,7 @@ class Setting
         /* evaluation */
         unsigned int max_steps;
         unsigned int max_power;
+        unsigned int max_dctrl;
         unsigned int initial_steps;
 
         bool efficient;
