@@ -21,6 +21,16 @@ sts_msg(const char* format, ...)
 }
 
 void
+sts_add(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    printf(" ");
+    va_end(args);
+}
+
+void
 dbg_msg(const char* format, ...)
 {
     va_list args;
