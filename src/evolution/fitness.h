@@ -22,6 +22,7 @@ struct fitness_data
     fitness_data()
     : fit  (.0)
     , power(.0)
+    , dctrl(.0)
     , temp (.0)
     , steps( 0)
     , max_steps(0)
@@ -31,6 +32,7 @@ struct fitness_data
     {}
     double      fit;
     double      power;
+    double      dctrl;
     double      temp;
     std::size_t steps;
     std::size_t max_steps;

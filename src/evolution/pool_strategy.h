@@ -63,7 +63,7 @@ public:
     {
         evaluation.constrain(individual.genome);
         if (evaluation.evaluate(individual.fitness, individual.genome, random_value(0.0, 1.0))) {
-            sts_msg(" f = %+1.4f", individual.fitness.get_value_or_default());
+            sts_add("F=%+1.3f", individual.fitness.get_value_or_default());
             return true;
         } else {
             sts_msg("Evaluation aborted without result.");
@@ -78,7 +78,7 @@ public:
         std::size_t parent_2 = biased_random_index_inv(population.get_size(), selection_bias);
 
         Individual child(population[parent_1], population[parent_2]);
-        sts_msg(" crossing %2u and %2u", parent_1, parent_2);
+        sts_add("[cross %2u + %2u]", parent_1, parent_2);
 
         child.mutate();
 
@@ -88,7 +88,7 @@ public:
 
         if (child.fitness > population[replace_idx].fitness)
         {// if better than the replacement candidate, replace it.
-            sts_msg(" (%+1.4f > %+1.4f) individual pushed back, replacing %u", replace_idx, child.fitness.get_value(), population[replace_idx].fitness.get_value());
+            sts_add("[> %+1.3f] replace %2u", population[replace_idx].fitness.get_value(), replace_idx);
             population[replace_idx] = child;
 
             best_individual_has_changed |= (replace_idx == 0);
@@ -96,7 +96,7 @@ public:
             if (population[replace_idx].fitness.get_number_of_evaluations() == 0)
                 err_msg(__FILE__, __LINE__, "overriding a not yet tested one: %u", replace_idx);
         }
-        else sts_msg(" (%+1.4f < %+1.4f) individual is not fit enough. Skipped.", child.fitness.get_value_or_default(), population[replace_idx].fitness.get_value_or_default());
+        else sts_add("[< %+1.3f] discard", population[replace_idx].fitness.get_value_or_default());
 
         return true;
     }
@@ -105,7 +105,7 @@ public:
     {
         std::size_t candidate_idx = random_index(population.get_size());
         Individual candidate(population[candidate_idx]); // select candidate from pool
-        sts_msg(" evaluating individual %u (count: %u)", candidate_idx, candidate.fitness.get_number_of_evaluations());
+        sts_add("[refr. %2u (%2u)]", candidate_idx, candidate.fitness.get_number_of_evaluations());
         bool result = evaluate(candidate);
 
         /* push_back p to population, replace the old one */
@@ -116,6 +116,7 @@ public:
 
     bool initial_trial(void)
     {
+        sts_add("[initial trial]");
         assert(current_trial < population.get_size());
         std::size_t candidate_idx = current_trial;
         Individual& candidate(population[candidate_idx]); // select candidates successively from pool
@@ -131,16 +132,15 @@ public:
         if (current_trial % population.get_size() == 0)
             evaluation.prepare_evaluation(current_trial, max_trials);
 
+        sts_add("T: %u", current_trial);
         if (is_initial) {
-            sts_msg("Trial: %u (initial)", current_trial);
             result = initial_trial();
         } else if (random_value(0.0, 1.0) > moving_rate) {
-            sts_msg("Trial: %u (crossover)", current_trial);
             result = crossover_trial();
         } else {
-            sts_msg("Trial: %u (refreshing)", current_trial);
             result = refreshing_trial();
         }
+        printf("\n");
 
         if (not result) return Evolution_State::aborted;
 
