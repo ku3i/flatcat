@@ -136,14 +136,15 @@ public:
 
     bool motion_stopped(double thrsh) const;
     bool dropped(double level = 0.5)  const;
-    bool out_of_track_x(void)         const;
-    bool out_of_track_y(void)         const;
+    double dx_from_origin(void)       const;
+    double dy_from_origin(void)       const;
 
     unsigned get_body_id_by_name(const Bodyvector_t& bodies, const std::string& name) const;
 
     void record_next_frame() { record_frame = true; }
 
-    uint64_t randomize_model(double rnd_amplitude, uint64_t rnd_instance = 0);
+    uint64_t randomize_model(double rnd_amp, double growth, uint64_t inst = 0);
+
     void reinit_robot_model(std::vector<double> const& params);
     void reinit_motor_model(std::vector<double> const& params);
 

@@ -89,7 +89,7 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
                                                                     evaluation,
                                                                     configuration,
                                                                     settings.max_generations,
-                                                                    configuration.readUINT("CURRENT_GENERATION"),
+                                                                    settings.cur_generations,
                                                                     settings.selection_size,
                                                                     FOLDER_PREFIX + projectname,
                                                                     settings.visuals ));
@@ -98,9 +98,9 @@ Evolution::Evolution(Evaluation_Interface &evaluation, const Setting& settings, 
                                                         evaluation,
                                                         configuration,
                                                         settings.max_trials,
-                                                        configuration.readUINT("CURRENT_TRIAL"),
-                                                        configuration.readDBL ("MOVING_RATE"),
-                                                        configuration.readDBL ("SELECTION_BIAS"),
+                                                        settings.cur_trials,
+                                                        settings.moving_rate,
+                                                        settings.selection_bias,
                                                         FOLDER_PREFIX + projectname));
     else
         err_msg(__FILE__, __LINE__, "Unknown type of evolution strategy.");

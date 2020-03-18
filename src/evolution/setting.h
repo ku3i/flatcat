@@ -47,7 +47,9 @@ class Setting
         unsigned int population_size;
         unsigned int selection_size;
         unsigned int max_generations;
+        unsigned int cur_generations;
         unsigned int max_trials;
+        unsigned int cur_trials;
         double       init_mutation_rate;
         double       meta_mutation_rate;
         double       moving_rate;
@@ -76,10 +78,18 @@ class Setting
             mutable uint64_t init;
         } rnd;
 
+        struct Growth_Settings {
+            double init;
+            double rate;
+        } growth;
+
         bool         low_sensor_quality;
         bool         L1_normalization;
 
         double       target;
+        double       drop_level;
+        double       stop_level;
+        double       corridor;
 
         Setting(int argc, char **argv);
         void read_setting_file(const std::string& setting_name);

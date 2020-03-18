@@ -24,7 +24,7 @@
 namespace robots {
 
 namespace constants {
-    const double vel_amp = 1.0/3.0;
+    const double vel_amp = 1.0;///3.0;
 }
 
 class Spinalcord_Watch : public Graphics_Interface
@@ -41,9 +41,9 @@ public:
     , subspace_axes()
     , subspace_portrait()
     , axes_accel(0.,-1.25, 0., 2.0, 0.25, 1, "Accel")
-    , plot_accel_x(1000, axes_accel, colors::cyan   )
-    , plot_accel_y(1000, axes_accel, colors::magenta)
-    , plot_accel_z(1000, axes_accel, colors::yellow )
+    , plot_accel_x(1000, axes_accel, colors::cyan   , "ax")
+    , plot_accel_y(1000, axes_accel, colors::magenta, "ay")
+    , plot_accel_z(1000, axes_accel, colors::yellow , "az")
     {
         plot_axes    .reserve(num_joints);
         plot_position.reserve(num_joints);
@@ -61,9 +61,9 @@ public:
             const double posy   =  1.0 - height * (i/2 + 0.5);
 
             plot_axes    .emplace_back(posx, posy, 0., width, height, 1, std::to_string(i) + ' ' + joints[i].name);
-            plot_voltage .emplace_back(num_datapoints, plot_axes[i], colors::cyan  );
-            plot_velocity.emplace_back(num_datapoints, plot_axes[i], colors::orange);
-            plot_position.emplace_back(num_datapoints, plot_axes[i], colors::white );
+            plot_voltage .emplace_back(num_datapoints, plot_axes[i], colors::cyan  , "vol");
+            plot_velocity.emplace_back(num_datapoints, plot_axes[i], colors::orange, "vel");
+            plot_position.emplace_back(num_datapoints, plot_axes[i], colors::white , "pos");
 
             subspace_axes    .emplace_back(posx + ((i%2==0) ? -1:1) * (width*0.5+0.5*height), posy, 0., height, height, 0, 'j' + std::to_string(i));
             subspace_portrait.emplace_back(num_datapoints, subspace_axes[i], colors::white);
@@ -92,7 +92,7 @@ public:
         for (std::size_t i = 0; i < num_joints; ++i) {
             plot_position[i].add_sample(joints[i].s_ang);
             plot_velocity[i].add_sample(joints[i].s_vel * constants::vel_amp);
-            plot_voltage [i].add_sample(joints[i].motor.get());
+            plot_voltage [i].add_sample(joints[i].motor.get_backed());
 
             subspace_portrait[i].add_sample(joints[i].s_ang,
                                             joints[i].s_vel * constants::vel_amp);

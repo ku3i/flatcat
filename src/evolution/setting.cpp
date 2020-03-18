@@ -29,7 +29,9 @@ Setting::Setting( int argc, char **argv )
                 , population_size(500)
                 , selection_size(100)
                 , max_generations(500)
+                , cur_generations(0)
                 , max_trials(max_generations * population_size)
+                , cur_trials(0)
                 , init_mutation_rate(0.01)
                 , meta_mutation_rate(0.5)
                 , moving_rate(0.5)
@@ -42,9 +44,13 @@ Setting::Setting( int argc, char **argv )
                 , push()
                 , fitness_function("FORWARDS")
                 , rnd({"NONE", 0.0, 0})
+                , growth({1.0, 0.0})
                 , low_sensor_quality(false)
                 , L1_normalization(false)
                 , target(.0)
+                , drop_level(.5)
+                , stop_level(0.0005)
+                , corridor(.5)
 {
     if (read_option_bool(argc, argv, "--help", "-h"))
     {
@@ -126,9 +132,11 @@ Setting::read_configuration(const std::string& filename)
     dbg_msg("   Strategy is: %s", strategy.c_str());
 
     max_generations = settings_file.readUINT("MAX_GENERATIONS", max_generations);
+    cur_generations = settings_file.readUINT("CURRENT_GENERATION", cur_generations);
     population_size = settings_file.readUINT("POPULATION_SIZE", population_size);
     selection_size  = settings_file.readUINT("SELECTION_SIZE" , selection_size );
     max_trials      = settings_file.readUINT("MAX_TRIALS"     , max_trials);
+    cur_trials      = settings_file.readUINT("CURRENT_TRIAL"  , cur_trials);
     dbg_msg("   Generations: %u, Population Size: %u, Selection Size: %u, Max Trials: %u", max_generations, population_size, selection_size, max_trials);
 
     init_mutation_rate = settings_file.readDBL("INIT_MUTATION_RATE", init_mutation_rate);
@@ -157,9 +165,16 @@ Setting::read_configuration(const std::string& filename)
     rnd.value = settings_file.readDBL ("RANDOM_VALUE", rnd.value);
     rnd.init  = settings_file.readUINT("RANDOM_INIT" , rnd.init);
 
+    growth.init = settings_file.readDBL ("GROWTH_INIT", growth.init);
+    growth.rate = settings_file.readDBL ("GROWTH_RATE", growth.rate);
+
     low_sensor_quality = settings_file.readBOOL("LOW_SENSOR_QUALITY", low_sensor_quality);
     L1_normalization = settings_file.readBOOL("L1_NORMALIZATION", L1_normalization);
-    target = settings_file.readDBL("TARGET", target);
+
+    target     = settings_file.readDBL("TARGET"    , target    );
+    drop_level = settings_file.readDBL("DROP_LEVEL", drop_level);
+    stop_level = settings_file.readDBL("STOP_LEVEL", stop_level);
+    corridor   = settings_file.readDBL("CORRIDOR"  , corridor  );
 }
 
 const std::string&
@@ -191,8 +206,11 @@ Setting::save_to_projectfile(const std::string& filename) const
 
     project_file.writeBOOL("EFFICIENT"           , efficient);
     project_file.writeBOOL("DROP_PENALTY"        , drop_penalty);
+    project_file.writeDBL ("DROP_LEVEL"          , drop_level);
     project_file.writeBOOL("OUT_OF_TRACK_PENALTY", out_of_track_penalty);
+    project_file.writeDBL ("CORRIDOR"            , corridor);
     project_file.writeBOOL("STOP_PENALTY"        , stop_penalty);
+    project_file.writeDBL ("STOP_LEVEL"          , stop_level);
     project_file.writeBOOL("SYMMETRIC_CONTROLLER", symmetric_controller);
 
     project_file.writeDBL ("INIT_MUTATION_RATE"  , init_mutation_rate);
@@ -204,12 +222,15 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeDBL ("RANDOM_VALUE"        , rnd.value);
     project_file.writeUINT("RANDOM_INIT"         , rnd.init);
 
+    project_file.writeDBL ("GROWTH_INIT"         , growth.init);
+    project_file.writeDBL ("GROWTH_RATE"         , growth.rate);
+
     project_file.writeBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality);
     project_file.writeBOOL("L1_NORMALIZATION"    , L1_normalization);
     project_file.writeDBL ("TARGET"              , target);
 
     /** NOTE: Strategy-specific settings are saved separately!
-        e.g. selection bias, moving rate, max generations */
+        e.g. selection bias, moving rate, max generations, current_trial */
 
     project_file.finish();
     return filename;

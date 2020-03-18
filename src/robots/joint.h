@@ -19,11 +19,11 @@ public:
                , double limit_lo
                , double limit_hi
                , double default_pos
-               , bool interlaced = false)
+               )
     : joint_id(joint_id)
     , s_ang(.0)
     , s_vel(.0)
-    , motor(.0, interlaced ? 2 : 1)
+    , motor(.0)
     , type(type)
     , symmetric_joint(symmetric_joint)
     , name(name)
@@ -34,13 +34,14 @@ public:
         sts_add("J=%2u '%16s'", joint_id, name.c_str());
         sts_add("L=(%+1.2f, %+1.2f, %+1.2f) (%+3.1f, %+3.1f, %+3.1f)", limit_lo    , limit_hi    , default_pos
                                                                        , limit_lo*180, limit_hi*180, default_pos*180);
-        sts_msg("T=%u, S=%2u [%s]\n", type, symmetric_joint, interlaced ? "I" : "-");
+        sts_msg("T=%u, S=%2u\n", type, symmetric_joint);
     }
 
     const unsigned int joint_id;
     double s_ang;
     double s_vel;
-    common::delayed_t<double> motor;
+    //common::delayed_t<double> motor;
+    common::backed_t<double> motor;
 
     Joint_Type type;
     unsigned int symmetric_joint;

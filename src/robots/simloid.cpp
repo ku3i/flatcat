@@ -445,16 +445,16 @@ Simloid::dropped(double level) const
     return (configuration.bodies[0].position.z < level * body_position0[0].z);
 }
 
-bool
-Simloid::out_of_track_x(void) const
+double
+Simloid::dx_from_origin(void) const
 {
-    return (fabs(configuration.bodies[0].position.x) > 0.5);
+    return configuration.bodies[0].position.x - body_position0[0].x;
 }
 
-bool
-Simloid::out_of_track_y(void) const
+double
+Simloid::dy_from_origin(void) const
 {
-    return (fabs(configuration.bodies[0].position.y - body_position0[0].y) > 0.5);
+    return configuration.bodies[0].position.y - body_position0[0].y;
 }
 
 /* for mean calculation of circular quantities see:
@@ -534,20 +534,20 @@ Simloid::get_max_feet_pos(void) const {
 }
 
 uint64_t
-Simloid::randomize_model(double rnd_amplitude, uint64_t rnd_instance)
+Simloid::randomize_model(double rnd_amp, double growth, uint64_t inst)
 {
-    if (0 == rnd_instance) {/* not initialized yet? */
-        rnd_instance = time(NULL);
-        sts_msg("Initializing random seed, instance is: %lu", rnd_instance);
+    if (0 == inst) {/* not initialized yet? */
+        inst = time(NULL);
+        sts_msg("Initializing random seed, instance is: %lu", inst);
     }
 
-    sts_msg("Requesting new model for robot_id %u and instance %lu and amplitude %lf", robot_ID, rnd_instance, rnd_amplitude);
-    client.send("MODEL %u 2 %lu %lf\nDONE\n", robot_ID, rnd_instance, rnd_amplitude);
+    sts_msg("Req. new model for robot %u and inst. %lu, amp. %lf, growth %lf", robot_ID, inst, rnd_amp, growth);
+    client.send("MODEL %u 3 %lu %lf %lf\nDONE\n", robot_ID, inst, rnd_amp, growth);
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
     init_robot();
-    return rnd_instance;
+    return inst;
 }
 
 void

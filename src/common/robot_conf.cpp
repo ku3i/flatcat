@@ -67,7 +67,7 @@ Robot_Configuration::read_joints(const char* msg, int* offset)
 
         joints.emplace_back( i
                            , tmp_type?robots::Joint_Type_Symmetric:robots::Joint_Type_Normal
-                           , tmp_sym, tmp_name, tmp_jslo, tmp_jshi, tmp_jdef, interlaced);
+                           , tmp_sym, tmp_name, tmp_jslo, tmp_jshi, tmp_jdef);
 
         assert(i == joints.size()-1);
     }
