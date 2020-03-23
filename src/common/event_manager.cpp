@@ -183,17 +183,18 @@ Event_Manager::on_mouse_wheel_down(void)
 }
 
 void
-Event_Manager::handle_mouse_wheel(SDL_MouseWheelEvent &mouse_wheel) {
-    if (mouse_wheel.y > 0)
+Event_Manager::handle_mouse_wheel(SDL_MouseWheelEvent const& wheel)
+{
+    if (wheel.y > 0)
         on_mouse_wheel_up();
-    else if (mouse_wheel.y < 0)
+    else if (wheel.y < 0)
         on_mouse_wheel_down();
 }
 
 void
-Event_Manager::handle_key_pressed(SDL_Keysym &keysym)
+Event_Manager::handle_key_pressed(SDL_Keysym const& key)
 {
-    switch (keysym.sym)
+    switch (key.sym)
     {
         case SDLK_ESCAPE:    on_button_pressed_ESCAPE();    break;
         case SDLK_SPACE:     on_button_pressed_SPACE();     break;
@@ -219,13 +220,13 @@ Event_Manager::handle_key_pressed(SDL_Keysym &keysym)
         default: break;
     }
 
-    if (nullptr != user_callback_key_pressed) user_callback_key_pressed(keysym);
+    if (nullptr != user_callback.key_pressed) user_callback.key_pressed(key);
 }
 
 void
-Event_Manager::handle_key_released(SDL_Keysym &keysym)
+Event_Manager::handle_key_released(SDL_Keysym const& key)
 {
-    switch (keysym.sym)
+    switch (key.sym)
     {
         /*case SDLK_ESCAPE:    break;*/
         /*case SDLK_SPACE:     break;*/
@@ -246,38 +247,38 @@ Event_Manager::handle_key_released(SDL_Keysym &keysym)
         */
         default: break;
     }
-    if (nullptr != user_callback_key_released) user_callback_key_released(keysym);
+    if (nullptr != user_callback.key_released) user_callback.key_released(key);
 }
 
 void
-Event_Manager::handle_mouse_button_pressed(SDL_MouseButtonEvent &mouse_button_event)
+Event_Manager::handle_mouse_button_pressed(SDL_MouseButtonEvent const& m)
 {
-    switch (mouse_button_event.button)
+    switch (m.button)
     {
-        case SDL_BUTTON_LEFT:      on_left_mouse_button_pressed();   break;
-        case SDL_BUTTON_RIGHT:     on_right_mouse_button_pressed();  break;
-        case SDL_BUTTON_MIDDLE:    on_middle_mouse_button_pressed(); break;
+        case SDL_BUTTON_LEFT   : on_left_mouse_button_pressed  (); break;
+        case SDL_BUTTON_RIGHT  : on_right_mouse_button_pressed (); break;
+        case SDL_BUTTON_MIDDLE : on_middle_mouse_button_pressed(); break;
         default: break;
     }
 }
 
 void
-Event_Manager::handle_mouse_button_released(SDL_MouseButtonEvent &mouse_button_event)
+Event_Manager::handle_mouse_button_released(SDL_MouseButtonEvent const& m)
 {
-    switch (mouse_button_event.button)
+    switch (m.button)
     {
-        case SDL_BUTTON_LEFT:   on_left_mouse_button_released();   break;
-        case SDL_BUTTON_RIGHT:  on_right_mouse_button_released();  break;
-        case SDL_BUTTON_MIDDLE: on_middle_mouse_button_released(); break;
+        case SDL_BUTTON_LEFT   : on_left_mouse_button_released  (); break;
+        case SDL_BUTTON_RIGHT  : on_right_mouse_button_released (); break;
+        case SDL_BUTTON_MIDDLE : on_middle_mouse_button_released(); break;
         default: break;
     }
 }
 
 void
-Event_Manager::handle_mouse_motion(SDL_MouseMotionEvent &mouse_motion)
+Event_Manager::handle_mouse_motion(SDL_MouseMotionEvent const& m)
 {
-    mouse_position_x = mouse_motion.x;
-    mouse_position_y = mouse_motion.y;
+    mouse_position_x = m.x;
+    mouse_position_y = m.y;
 
     if (mouse_button_left.clicked) {
         screen.mdx = (float) (mouse_button_left.position_x - mouse_position_x) / screen.window_size_x;
@@ -294,20 +295,40 @@ Event_Manager::handle_mouse_motion(SDL_MouseMotionEvent &mouse_motion)
 }
 
 void
-Event_Manager::handle_joystick_motion(SDL_JoyAxisEvent &joystick)
+Event_Manager::handle_joystick_motion_axis(SDL_JoyAxisEvent const& j)
 {
-    switch(joystick.axis)
+    switch(j.axis)
     {
-        case 0: joystick0.x = (double) (+joystick.value / 32767.0); break;
-        case 1: joystick0.y = (double) (-joystick.value / 32767.0); break;
-        case 2: joystick1.x = (double) (+joystick.value / 32767.0); break;
-        case 3: joystick1.y = (double) (-joystick.value / 32767.0); break;
-        default: break;
+        case 0: joystick.x0 = (float) (+j.value / 32767.0); /*dbg_msg("jx0");*/ break;
+        case 1: joystick.y0 = (float) (-j.value / 32767.0); /*dbg_msg("jy0");*/ break;
+        case 2: joystick.x1 = (float) (+j.value / 32767.0); /*dbg_msg("jx1");*/ break;
+        case 3: joystick.y1 = (float) (-j.value / 32767.0); /*dbg_msg("jy1");*/ break;
+        default: dbg_msg("unknown axis %u", j.axis); break;
     }
+    if (nullptr != user_callback.joystick_motion_axis) user_callback.joystick_motion_axis(j);
 }
 
 void
-Event_Manager::handle_joystick_button_pressed(SDL_JoyButtonEvent &joystick)
+Event_Manager::handle_joystick_motion_hat(SDL_JoyHatEvent const& j)
+{
+    switch(j.value)
+    {
+         case SDL_HAT_LEFTUP    : dbg_msg("L-U"); break;
+         case SDL_HAT_UP        : dbg_msg("  U"); break;
+         case SDL_HAT_RIGHTUP   : dbg_msg("R-U"); break;
+         case SDL_HAT_LEFT      : dbg_msg("L  "); break;
+         case SDL_HAT_CENTERED  : dbg_msg(" C "); break;
+         case SDL_HAT_RIGHT     : dbg_msg("R  "); break;
+         case SDL_HAT_LEFTDOWN  : dbg_msg("L-D"); break;
+         case SDL_HAT_DOWN      : dbg_msg("  D"); break;
+         case SDL_HAT_RIGHTDOWN : dbg_msg("R-U"); break;
+         default: dbg_msg("unknown hat %u", j.hat); break;
+    }
+    if (nullptr != user_callback.joystick_motion_hat) user_callback.joystick_motion_hat(j);
+}
+
+void
+Event_Manager::handle_joystick_button_pressed(SDL_JoyButtonEvent const& joystick)
 {
     switch (joystick.button) //TODO make names for rumblepad
     {
@@ -323,12 +344,14 @@ Event_Manager::handle_joystick_button_pressed(SDL_JoyButtonEvent &joystick)
         case  9: dbg_msg("Button 9 pressed. Toggle Pause."); do_pause.toggle(); break;
         case 10: dbg_msg("Button A pressed"); break;
         case 11: dbg_msg("Button B pressed"); break;
-        default: break;
+        default: dbg_msg("unknown button %u", joystick.button); break;
     }
+
+    if (nullptr != user_callback.joystick_button_pressed) user_callback.joystick_button_pressed(joystick);
 }
 
 void
-Event_Manager::handle_joystick_button_released(SDL_JoyButtonEvent &joystick)
+Event_Manager::handle_joystick_button_released(SDL_JoyButtonEvent const& joystick)
 {
     switch (joystick.button)
     {
@@ -346,6 +369,7 @@ Event_Manager::handle_joystick_button_released(SDL_JoyButtonEvent &joystick)
         case 11: break;
         default: break;
     }
+    if (nullptr != user_callback.joystick_button_released) user_callback.joystick_button_released(joystick);
 }
 
 void
@@ -364,59 +388,82 @@ Event_Manager::process_events(void)
         switch (event.type)
         {
             /* all possible events */
-            case SDL_KEYDOWN:         handle_key_pressed(event.key.keysym);           break;
-            case SDL_KEYUP:           handle_key_released(event.key.keysym);          break;
-            case SDL_MOUSEBUTTONDOWN: handle_mouse_button_pressed(event.button);      break;
-            case SDL_MOUSEBUTTONUP:   handle_mouse_button_released(event.button);     break;
-            case SDL_MOUSEMOTION:     handle_mouse_motion(event.motion);              break;
-            case SDL_MOUSEWHEEL:      handle_mouse_wheel(event.wheel);                break;
-            case SDL_JOYAXISMOTION:   handle_joystick_motion(event.jaxis);            break;
-            case SDL_JOYBUTTONDOWN:   handle_joystick_button_pressed(event.jbutton);  break;
-            case SDL_JOYBUTTONUP:     handle_joystick_button_released(event.jbutton); break;
-            case SDL_QUIT:            handle_application_quit();                      break;
-            default: break;
+            case SDL_KEYDOWN         : handle_key_pressed             (event.key.keysym); break;
+            case SDL_KEYUP           : handle_key_released            (event.key.keysym); break;
+            case SDL_MOUSEBUTTONDOWN : handle_mouse_button_pressed    (event.button    ); break;
+            case SDL_MOUSEBUTTONUP   : handle_mouse_button_released   (event.button    ); break;
+            case SDL_MOUSEMOTION     : handle_mouse_motion            (event.motion    ); break;
+            case SDL_MOUSEWHEEL      : handle_mouse_wheel             (event.wheel     ); break;
+            case SDL_JOYAXISMOTION   : handle_joystick_motion_axis    (event.jaxis     ); break;
+            case SDL_JOYHATMOTION    : handle_joystick_motion_hat     (event.jhat      ); break;
+            case SDL_JOYBUTTONDOWN   : handle_joystick_button_pressed (event.jbutton   ); break;
+            case SDL_JOYBUTTONUP     : handle_joystick_button_released(event.jbutton   ); break;
+            case SDL_QUIT            : handle_application_quit();                         break;
+            default:
+                /*assertion(false, "unhandled SDL event: %u", event.type); */ break;
         }
     } /* while */
 }
 
 void
-Event_Manager::register_user_callback_key_pressed(callback_type callback_function)
+Event_Manager::reg_usr_cb_key_pressed(Keysym_t callback_function)
 {
     if (callback_function == nullptr)
         wrn_msg("Could not register user callback function for 'keyboard pressed'.");
     else
-        user_callback_key_pressed = callback_function;
-
-    //dbg_msg("User callback function for 'keyboard pressed' registered successfully.");
+        user_callback.key_pressed = callback_function;
 }
+
 void
-Event_Manager::register_user_callback_key_released(callback_type callback_function)
+Event_Manager::reg_usr_cb_key_released(Keysym_t func)
 {
-    if (callback_function == nullptr)
+    if (func == nullptr)
         wrn_msg("Could not register user callback function for 'keyboard released'.");
     else
-        user_callback_key_released = callback_function;
-
-    //dbg_msg("User callback function for 'keyboard released' registered successfully.");
+        user_callback.key_released = func;
 }
+
 void
-Event_Manager::register_user_callback_joystick(callback_type callback_function)
+Event_Manager::reg_usr_cb_joystick_button_pressed(Joybutton_t func)
 {
-    if (callback_function == nullptr)
-        wrn_msg("Could not register user callback function for joystick.");
+    if (func == nullptr)
+        wrn_msg("Could not register user callback function for joystick button pressed.");
     else
-        user_callback_joystick = callback_function;
-
-    //dbg_msg("User joystick callback function registered successfully.");
+        user_callback.joystick_button_pressed = func;
 }
 
 void
-Event_Manager::register_user_callback_mouse(callback_type callback_function)
+Event_Manager::reg_usr_cb_joystick_button_released(Joybutton_t func)
 {
-    if (callback_function == nullptr)
+    if (func == nullptr)
+        wrn_msg("Could not register user callback function for joystick button released.");
+    else
+        user_callback.joystick_button_released = func;
+}
+
+void
+Event_Manager::reg_usr_cb_joystick_motion_axis(Joyaxis_t func)
+{
+    if (func == nullptr)
+        wrn_msg("Could not register user callback function for joystick motion axis.");
+    else
+        user_callback.joystick_motion_axis = func;
+}
+
+void
+Event_Manager::reg_usr_cb_joystick_motion_hat(Joyhat_t func)
+{
+    if (func == nullptr)
+        wrn_msg("Could not register user callback function for joystick motion hat.");
+    else
+       user_callback.joystick_motion_hat = func;
+}
+
+/*void
+Event_Manager::register_user_callback_mouse(callback_type func)
+{
+    if (func == nullptr)
         wrn_msg("Could not register user callback function for mouse.");
     else
-        user_callback_mouse = callback_function;
-
-    //dbg_msg("User mouse callback function registered successfully.");
-}
+        user_callback_mouse = func;
+}*/

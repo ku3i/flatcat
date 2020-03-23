@@ -19,8 +19,8 @@ struct Mouse_Click_Event
 
 struct Joystick
 {
-    double x;
-    double y;
+    float x0, y0;
+    float x1, y1;
 };
 
 class Event_Manager
@@ -29,12 +29,8 @@ class Event_Manager
 public:
     Event_Manager()
     : event()
-    , joystick0()
-    , joystick1()
-    , user_callback_key_pressed()
-    , user_callback_key_released()
-    , user_callback_joystick()
-    , user_callback_mouse   ()
+    , joystick()
+    , user_callback()
     , mouse_button_left()
     , mouse_button_right()
     , mouse_button_middle()
@@ -46,29 +42,37 @@ public:
 
     void process_events(void);
 
-    typedef std::function<void(SDL_Keysym &keysym)> callback_type;
+    typedef std::function<void(SDL_Keysym         const& key     )> Keysym_t;
+    typedef std::function<void(SDL_JoyButtonEvent const& joystick)> Joybutton_t;
+    typedef std::function<void(SDL_JoyAxisEvent   const& joystick)> Joyaxis_t;
+    typedef std::function<void(SDL_JoyHatEvent    const& joystick)> Joyhat_t;
 
-    void register_user_callback_key_pressed (callback_type callback_function);
-    void register_user_callback_key_released(callback_type callback_function);
-    void register_user_callback_joystick(callback_type callback_function);
-    void register_user_callback_mouse   (callback_type callback_function);
 
-    Joystick get_joystick(unsigned int index) const { return (index==0) ? joystick0:joystick1; }
+    void reg_usr_cb_key_pressed             (Keysym_t    cb);
+    void reg_usr_cb_key_released            (Keysym_t    cb);
+    void reg_usr_cb_joystick_button_pressed (Joybutton_t cb);
+    void reg_usr_cb_joystick_button_released(Joybutton_t cb);
+    void reg_usr_cb_joystick_motion_axis    (Joyaxis_t   cb);
+    void reg_usr_cb_joystick_motion_hat     (Joyhat_t    cb);
+    //void reg_usr_cb_mouse   (callback_type callback_function);
+
+    Joystick const& get_joystick(void) const { return joystick; }
 
     int  get_mouse_wheel_position  (void) const { return mouse_wheel_position; }
 
 private:
-    void handle_key_pressed (SDL_Keysym &keysym);
-    void handle_key_released(SDL_Keysym &keysym);
+    void handle_key_pressed (SDL_Keysym const& key);
+    void handle_key_released(SDL_Keysym const& key);
 
-    void handle_mouse_motion         (SDL_MouseMotionEvent &mouse_motion);
-    void handle_mouse_wheel          (SDL_MouseWheelEvent  &mouse_wheel);
-    void handle_mouse_button_pressed (SDL_MouseButtonEvent &mouse_button_event);
-    void handle_mouse_button_released(SDL_MouseButtonEvent &mouse_button_event);
+    void handle_mouse_motion         (SDL_MouseMotionEvent const& motion);
+    void handle_mouse_wheel          (SDL_MouseWheelEvent  const& wheel );
+    void handle_mouse_button_pressed (SDL_MouseButtonEvent const& button);
+    void handle_mouse_button_released(SDL_MouseButtonEvent const& button);
 
-    void handle_joystick_motion         (SDL_JoyAxisEvent &joystick);
-    void handle_joystick_button_pressed (SDL_JoyButtonEvent &joystick);
-    void handle_joystick_button_released(SDL_JoyButtonEvent &joystick);
+    void handle_joystick_motion_axis    (SDL_JoyAxisEvent   const& joystick);
+    void handle_joystick_motion_hat     (SDL_JoyHatEvent    const& joystick);
+    void handle_joystick_button_pressed (SDL_JoyButtonEvent const& joystick);
+    void handle_joystick_button_released(SDL_JoyButtonEvent const& joystick);
 
     /* private member callbacks */
     void on_left_mouse_button_pressed  (void);
@@ -84,13 +88,19 @@ private:
 
 
     SDL_Event event;
-    Joystick joystick0, joystick1;
+    Joystick joystick;
 
     /* callbacks */
-    callback_type user_callback_key_pressed; // think about a general callback register function for all events
-    callback_type user_callback_key_released;
-    callback_type user_callback_joystick;
-    callback_type user_callback_mouse;
+    struct UserCallbacks {
+        Keysym_t    key_pressed              = nullptr; // think about a general callback register function for all events
+        Keysym_t    key_released             = nullptr;
+        Joybutton_t joystick_button_pressed  = nullptr;
+        Joybutton_t joystick_button_released = nullptr;
+        Joyaxis_t   joystick_motion_axis     = nullptr;
+        Joyhat_t    joystick_motion_hat      = nullptr;
+    } user_callback;
+
+    //callback_type user_callback_mouse;
 
     Mouse_Click_Event mouse_button_left;
     Mouse_Click_Event mouse_button_right;

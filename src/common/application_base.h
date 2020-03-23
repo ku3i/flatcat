@@ -31,8 +31,12 @@ public:
     virtual void paused() {}
 
 
-    virtual void user_callback_key_pressed (const SDL_Keysym& /*keysym*/) {};
-    virtual void user_callback_key_released(const SDL_Keysym& /*keysym*/) {};
+    virtual void user_callback_key_pressed (SDL_Keysym const& /*key*/) {}
+    virtual void user_callback_key_released(SDL_Keysym const& /*key*/) {}
+    virtual void user_callback_joystick_button_pressed (SDL_JoyButtonEvent const& /*joystick*/) {}
+    virtual void user_callback_joystick_button_released(SDL_JoyButtonEvent const& /*joystick*/) {}
+    virtual void user_callback_joystick_motion_axis    (SDL_JoyAxisEvent   const& /*joystick*/) {}
+    virtual void user_callback_joystick_motion_hat     (SDL_JoyHatEvent    const& /*joystick*/) {}
 
     Application_Base( int argc
                     , char** argv
@@ -49,8 +53,12 @@ public:
     {
         sts_msg("Loading application...");
         /* register key event */
-        em.register_user_callback_key_pressed (std::bind(&Application_Base::base_callback_key_pressed , this, std::placeholders::_1));
-        em.register_user_callback_key_released(std::bind(&Application_Base::base_callback_key_released, this, std::placeholders::_1));
+        em.reg_usr_cb_key_pressed             (std::bind(&Application_Base::base_callback_key_pressed             , this, std::placeholders::_1));
+        em.reg_usr_cb_key_released            (std::bind(&Application_Base::base_callback_key_released            , this, std::placeholders::_1));
+        em.reg_usr_cb_joystick_button_pressed (std::bind(&Application_Base::user_callback_joystick_button_pressed , this, std::placeholders::_1));
+        em.reg_usr_cb_joystick_button_released(std::bind(&Application_Base::user_callback_joystick_button_released, this, std::placeholders::_1));
+        em.reg_usr_cb_joystick_motion_axis    (std::bind(&Application_Base::user_callback_joystick_motion_axis    , this, std::placeholders::_1));
+        em.reg_usr_cb_joystick_motion_hat     (std::bind(&Application_Base::user_callback_joystick_motion_hat     , this, std::placeholders::_1));
 
         if (read_option_flag(argc, argv, "-c", "--no_pause"))
             do_pause.disable();

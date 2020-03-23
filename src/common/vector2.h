@@ -8,8 +8,6 @@ class Vector2
 public:
 
     Vector2(const Vector2& rhs) : x(rhs.x), y(rhs.y) {}
-    Vector2(      Vector2& rhs) : x(rhs.x), y(rhs.y) {}
-
     Vector2(void) : x(.0), y(.0) {}
     Vector2(double x, double y) : x(x), y(y) {}
     Vector2(double val) : x(val), y(val) {}
@@ -21,11 +19,6 @@ public:
         return *this;
     }
 
-    Vector2& operator=(Vector2& rhs) {
-        this->x = rhs.x;
-        this->y = rhs.y;
-        return *this;
-    }
     Vector2& operator=(const double& rhs) {
         this->x = rhs;
         this->y = rhs;
