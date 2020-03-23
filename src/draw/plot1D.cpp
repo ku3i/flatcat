@@ -46,8 +46,9 @@ plot1D::draw_line_strip(void) const
 {
     glLineWidth(1.0f);
     glBegin(GL_LINE_STRIP);
-    for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
-        glVertex2f( i, signal[(i + pointer) % number_of_samples]);
+    for (unsigned i = number_of_samples+1; i-- > 1; ) { // zero omitted
+        const unsigned pos = (i + pointer) % number_of_samples;
+        glVertex2f( i, signal[pos]);
     }
     glEnd();
 }
@@ -57,7 +58,7 @@ colored_plot1D::draw_colored_line_strip(void) const
 {
     glLineWidth(1.0f);
     glBegin(GL_LINE_STRIP);
-    for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
+    for (unsigned i = number_of_samples+1; i-- > 1; ) { // zero omitted
         const unsigned pos = (i + pointer) % number_of_samples;
         set_color(colortable.get_color(colors[pos]));
         glVertex2f( i, signal[pos]);
@@ -80,6 +81,7 @@ void
 plot1D::add_sample(const float s)
 {
     increment_pointer();
+    //assert(pointer < number_of_samples);
     signal[pointer] = s;
 
     /* autoscale //TODO überarbeiten */
