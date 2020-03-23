@@ -83,6 +83,8 @@ class Setting
             double rate;
         } growth;
 
+        double       friction;
+
         bool         low_sensor_quality;
         bool         L1_normalization;
 

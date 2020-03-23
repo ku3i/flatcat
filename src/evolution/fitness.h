@@ -112,7 +112,7 @@ public:
 
         if (s.target != .0 and data.fit > s.target) {
             data.fit = clip(data.fit, std::abs(s.target));
-            dbg_msg("Target overshot. \n");
+            //dbg_msg("Target overshot. \n");
             data.fit *= step_ratio(data);
         }
 
@@ -194,6 +194,7 @@ public:
     void finish(fitness_data& data) override
     {
         data.fit = 10.0/(1 + data.power);
+        data.fit+= 10.0/(1 + data.dctrl);
 
         if (data.dropped)
             data.fit -= 10.0 * (1.0 - step_ratio(data));

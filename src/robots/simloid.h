@@ -143,7 +143,7 @@ public:
 
     void record_next_frame() { record_frame = true; }
 
-    uint64_t randomize_model(double rnd_amp, double growth, uint64_t inst = 0);
+    uint64_t randomize_model(double rnd_amp, double growth, double friction, uint64_t inst);
 
     void reinit_robot_model(std::vector<double> const& params);
     void reinit_motor_model(std::vector<double> const& params);

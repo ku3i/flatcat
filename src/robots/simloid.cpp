@@ -534,15 +534,15 @@ Simloid::get_max_feet_pos(void) const {
 }
 
 uint64_t
-Simloid::randomize_model(double rnd_amp, double growth, uint64_t inst)
+Simloid::randomize_model(double rnd_amp, double growth, double friction, uint64_t inst)
 {
     if (0 == inst) {/* not initialized yet? */
         inst = time(NULL);
         sts_msg("Initializing random seed, instance is: %lu", inst);
     }
 
-    sts_msg("Req. new model for robot %u and inst. %lu, amp. %lf, growth %lf", robot_ID, inst, rnd_amp, growth);
-    client.send("MODEL %u 3 %lu %lf %lf\nDONE\n", robot_ID, inst, rnd_amp, growth);
+    sts_msg("Req. new model for robot %u and inst. %lu, amp. %lf, grow %lf, fric %lf", robot_ID, inst, rnd_amp, growth, friction);
+    client.send("MODEL %u 4 %lu %lf %lf %lf\nDONE\n", robot_ID, inst, rnd_amp, growth, friction);
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);

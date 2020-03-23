@@ -45,6 +45,7 @@ Setting::Setting( int argc, char **argv )
                 , fitness_function("FORWARDS")
                 , rnd({"NONE", 0.0, 0})
                 , growth({1.0, 0.0})
+                , friction(1.0)
                 , low_sensor_quality(false)
                 , L1_normalization(false)
                 , target(.0)
@@ -168,6 +169,8 @@ Setting::read_configuration(const std::string& filename)
     growth.init = settings_file.readDBL ("GROWTH_INIT", growth.init);
     growth.rate = settings_file.readDBL ("GROWTH_RATE", growth.rate);
 
+    friction = settings_file.readDBL ("FRICTION", friction);
+
     low_sensor_quality = settings_file.readBOOL("LOW_SENSOR_QUALITY", low_sensor_quality);
     L1_normalization = settings_file.readBOOL("L1_NORMALIZATION", L1_normalization);
 
@@ -224,6 +227,8 @@ Setting::save_to_projectfile(const std::string& filename) const
 
     project_file.writeDBL ("GROWTH_INIT"         , growth.init);
     project_file.writeDBL ("GROWTH_RATE"         , growth.rate);
+
+    project_file.writeDBL ("FRICTION"            , friction);
 
     project_file.writeBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality);
     project_file.writeBOOL("L1_NORMALIZATION"    , L1_normalization);
