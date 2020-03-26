@@ -8,32 +8,24 @@
 #include <cstring>
 #include <climits>
 #include <fstream>
-#include <vector>
+#include <map>
 
-#include "./log_messages.h"
-#include "./modules.h"
+#include <common/log_messages.h>
+#include <common/modules.h>
 
-#define MAX_LINES 64
-#define MAX_NAME_LENGTH 32
-#define MAX_VALUE_LENGTH 1024
-
-struct cfg_entry //TODO refactor that
-{
-    char name[MAX_NAME_LENGTH];
-    char value[MAX_VALUE_LENGTH];
-};
 
 class config
 {
     config( const config& other ) = delete;      // non construction-copyable
     config& operator=( const config& ) = delete; // non copyable
 
+    typedef std::pair<std::string,std::string> element_t;
+
 public:
     config(const std::string& filename, bool quit_on_fail = false)
     : fd()
     , filename(filename)
-    , configuration(MAX_LINES)
-    , num_entries()
+    , configuration()
     {
         if (not filename.empty())
             sts_msg("Configuration filename is: %s", filename.c_str());
@@ -45,30 +37,27 @@ public:
     }
 
     bool load(void);
-    void clear(void);
+    void clear(void) { configuration.clear(); }
     void finish(void);
-    int get_num_entries(void);
+    unsigned get_num_entries(void) const { return configuration.size(); }
 
-    int          readINT (const std::string& name, const int          default_value = 0);
-    unsigned int readUINT(const std::string& name, const unsigned int default_value = 0);
+    int         readINT (std::string const& name, int                def = {});
+    unsigned    readUINT(std::string const& name, unsigned           def = {});
+    bool        readBOOL(std::string const& name, bool               def = {});
+    double      readDBL (std::string const& name, double             def = {});
+    std::string readSTR (std::string const& name, std::string const& def = {});
 
-    bool         readBOOL(const std::string& name, const bool         default_value = false);
-    double       readDBL (const std::string& name, const double       default_value = .0);
-    double       readDBL (const std::string& name, const double minval, const double maxval, const double default_value = .0);
-    std::string  readSTR (const std::string& name, const std::string& default_value = "");
-
-    void writeINT (const std::string& name, const int          value);
-    void writeUINT(const std::string& name, const unsigned int value);
-    void writeBOOL(const std::string& name, const bool         value);
-    void writeDBL (const std::string& name, const double       value);
-    void writeSTR (const std::string& name, const std::string& value);
+    void writeINT (std::string const& name, int                value);
+    void writeUINT(std::string const& name, unsigned int       value);
+    void writeBOOL(std::string const& name, bool               value);
+    void writeDBL (std::string const& name, double             value);
+    void writeSTR (std::string const& name, std::string const& value);
 
 private:
     FILE* fd;
     const std::string filename;
-    std::vector<cfg_entry> configuration;
-    unsigned int num_entries;
-    unsigned int parse(void);
+    std::map<std::string,std::string> configuration;
+    void parse(void);
 };
 
 #endif //CONFIG_H

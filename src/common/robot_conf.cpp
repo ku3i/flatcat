@@ -83,18 +83,19 @@ Robot_Configuration::read_bodies(const char* msg, int* offset)
 
     bodies.reserve(number_of_bodies);
     bodies.clear();
+    sts_add("Reading bodies:");
     for (unsigned int i = 0; i < number_of_bodies; ++i)
     {
         msg += (*offset);
         if (sscanf(msg, "%u %256s\n%n", &tmp_id, tmp_name, offset) == 2) {
-            dbg_msg("Body %02u (%s)", tmp_id, tmp_name);
+            sts_add("%02u (%s)", tmp_id, tmp_name);
         } else
             err_msg(__FILE__, __LINE__, "could not parse body %u", i);
 
         bodies.emplace_back(tmp_name);
         assert(i == bodies.size()-1);
     }
-
+    sts_msg("Done.");
     return msg;
 }
 

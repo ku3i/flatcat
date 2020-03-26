@@ -38,9 +38,7 @@ Setting::Setting( int argc, char **argv )
                 , selection_bias(1.0) // (0,...,5]
                 , seed()
                 , initial_population()
-                , param_p(3.0)
-                , param_d(-1.0)
-                , param_m(1.0)
+                , param{3.0, -1.0, 1.0}
                 , push()
                 , fitness_function("FORWARDS")
                 , rnd({"NONE", 0.0, 0})
@@ -94,90 +92,78 @@ void Setting::read_project_file(const std::string& project_name) {
 }
 
 void
-Setting::read_configuration(const std::string& filename)
+Setting::read_configuration(std::string const& filename)
 {
     /* read all static settings */
     sts_msg("Reading configuration: %s", filename.c_str());
     config settings_file(filename, true /*quit on fail*/);
 
-    interlaced_mode = settings_file.readBOOL("INTERLACED", interlaced_mode);
-    if (interlaced_mode) dbg_msg("+++ INTERLACED MODE! +++");
+    robot_ID             = settings_file.readINT ("ROBOT"               , robot_ID            );
+    scene_ID             = settings_file.readINT ("SCENE"               , scene_ID            );
 
-    robot_ID = settings_file.readINT("ROBOT", robot_ID);
-    scene_ID = settings_file.readINT("SCENE", scene_ID);
-    dbg_msg("   Robot No. %d and Scene No. %d", robot_ID, scene_ID);
+    initial_steps        = settings_file.readUINT("INITIAL_STEPS"       , initial_steps       );
+    max_steps            = settings_file.readUINT("MAX_STEPS"           , max_steps           );
 
-    max_steps = settings_file.readUINT("MAX_STEPS", max_steps);
-    max_power = settings_file.readUINT("MAX_POWER", max_power);
-    max_dctrl = settings_file.readUINT("MAX_DCTRL", max_dctrl);
-    initial_steps = settings_file.readUINT("INITIAL_STEPS");
-    dbg_msg("   Max_Power is %u, max_dctrl is %u, max. %u steps a trial and %u initial steps", max_power, max_dctrl, max_steps, initial_steps);
+    push.mode            = settings_file.readUINT("PUSH_MODE"           , push.mode           );
+    push.body            = settings_file.readUINT("PUSH_BODY"           , push.body           );
+    push.cycle           = settings_file.readUINT("PUSH_CYCLE"          , push.cycle          );
+    push.steps           = settings_file.readUINT("PUSH_STEPS"          , push.steps          );
+    push.strength        = settings_file.readDBL ("PUSH_STRENGTH"       , push.strength       );
 
-    push.mode     = settings_file.readUINT("PUSH_MODE"    , push.mode);
-    push.body     = settings_file.readUINT("PUSH_BODY"    , push.body);
-    push.cycle    = settings_file.readUINT("PUSH_CYCLE"   , push.cycle);
-    push.steps    = settings_file.readUINT("PUSH_STEPS"   , push.steps);
-    push.strength = settings_file.readDBL ("PUSH_STRENGTH", push.strength);
+    assert ( push.steps <= push.cycle );
 
-    dbg_msg("   push steps = %u/%u with strength = %lf (mode=%u) on body %u", push.steps, push.cycle, push.strength, push.mode, push.body);
-    assert(push.steps <= push.cycle);
+    efficient            = settings_file.readBOOL("EFFICIENT"           , efficient           );
+    max_power            = settings_file.readUINT("MAX_POWER"           , max_power           );
+    max_dctrl            = settings_file.readUINT("MAX_DCTRL"           , max_dctrl           );
 
-    efficient    = settings_file.readBOOL("EFFICIENT", efficient);
-    drop_penalty = settings_file.readBOOL("DROP_PENALTY", drop_penalty);
+    drop_penalty         = settings_file.readBOOL("DROP_PENALTY"        , drop_penalty        );
+    drop_level           = settings_file.readDBL ("DROP_LEVEL"          , drop_level          );
+
     out_of_track_penalty = settings_file.readBOOL("OUT_OF_TRACK_PENALTY", out_of_track_penalty);
-    stop_penalty = settings_file.readBOOL("STOP_PENALTY", stop_penalty);
+    corridor             = settings_file.readDBL ("CORRIDOR"            , corridor            );
+
+    stop_penalty         = settings_file.readBOOL("STOP_PENALTY"        , stop_penalty        );
+    stop_level           = settings_file.readDBL ("STOP_LEVEL"          , stop_level          );
+
     symmetric_controller = settings_file.readBOOL("SYMMETRIC_CONTROLLER", symmetric_controller);
-    dbg_msg("   Efficient: %s, Dropping: %s, Track: %s, Stop: %s, Symmetric: %s", (efficient?"Yes":"No"), (drop_penalty?"Yes":"No"), (out_of_track_penalty?"Yes":"No"), (stop_penalty?"Yes":"No"), (symmetric_controller?"Yes":"No"));
+    strategy             = settings_file.readSTR ("STRATEGY"            , strategy            );
 
-    strategy = settings_file.readSTR("STRATEGY", strategy);
-    dbg_msg("   Strategy is: %s", strategy.c_str());
+    max_generations      = settings_file.readUINT("MAX_GENERATIONS"     , max_generations     );
+    cur_generations      = settings_file.readUINT("CURRENT_GENERATION"  , cur_generations     );
+    population_size      = settings_file.readUINT("POPULATION_SIZE"     , population_size     );
+    selection_size       = settings_file.readUINT("SELECTION_SIZE"      , selection_size      );
 
-    max_generations = settings_file.readUINT("MAX_GENERATIONS", max_generations);
-    cur_generations = settings_file.readUINT("CURRENT_GENERATION", cur_generations);
-    population_size = settings_file.readUINT("POPULATION_SIZE", population_size);
-    selection_size  = settings_file.readUINT("SELECTION_SIZE" , selection_size );
-    max_trials      = settings_file.readUINT("MAX_TRIALS"     , max_trials);
-    cur_trials      = settings_file.readUINT("CURRENT_TRIAL"  , cur_trials);
-    dbg_msg("   Generations: %u, Population Size: %u, Selection Size: %u, Max Trials: %u", max_generations, population_size, selection_size, max_trials);
+    max_trials           = settings_file.readUINT("MAX_TRIALS"          , max_trials          );
+    cur_trials           = settings_file.readUINT("CURRENT_TRIAL"       , cur_trials          );
+    moving_rate          = settings_file.readDBL ("MOVING_RATE"         , moving_rate         );
+    selection_bias       = settings_file.readDBL ("SELECTION_BIAS"      , selection_bias      );
 
-    init_mutation_rate = settings_file.readDBL("INIT_MUTATION_RATE", init_mutation_rate);
-    meta_mutation_rate = settings_file.readDBL("META_MUTATION_RATE", meta_mutation_rate);
-           moving_rate = settings_file.readDBL("MOVING_RATE"       ,        moving_rate);
-        selection_bias = settings_file.readDBL("SELECTION_BIAS"    ,     selection_bias);
-    dbg_msg("   Initial Random: %1.2f, Meta Mutation Rate: %1.2f", init_mutation_rate, meta_mutation_rate);
-    dbg_msg("   Moving Rate: %1.2f, Selection Bias: %1.2f", moving_rate, selection_bias);
+    init_mutation_rate   = settings_file.readDBL ("INIT_MUTATION_RATE"  , init_mutation_rate  );
+    meta_mutation_rate   = settings_file.readDBL ("META_MUTATION_RATE"  , meta_mutation_rate  );
 
-    param_p = settings_file.readDBL("PARAM_P", param_p);
-    param_d = settings_file.readDBL("PARAM_D", param_d);
-    param_m = settings_file.readDBL("PARAM_M", param_m);
+    param.pgain          = settings_file.readDBL ("PARAM_P"             , param.pgain         );
+    param.damping        = settings_file.readDBL ("PARAM_D"             , param.damping       );
+    param.motor_self     = settings_file.readDBL ("PARAM_M"             , param.motor_self    );
 
-    seed = settings_file.readSTR("SEED");
-    if (seed == "") dbg_msg("   No seed file.");
-    else dbg_msg("   Seed file name: %s", seed.c_str());
+    seed                 = settings_file.readSTR ("SEED"                , seed                );
+    initial_population   = settings_file.readSTR ("INIT_POPULATION"     , initial_population  );
+    fitness_function     = settings_file.readSTR ("FITNESS_FUNCTION"    , fitness_function    );
 
-    initial_population = settings_file.readSTR("INIT_POPULATION");
-    if (initial_population == "") dbg_msg("   No initial population file.");
-    else dbg_msg("   Initial population file name: %s", initial_population.c_str());
+    rnd.mode             = settings_file.readSTR ("RANDOM_MODE"         , rnd.mode            );
+    rnd.value            = settings_file.readDBL ("RANDOM_VALUE"        , rnd.value           );
+    rnd.init             = settings_file.readUINT("RANDOM_INIT"         , rnd.init            );
 
-    fitness_function = settings_file.readSTR("FITNESS_FUNCTION");
-    assert(not fitness_function.empty());
+    growth.init          = settings_file.readDBL ("GROWTH_INIT"         , growth.init         );
+    growth.rate          = settings_file.readDBL ("GROWTH_RATE"         , growth.rate         );
 
-    rnd.mode  = settings_file.readSTR ("RANDOM_MODE" , rnd.mode);
-    rnd.value = settings_file.readDBL ("RANDOM_VALUE", rnd.value);
-    rnd.init  = settings_file.readUINT("RANDOM_INIT" , rnd.init);
+    friction             = settings_file.readDBL ("FRICTION"            , friction            );
+    target               = settings_file.readDBL ("TARGET"              , target              );
 
-    growth.init = settings_file.readDBL ("GROWTH_INIT", growth.init);
-    growth.rate = settings_file.readDBL ("GROWTH_RATE", growth.rate);
+    interlaced_mode      = settings_file.readBOOL("INTERLACED"          , interlaced_mode     );
+    low_sensor_quality   = settings_file.readBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality  );
 
-    friction = settings_file.readDBL ("FRICTION", friction);
-
-    low_sensor_quality = settings_file.readBOOL("LOW_SENSOR_QUALITY", low_sensor_quality);
-    L1_normalization = settings_file.readBOOL("L1_NORMALIZATION", L1_normalization);
-
-    target     = settings_file.readDBL("TARGET"    , target    );
-    drop_level = settings_file.readDBL("DROP_LEVEL", drop_level);
-    stop_level = settings_file.readDBL("STOP_LEVEL", stop_level);
-    corridor   = settings_file.readDBL("CORRIDOR"  , corridor  );
+    L1_normalization     = settings_file.readBOOL("L1_NORMALIZATION"    , L1_normalization    );
+    assert(false == L1_normalization);
 }
 
 const std::string&
@@ -189,18 +175,18 @@ Setting::save_to_projectfile(const std::string& filename) const
     if (interlaced_mode) /* default is false for evolution, so only write if true */
         project_file.writeBOOL("INTERLACED", true);
 
-    project_file.writeUINT("ROBOT"               , robot_ID);
-    project_file.writeUINT("SCENE"               , scene_ID);
-    project_file.writeUINT("MAX_STEPS"           , max_steps);
-    project_file.writeUINT("MAX_POWER"           , max_power);
-    project_file.writeUINT("MAX_DCTRL"           , max_dctrl);
-    project_file.writeUINT("INITIAL_STEPS"       , initial_steps);
-    project_file.writeUINT("PUSH_MODE"           , push.mode);
-    project_file.writeUINT("PUSH_BODY"           , push.body);
-    project_file.writeUINT("PUSH_CYCLE"          , push.cycle);
-    project_file.writeUINT("PUSH_STEPS"          , push.steps);
-    project_file.writeUINT("PUSH_STRENGTH"       , push.strength);
-    project_file.writeSTR ("STRATEGY"            , strategy);
+    project_file.writeUINT("ROBOT"               , robot_ID        );
+    project_file.writeUINT("SCENE"               , scene_ID        );
+    project_file.writeUINT("MAX_STEPS"           , max_steps       );
+    project_file.writeUINT("MAX_POWER"           , max_power       );
+    project_file.writeUINT("MAX_DCTRL"           , max_dctrl       );
+    project_file.writeUINT("INITIAL_STEPS"       , initial_steps   );
+    project_file.writeUINT("PUSH_MODE"           , push.mode       );
+    project_file.writeUINT("PUSH_BODY"           , push.body       );
+    project_file.writeUINT("PUSH_CYCLE"          , push.cycle      );
+    project_file.writeUINT("PUSH_STEPS"          , push.steps      );
+    project_file.writeUINT("PUSH_STRENGTH"       , push.strength   );
+    project_file.writeSTR ("STRATEGY"            , strategy        );
 
     assert(not fitness_function.empty());
     project_file.writeSTR ("FITNESS_FUNCTION"    , fitness_function);

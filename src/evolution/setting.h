@@ -7,6 +7,7 @@
 
 #include <common/log_messages.h>
 #include <common/socket_client.h>
+#include <control/jointcontrol.h>
 #include <evolution/evolution_strategy.h>
 
 #define FOLDER_PREFIX "../data/exp/"
@@ -57,10 +58,7 @@ class Setting
         std::string  seed;
         std::string  initial_population;
 
-
-        double       param_p;
-        double       param_d;
-        double       param_m;
+        control::Minimal_Seed_t param;
 
         struct Push_Settings {
             unsigned int mode;

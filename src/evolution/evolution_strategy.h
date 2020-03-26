@@ -58,9 +58,7 @@ public:
     , fitness_stats()
     , mutation_stats()
     , verbose(verbose)
-    {
-        dbg_msg("created evolution policy (base).");
-    }
+    {}
 
     virtual ~Evolution_Strategy() { };
 

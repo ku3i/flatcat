@@ -149,6 +149,8 @@ public:
     void reinit_motor_model(std::vector<double> const& params);
 
     void set_low_sensor_quality(bool low_quality);
+
+    void toggle_body_fixed(unsigned index = 0) { client.send("FIXED %u\n", index); }
 };
 
 } // namespace robots
