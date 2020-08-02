@@ -53,7 +53,7 @@ TEST_CASE( "FIR Synapse Test" , "[Time Delay Network]")
 //    for (auto const& v : vec)
 //        printf("%5.2f ", v);
 
-    auto const& target = std::vector<double>{0.0, 0.0, 1.1, 0.0, 0.0, 2.2, 0.0, 0.0, 3.3, 0.0, 0.0, 0.13};
+    auto const& target = std::vector<double>{1.1, 2.2, 3.3, 0.13, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     REQUIRE( vec == target );
 
     for (auto& j: robot.set_joints()) {
@@ -65,12 +65,12 @@ TEST_CASE( "FIR Synapse Test" , "[Time Delay Network]")
 
     inputs.execute_cycle();
     td_input.propagate(inputs);
-    auto const& target2 = std::vector<double>{0.0, 1.1, 1.0, 0.0, 2.2, 2.0, 0.0, 3.3, 3.0, 0.0, 0.13, 0.13};
+    auto const& target2 = std::vector<double>{1.0, 2.0, 3.0, 0.13, 1.1, 2.2, 3.3, 0.13, 0.0, 0.0, 0.0, 0.0};
     REQUIRE( vec == target2 );
 
     inputs.execute_cycle();
     td_input.propagate(inputs);
-    auto const& target3 = std::vector<double>{1.1, 1.0, 1.0, 2.2, 2.0, 2.0, 3.3, 3.0, 3.0, 0.13, 0.13, 0.13};
+    auto const& target3 = std::vector<double>{1.0, 2.0, 3.0, 0.13, 1.0, 2.0, 3.0, 0.13, 1.1, 2.2, 3.3, 0.13};
     REQUIRE( vec == target3 );
 }
 

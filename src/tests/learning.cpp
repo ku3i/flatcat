@@ -57,12 +57,12 @@ TEST_CASE( "Epsilon Greedy" , "[learning]") {
         REQUIRE( state_id < states.size() );
         REQUIRE( policy_id < states[0].policies.size() );
         REQUIRE( action_id < states[0].policies[0].qvalues.size() );
-        const unsigned total = 1000;
+        const unsigned total = 2000;
         unsigned counter = 0;
         for (unsigned i = 0; i < total; ++i)
             if (action_id == test_selection(g, state_id, policy_id, action_id)) ++counter;
-        dbg_msg("Selection rate: %3u/%4u  %4.1f ~ %4.1f", counter, total, 100.0*counter/total, expected);
-        REQUIRE( close(100.0*counter/total, expected, 2.0) ); // values in 2% tolerance
+        dbg_msg("Selection rate: %4u/%4u  %4.1f ~ %4.1f", counter, total, 100.0*counter/total, expected);
+        REQUIRE( close(100.0*counter/total, expected, 3.0) ); // values in 3.0% tolerance
     };
 
     learning::Epsilon_Greedy greedy_10(states, actions, 0.10);

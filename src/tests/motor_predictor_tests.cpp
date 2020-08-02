@@ -30,11 +30,11 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
     /* set constant outputs to learn from */
     auto& joints = robot.set_joints();
     REQUIRE( joints.size() == 5 );
-    joints[0].motor = .4223;
-    joints[1].motor = .3771;
-    joints[2].motor = .2342;
-    joints[3].motor = .1337;
-    joints[4].motor = .9876;
+    joints[0].motor = +.4223;
+    joints[1].motor = +.3771;
+    joints[2].motor = -.2342;
+    joints[3].motor = -.1337;
+    joints[4].motor = +.9876;
 
     /* assert that motor space is correct */
     motors.execute_cycle();
@@ -44,7 +44,7 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
 
     /* initialize predictors */
     motors.execute_cycle();
-    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.5, 0.01, 1, params, /*noise=*/.0 };
     pred.initialize_randomized();
 
     /* adapt a 'few' cycles */
@@ -56,8 +56,7 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
 
     /* compare predictions with constant motor output */
     auto const& predictions = pred.get_prediction();
-    for (auto& p : predictions)
-        dbg_msg("%+e", p);
+    print_vector(predictions);
 
     REQUIRE( predictions.size() == 5 );
     REQUIRE( close(predictions[0], 0.4223, 0.01) );
@@ -99,7 +98,7 @@ TEST_CASE( "motor prediction error must be constant without learning step", "[mo
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params, /*noise=*/.0 };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );
@@ -124,21 +123,21 @@ TEST_CASE( "motor prediction error must decrease after learning step", "[motor_p
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params, /*noise=*/.0 };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );
     pred.predict();
 
     double pred_err_start = pred.get_prediction_error();
-    dbg_msg("Prediction error start: %e", pred_err_start);
+    dbg_msg("+++Prediction error start: %e", pred_err_start);
     REQUIRE( pred_err_start > 0.0 );
 
     for (unsigned i = 0; i < 42; ++i) {
         motors.execute_cycle();
         double pred_err_before = pred.predict();
         pred.adapt();
-        double pred_err_after = pred.predict();
+        double pred_err_after = pred.verify();//predict();
         REQUIRE( pred_err_after == pred.get_prediction_error() );
         dbg_msg("Prediction error %u: %e %e", i, pred_err_before, pred_err_after);
         REQUIRE( pred_err_before > pred_err_after );
@@ -152,18 +151,19 @@ TEST_CASE( "motor prediction error is reset on (re-)initialization", "[motor_pre
     Test_Motor_Space motors(robot.get_joints(), 0.0); /** without random */
     control::Control_Parameter params = control::get_initial_parameter(robot,{0.,0.,0.}, false);
     motors.execute_cycle();
-    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params };
+    learning::Motor_Predictor pred{ robot, motors, 0.1, 0.01, 1, params, /*noise=*/.0 };
     pred.initialize_randomized();
 
     REQUIRE( pred.get_prediction_error() == 0.0 );
     pred.predict();
 
     REQUIRE( pred.get_prediction_error() >  0.0 );
-    //not supported pred.initialize_from_input();
+    /*not supported pred.initialize_from_input();
     REQUIRE( pred.get_prediction_error() == 0.0 );
     motors.execute_cycle();
     pred.predict();
     REQUIRE( pred.get_prediction_error() >  0.0 );
+    */
 }
 
 } // namespace local_tests
