@@ -1,8 +1,6 @@
 
 #include "./setting.h"
 
-/**TODO: this needs an update someday.*/
-
 
 bool         read_option_bool  (int argc, char **argv, const std::string long_name, const std::string short_name, bool def = false);
 unsigned int read_option_uint  (int argc, char **argv, const std::string long_name, const std::string short_name, unsigned int def);

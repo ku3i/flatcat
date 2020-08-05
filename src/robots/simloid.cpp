@@ -331,6 +331,10 @@ Simloid::read_sensor_data(void)
     for (auto& j: configuration.joints)
         j.s_vel = clip(read_double(server_message, &charcount));
 
+    /* read motor current */
+    for (auto& j: configuration.joints)
+        j.s_cur = read_double(server_message, &charcount);
+
     /* read acceleration sensors */
     for(auto& s: configuration.accels)
         s.a = read_vector3(server_message, &charcount);
