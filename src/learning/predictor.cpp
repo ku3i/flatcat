@@ -2,7 +2,10 @@
 
     double Predictor_Base::calculate_prediction_error() {
         auto const &predictions = get_prediction();
-        assert(input.size() == predictions.size());
+        assertion( input.size() == predictions.size()
+                 , "Input and prediction vector must have same size (%u =/= %u)"
+                 , input.size(), predictions.size()
+                 );
 
         //test_range(input, -1.0, 1.0, "input");
         //test_range(predictions, -1.0, 1.0, "predictions");

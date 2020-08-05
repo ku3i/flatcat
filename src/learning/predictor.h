@@ -38,7 +38,7 @@ protected:
     double calculate_prediction_error();
 
     /* constants */
-    const sensor_vector& input;
+    const sensor_input_interface& input;
     const double         learning_rate;
     const double         random_weight_range;
     const double         normalize_factor;
@@ -57,7 +57,7 @@ protected:
 
 public:
 
-    Predictor_Base( const sensor_vector& input
+    Predictor_Base( const sensor_input_interface& input
                   , const double         learning_rate
                   , const double         random_weight_range
                   , const std::size_t    experience_size )
@@ -70,10 +70,10 @@ public:
     {
         //dbg_msg("Experience Replay: %s (%ul)", (experience_size > 1 ? "on" : "off"), experience_size);
         //dbg_msg("Input dimension: %u", input.size());
-        assert(in_range(input.size(),         1ul,  500ul));
-        assert(in_range(experience_size,      1ul, 1000ul));
-        assert(in_range(learning_rate,        0.0,   +1.0));
-        assert(in_range(random_weight_range, -1.0,   +1.0));
+        assert_in_range(input.size(),         1ul,  500ul);
+        assert_in_range(experience_size,      1ul, 1000ul);
+        assert_in_range(learning_rate,        0.0,   +1.0);
+        assert_in_range(random_weight_range, -1.0,   +1.0);
 
         experience.assign(experience.size(), VectorN(input.size(), .0) ); // zero initialize experience anyhow
     }
