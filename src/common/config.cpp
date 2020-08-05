@@ -148,7 +148,7 @@ config::writeDBL(std::string const& name, double value)
         return;
     }
 
-    sts_msg("Adding entry %s with value %u", name, value);
+    sts_msg("Adding entry %s with value %f", name.c_str(), value);
     configuration.insert(element_t(name, std::to_string(value)));
 }
 

@@ -330,7 +330,7 @@ Event_Manager::handle_joystick_motion_hat(SDL_JoyHatEvent const& j)
 void
 Event_Manager::handle_joystick_button_pressed(SDL_JoyButtonEvent const& joystick)
 {
-    switch (joystick.button) //TODO make names for rumblepad
+    switch (joystick.button) //IDEA: consider making names for rumblepad
     {
         case  0: dbg_msg("Button 0 pressed"); break;
         case  1: dbg_msg("Button 1 pressed"); break;

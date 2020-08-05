@@ -10,7 +10,7 @@ GlobalFlag screenshot  (false);
 static SDL_Window *window;
 static SDL_GLContext glcontext;
 
-/* screen properties, TODO find a better place */
+/* screen properties, consider finding a better place */
 Visuals screen;
 
 float t_delay_ms = 10.0f; // convert to unsigned int

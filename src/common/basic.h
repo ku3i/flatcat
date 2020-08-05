@@ -17,7 +17,7 @@
 /* file opening, formatted yeah! */
 FILE * open_file(const char *mode, const char *format, ...);
 
-namespace basic { /**TODO: move to file_io*/
+namespace basic { /**IDEA: Consider moving this to file_io*/
 
 std::string make_directory(const char *format, ...);
 

@@ -1,6 +1,7 @@
 #ifndef BACKED_H_INCLUDED
 #define BACKED_H_INCLUDED
 
+#include <cassert>
 #include <deque>
 
 namespace common {

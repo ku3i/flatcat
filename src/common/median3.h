@@ -27,6 +27,7 @@ public:
 		return result;
 	}
 
+	void reset(void) { val_1 = {}; val_2 = {}; }
 };
 
 template <typename T>
