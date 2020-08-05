@@ -21,9 +21,9 @@ public:
     , delta(outputs.size())
     , weights(hidden.size(), input_size)
     {
-//        dbg_msg("Creating Autoencoder with %u inputs and %u hidden units.", input_size, hidden_size);
-        assert(hidden_size > 0);
-        assert(input_size > hidden_size);
+        dbg_msg("Creating Autoencoder with %u inputs and %u hidden units.", input_size, hidden_size);
+        assertion(hidden_size > 0, "Hidden layer must have min. size of 1 (currently=%u)", hidden_size);
+        assertion(input_size > hidden_size, "Input size (%u) must be greater than hidden layer size (%u).", input_size, hidden_size);
 
         assert(weights.size() == hidden_size);
         assert(weights[0].size() == input_size);
@@ -36,11 +36,8 @@ public:
     }
 
 
-
-
     template <typename InputVector_t>
     void propagate(const InputVector_t& inputs) {
-
         /* encoder */
         propagate_forward(inputs);
 
@@ -115,7 +112,6 @@ public:
             const double delta_i = error_i * tanh_(hidden[i]);
             for (std::size_t j = 0; j < outputs.size(); ++j)
                 weights[i][j] += learning_rate * (delta_i * inputs[j] + delta[j] * hidden[i]);
-
         }
     }
 
@@ -124,7 +120,7 @@ public:
 
 
     void randomize_weight_matrix(const double random_weight_range) {
-        assert_in_range(random_weight_range, 0.0, 0.1);
+        assert_in_range(random_weight_range, 0.0, 0.5);
         const double normed_std_dev = random_weight_range / sqrt(weights[0].size());
         assert(normed_std_dev != 0.0);
 
