@@ -54,7 +54,7 @@ public:
         {
             auto const& jy = robot.get_joints()[jx.symmetric_joint];
 
-            /**TODO consider using a virtual (integrated) angle */
+            /**IDEA: consider using a virtual (integrated) angle */
             input[index++] = {jx.s_ang             , jy.s_ang             };
             input[index++] = {jx.s_vel             , jy.s_vel             };
             input[index++] = {jx.motor.get_backed(), jy.motor.get_backed()};
