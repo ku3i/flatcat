@@ -93,7 +93,7 @@ public:
         printf("\n");
         */
 
-        expand();
+        expand(); // prepare vector for returning in 'get()'
     }
 
 

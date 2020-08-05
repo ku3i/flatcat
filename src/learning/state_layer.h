@@ -43,6 +43,9 @@ public:
         for (robots::Joint_Model const& j : joints)
             sensors.emplace_back(j.name + "_vel", [&j](){ return j.s_vel; });
 
+
+        /* TODO: why is there no accel data included*/
+
         sensors.emplace_back("bias", [](){ return 0.1; });
     }
 };

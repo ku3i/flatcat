@@ -31,6 +31,7 @@ namespace motor_layer_constants {
     const double learning_rate        = 0.001;
     const double growth_rate          = 1.0;
     const std::size_t experience_size = 100;
+    const double noise_level          = 0.005; // 0.01 is maybe too high
 }
 
 
@@ -57,13 +58,14 @@ public:
                , const double learning_rate = motor_layer_constants::learning_rate
                , const double growth_rate = motor_layer_constants::growth_rate
                , std::size_t experience_size = motor_layer_constants::experience_size
+               , double noise_level = motor_layer_constants::noise_level
                , std::string const& initial_parameter_folder = ""
                , control::Minimal_Seed_t seed = {0.,0.,0.}
                , std::size_t num_initial_experts = 1)
     : params(control::param_factory(robot, max_num_motor_experts, initial_parameter_folder, seed))
     , payloads(max_num_motor_experts)
     , motorspace(robot.get_joints())
-    , experts(max_num_motor_experts, payloads, motorspace, learning_rate, experience_size, params, robot)
+    , experts(max_num_motor_experts, payloads, motorspace, learning_rate, experience_size, noise_level, params, robot )
     , gmes(experts, growth_rate, /* one shot learning = */false, num_initial_experts)
     {
         sts_msg("Creating motor layer with max. %u experts and growth rate: %1.4f", max_num_motor_experts, growth_rate);

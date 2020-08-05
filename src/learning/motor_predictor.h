@@ -12,20 +12,24 @@
 
 namespace learning {
 
+
 class Motor_Predictor : public Predictor_Base {
 public:
-    Motor_Predictor( const robots::Robot_Interface& robot
-                   , const sensor_vector& motor_targets
-                   , const double learning_rate
-                   , const double random_weight_range
-                   , const std::size_t experience_size
-                   , const control::Control_Parameter& parameter )
+    Motor_Predictor( robots::Robot_Interface const& robot
+                   , sensor_vector const& motor_targets
+                   , double learning_rate
+                   , double random_weight_range
+                   , std::size_t experience_size
+                   , control::Control_Parameter const& parameter
+                   , double noise_level
+                   )
     : Predictor_Base(motor_targets, learning_rate, random_weight_range, experience_size)
     , robot(robot)
     , core(robot)
     , motor_targets(motor_targets)
     , params(control::turn_symmetry(robot, control::make_asymmetric(robot, parameter)))
     , params_changed(false)
+    , noise_level(noise_level)
     {
         core.apply_weights(robot, params.get_parameter());
     }
@@ -38,7 +42,7 @@ public:
 
     double predict(void) override {
         core.prepare_inputs(robot);
-        add_noise_to_inputs(core.input, 0.01); /**TODO setting*/
+        add_noise_to_inputs(core.input, noise_level);
         assert(!(params.is_mirrored() and params.is_symmetric()));
         core.update_outputs(robot, params.is_symmetric(), params.is_mirrored());
         //vector_tanh(core.activation);
@@ -95,7 +99,7 @@ private:
 
     mutable control::Control_Parameter      params; // for loading, saving, buffering
     mutable bool                            params_changed;
-
+    const double                            noise_level;
 
 
     void learn_from_input_sample(void) override {

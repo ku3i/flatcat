@@ -10,8 +10,9 @@
 #include <learning/predictor.h>
 #include <learning/state_predictor.h>
 #include <learning/motor_predictor.h>
+#include <learning/state_action_predictor.h>
 
-/* The Expert Vector should merely work as a container
+/* The Expert Vector merely work as a container
  * and should neither carry any information nor functionality
  * regarding the expert modules in it. However this is theory. :)
  */
@@ -83,11 +84,12 @@ public:
     }
 
     /* motor action space constructor */
-    Expert_Vector( const std::size_t              max_number_of_experts
-                 , static_vector_interface&       payloads
-                 , const sensor_vector&           motor_targets
-                 , const double                   local_learning_rate
-                 , const std::size_t              experience_size
+    Expert_Vector( std::size_t              max_number_of_experts
+                 , static_vector_interface& payloads
+                 , sensor_vector const&     motor_targets
+                 , double                   local_learning_rate
+                 , std::size_t              experience_size
+                 , double                   noise_level
                  , control::Control_Vector const& ctrl_params
                  , robots::Robot_Interface const& robot )
     : Expert_Vector(max_number_of_experts, payloads)
@@ -96,7 +98,29 @@ public:
         assert(local_learning_rate > 0.);
         assert(ctrl_params.size() == max_number_of_experts);
         for (std::size_t i = 0; i < max_number_of_experts; ++i)
-            experts.emplace_back( Predictor_ptr( new learning::Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i)))
+            experts.emplace_back( Predictor_ptr( new learning::Motor_Predictor(robot, motor_targets, local_learning_rate, gmes_constants::random_weight_range, experience_size, ctrl_params.get(i), noise_level))
+                                , max_number_of_experts );
+    }
+
+    /* state action space constructor */
+    Expert_Vector( const std::size_t         max_number_of_experts
+                 , static_vector_interface&  payloads
+                 , const time_embedded_sensors<16>&      input
+                 , const double              local_learning_rate
+                 , const std::size_t         experience_size
+                 , const std::size_t         hidden_layer_size // ergibt sich aus num joints
+                 , const double              random_weight_range
+                 )
+    : Expert_Vector(max_number_of_experts, payloads)
+    {
+        assert(local_learning_rate > 0.);
+        for (std::size_t i = 0; i < max_number_of_experts; ++i)
+            experts.emplace_back( Predictor_ptr( new learning::State_Action_Predictor( input
+                                                                                     , local_learning_rate
+                                                                                     , random_weight_range
+                                                                                     , experience_size
+                                                                                     , hidden_layer_size
+                                                                                     ) )
                                 , max_number_of_experts );
     }
 
