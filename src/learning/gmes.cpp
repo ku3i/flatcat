@@ -111,7 +111,9 @@
     {
         const double prediction_error_before_adaption = expert[winner].get_prediction_error();
         learning_progress = prediction_error_before_adaption - expert[winner].redo_prediction();
-        assert_in_range(learning_progress, 0.0, 1.0);
+        //TODO assert_in_range(learning_progress, 0.0, 1.0);
+        assert_in_range(learning_progress, -0.1, 1.0);
+        clip(learning_progress, 0., 1.);
     }
 
 

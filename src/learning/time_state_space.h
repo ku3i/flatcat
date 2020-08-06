@@ -3,7 +3,7 @@
 
 #include <control/sensorspace.h>
 
-/**TODO: provide an easy way to access the vector shifted 1 time-step before */
+//todo namespace learning
 
 template <std::size_t NumTaps>
 class Time_State_Space : public time_embedded_sensors<NumTaps> {
@@ -15,16 +15,30 @@ public:
         auto const& accels = robot.get_accels();
 
         for (robots::Joint_Model const& j : joints)
-            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang + rand_norm_zero_mean(0.01);; });
 
         for (robots::Joint_Model const& j : joints)
             time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_vel", [&j](){ return j.s_vel; });
 
+  /*      for (robots::Joint_Model const& j : joints)
+            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_vol", [&j](){ return j.motor.get_backed(); });
+*/
+      /*  for (robots::Joint_Model const& j : joints)
+            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_cur", [&j](){ return 0.5*j.s_cur; });*/
+
         for (robots::Accel_Sensor const& a : accels) {
-            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_x", [&a](){ return a.v.x; });
-            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_y", [&a](){ return a.v.y; });
-            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_z", [&a](){ return a.v.z; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_x", [&a](){ return a.a.x; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_y", [&a](){ return a.a.y; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_z", [&a](){ return a.a.z; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("vel_x", [&a](){ return a.v.x; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("vel_y", [&a](){ return a.v.y; });
+            time_embedded_sensors<NumTaps>::sensors.emplace_back("vel_z", [&a](){ return a.v.z; });
         }
+
+        // don't not if that helps much.
+        time_embedded_sensors<NumTaps>::sensors.emplace_back("noise", [](){ return rand_norm_zero_mean(0.1); });
+
+        //IDEA: consider avg rotational speed... as the gyroscope
 
         /*
         for (robots::Joint_Model const& j : joints)

@@ -99,8 +99,8 @@ public:
     }
 
     void execute_cycle(void) {
-        buffer.pop_front();
-        buffer.push_back(lambda());
+        buffer.push_front(lambda());
+        buffer.pop_back();
     }
 
     std::string             name;

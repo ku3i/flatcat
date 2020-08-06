@@ -37,7 +37,8 @@ template <typename Vector_t>
 class twopart_vector {
 public:
 
-    Vector_t& part0, part1;
+    Vector_t& part0;
+    Vector_t& part1;
 
     twopart_vector(Vector_t& part0, Vector_t& part1) : part0(part0), part1(part1) {
         assert(part0.size() > 0);
@@ -136,7 +137,7 @@ public:
 
     model::matrix_t const& get_weights() const { return W; }
     model::vector_t const& get_outputs() const { return y; }
-    model::scalar_t        get_error  () const { return e; }
+    model::scalar_t        get_error  () const { return e/y.size(); }
 
 
 }; /* LinearModel */

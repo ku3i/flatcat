@@ -46,6 +46,7 @@
 			<Add option="-D__LINUX_ALSA__" />
 			<Add directory="../simloidTCP/src" />
 			<Add directory="../framework/src" />
+			<Add directory="../libux0/src" />
 		</Compiler>
 		<Linker>
 			<Add option="`sdl2-config --libs`" />
@@ -251,6 +252,9 @@
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/time_delay_network_tests.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/time_state_space_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Extensions>

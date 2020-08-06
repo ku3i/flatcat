@@ -38,6 +38,7 @@ public:
     , plot_position()
     , plot_velocity()
     , plot_voltage()
+    , plot_current()
     , subspace_axes()
     , subspace_portrait()
     , axes_accel(0.,-1.25, 0., 2.0, 0.25, 1, "Accel")
@@ -49,6 +50,7 @@ public:
         plot_position.reserve(num_joints);
         plot_velocity.reserve(num_joints);
         plot_voltage .reserve(num_joints);
+        plot_current .reserve(num_joints);
 
         subspace_axes.reserve(num_joints);
         subspace_portrait.reserve(num_joints);
@@ -61,6 +63,7 @@ public:
             const double posy   =  1.0 - height * (i/2 + 0.5);
 
             plot_axes    .emplace_back(posx, posy, 0., width, height, 1, std::to_string(i) + ' ' + joints[i].name);
+            plot_current .emplace_back(num_datapoints, plot_axes[i], colors::yellow, "cur");
             plot_voltage .emplace_back(num_datapoints, plot_axes[i], colors::cyan  , "vol");
             plot_velocity.emplace_back(num_datapoints, plot_axes[i], colors::orange, "vel");
             plot_position.emplace_back(num_datapoints, plot_axes[i], colors::white , "pos");
@@ -75,6 +78,7 @@ public:
     void draw(const pref& /*p*/) const {
         for (std::size_t i = 0; i < num_joints; ++i) {
             plot_axes    [i].draw();
+            plot_current [i].draw();
             plot_position[i].draw();
             plot_velocity[i].draw();
             plot_voltage [i].draw();
@@ -90,6 +94,7 @@ public:
 
     void execute_cycle(uint64_t /*cycle*/) {
         for (std::size_t i = 0; i < num_joints; ++i) {
+            plot_current [i].add_sample(joints[i].s_cur);
             plot_position[i].add_sample(joints[i].s_ang);
             plot_velocity[i].add_sample(joints[i].s_vel * constants::vel_amp);
             plot_voltage [i].add_sample(joints[i].motor.get_backed());
@@ -113,6 +118,7 @@ public:
     std::vector<plot1D> plot_position;
     std::vector<plot1D> plot_velocity;
     std::vector<plot1D> plot_voltage;
+    std::vector<plot1D> plot_current;
 
     std::vector<axes>   subspace_axes;
     std::vector<plot2D> subspace_portrait;
