@@ -15,7 +15,12 @@ typedef learning::BidirectionalModel<learning::TanhTransfer<>> BidirectionalNonl
 
 TEST_CASE( "twopart_vector access and manipulation" , "[twopart_vector]")
 {
-    learning::twopart_vector vec(3,5);
+    typedef std::vector<double> Vector_t;
+
+    Vector_t v1(3);
+    Vector_t v2(5);
+
+    learning::twopart_vector<Vector_t> vec(v1,v2);
 
     // check sizes
     REQUIRE( vec      .size() == 8 );
@@ -43,6 +48,10 @@ TEST_CASE( "twopart_vector access and manipulation" , "[twopart_vector]")
     B[2] = 5;
     B[3] = 6;
     B[4] = 7;
+
+
+    REQUIRE( v1 == A );
+    REQUIRE( v2 == B );
 
     // elements can be read
     for (std::size_t i = 0; i < vec.size(); ++i) {

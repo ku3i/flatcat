@@ -34,7 +34,7 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
     joints[1].motor = +.3771;
     joints[2].motor = -.2342;
     joints[3].motor = -.1337;
-    joints[4].motor = +.9876;
+    joints[4].motor = +.6789;
 
     /* assert that motor space is correct */
     motors.execute_cycle();
@@ -44,11 +44,11 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
 
     /* initialize predictors */
     motors.execute_cycle();
-    learning::Motor_Predictor pred{ robot, motors, 0.5, 0.01, 1, params, /*noise=*/.0 };
+    learning::Motor_Predictor pred{ robot, motors, 0.25, 0.01, 1, params, /*noise=*/.0 };
     pred.initialize_randomized();
 
     /* adapt a 'few' cycles */
-    for (unsigned i = 0; i < 1000; ++i) {
+    for (unsigned i = 0; i < 2500; ++i) {
         motors.execute_cycle();
         pred.predict();
         pred.adapt();
@@ -59,11 +59,11 @@ TEST_CASE( "motor predictor adapts" , "[motor_predictor]")
     print_vector(predictions);
 
     REQUIRE( predictions.size() == 5 );
-    REQUIRE( close(predictions[0], 0.4223, 0.01) );
-    REQUIRE( close(predictions[1], 0.3771, 0.01) );
-    REQUIRE( close(predictions[2],-0.2342, 0.01) );
-    REQUIRE( close(predictions[3],-0.1337, 0.01) );
-    REQUIRE( close(predictions[4], 0.9876, 0.01) );
+    REQUIRE( close(predictions[0], 0.4223, 0.02) );
+    REQUIRE( close(predictions[1], 0.3771, 0.02) );
+    REQUIRE( close(predictions[2],-0.2342, 0.02) );
+    REQUIRE( close(predictions[3],-0.1337, 0.02) );
+    REQUIRE( close(predictions[4], 0.6789, 0.02) );
 
 }
 
