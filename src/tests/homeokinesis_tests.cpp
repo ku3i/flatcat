@@ -36,10 +36,11 @@ TEST_CASE( "homeokinetic controller construction + basic stuff" , "[homeokinesis
     Test_Sensor_Space sensors{robot.get_joints()};
     sensors.execute_cycle();
 
-    std::vector<supreme::csl_control> csl(robot.get_joints().size());
+    std::vector<supreme::pid_control> pid(robot.get_joints().size());
 
     double random_range = 0.1;
-    learning::Homeokinetic_Control homeoctrl(robot, sensors, csl, random_range, random_range);
+    VectorN ext = {0,0,0};
+    learning::Homeokinetic_Control homeoctrl(robot, sensors, pid, random_range, random_range, ext);
 
     REQUIRE( homeoctrl.get_curr_state().size() == sensors.size() );
     REQUIRE( homeoctrl.get_next_state().size() == sensors.size() );

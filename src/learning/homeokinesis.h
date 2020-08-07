@@ -1,6 +1,7 @@
 #ifndef HOMEOKINESIS_H
 #define HOMEOKINESIS_H
 
+#include <common/vector2.h>
 #include <control/sensorspace.h>
 #include <learning/forward_inverse_model.hpp>
 #include <controller/pid_control.hpp>
@@ -28,21 +29,28 @@ public:
 
     Model_t ctrl, pred;
 
-    Vector2& j0; // override motor signal
-    Vector2& j1;
+    Vector_t const& ext_input; // ctrl inputs to override motor signal
 
+    struct Option_t {
+        bool external_control    = false;
+        bool prediction_learning = true;
+        bool controller_learning = true;
+        bool motor_outputs       = true;
+    } option = {};
+
+
+    const float joint_range = 0.45;
 
     Homeokinetic_Control( robots::Robot_Interface& robot
                         , sensor_input_interface const& input
                         , std::vector<supreme::pid_control>& pid
                         , double pred_init_range
                         , double ctrl_init_range
-                        , Vector2& j0, Vector2& j1
+                        , Vector_t const& ext_input
                         , unsigned context = 0
                         )
     : robot(robot)
     , input(input)
-    //, csl(csl)
     , pid(pid)
     , x0(input.size())
     , x1(input.size())
@@ -53,7 +61,7 @@ public:
     , XY0(X0,Y0)
     , ctrl(/*in=*/ x0.size(), /*out=*/y0.size(), ctrl_init_range)
     , pred(/*in=*/xy0.size(), /*out=*/x1.size(), pred_init_range)
-    , j0(j0), j1(j1)
+    , ext_input(ext_input)
     {
 
         read_sensor_data(x0);
@@ -75,14 +83,16 @@ public:
         auto& j = robot.set_joints();
         assert(j.size() <= vec.size());
 
-        vec.at(0) +=  j0.y;
-        vec.at(1) +=  j1.y;
-        vec.at(2) +=  j0.x;
-        vec.at(3) += -j1.x;
+        if (option.external_control) { // inject external control inputs
+            const std::size_t N = std::min(ext_input.size(), vec.size());
+            assert(N == 4);
+            for (unsigned i = 0; i < N; ++i)
+                vec[i] += ext_input[i];
+        }
 
         for (std::size_t i = 0; i < j.size(); ++i) {
             j[i].motor.transfer();
-            pid[i].set_target_value(0.5*vec[i]);  // 0.5 because of the 90 deg range of tadpole
+            pid[i].set_target_value(joint_range*vec[i]);  // 0.4 because of the 90 deg range of tadpole and we dont want to get stuck in the limits
             j[i].motor = pid[i].step(j[i].s_ang); // find general solution, inc. the limits of the joints
         }
     }
@@ -112,6 +122,7 @@ public:
                                           | current sensory state x(t)        |
                                           +-----------------------------------*/
 
+        //TODO how to enable/disable motor output?
         write_motor_data(y0);  // write y(t)
         robot.execute_cycle(); // apply motor commands y(t) to robot and get next sensory state x(t+1)
         read_sensor_data(x1);  // read x(t+1)
@@ -133,27 +144,24 @@ public:
                                                   +-------------------------------------------------------*/
 
         /** 4.) Adaption/Learning */
-        pred.adapt(xy0, x1, learning_rate_pred); /*--------------------------------------------+
-                                                  | learn predictive model to map from         |
-                                                  | current state x(t) and motor commands y(t) |
-                                                  | to next sensor state x(t+1)                |
-                                                  +--------------------------------------------*/
 
-        ctrl.adapt(x0, Y0, learning_rate_ctrl);  /*---------------------------------------------------+
-                                                  | learn controller to map from x(t) to y^(t),       |
-                                                  | the INVERSE learns to reconstruct x(t) from y^(t) |
-                                                  +---------------------------------------------------*/
+        if (option.prediction_learning)
+            pred.adapt(xy0, x1, learning_rate_pred);
+            /*--------------------------------------------+
+             | learn predictive model to map from         |
+             | current state x(t) and motor commands y(t) |
+             | to next sensor state x(t+1)                |
+             +--------------------------------------------*/
 
-        sts_add("pe=%+.3f, tle=%.3f [", pred.get_forward_error(), ctrl.get_inverse_error());
+        if (option.controller_learning)
+            ctrl.adapt(x0, Y0, learning_rate_ctrl);
+            /*---------------------------------------------------+
+             | learn controller to map from x(t) to y^(t),       |
+             | the INVERSE learns to reconstruct x(t) from y^(t) |
+             +---------------------------------------------------*/
 
-        for (unsigned i = 0; i< y0.size(); ++i)
-            sts_add("%+.3f", y0[i]);
-        sts_msg("]");
-        /**
-            Frage: wenn zur Vorhersage von x(t+1) nur y(t) verwendet wird:
-            Vorteile: einfacher zu rechnen
-            Nachteile: state ist nicht vollständig, model hat kein memory.
-        */
+        sts_add("pe=%+.3f, tle=%.3f", pred.get_forward_error(), ctrl.get_inverse_error());
+        print_vector(y0,"y");
     }
 
 
