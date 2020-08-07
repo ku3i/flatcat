@@ -140,6 +140,8 @@ double unwrap(double new_angle, double last_angle);
 /* checks that value is close to refval by max distance of tolerance */
 inline bool close(double value, double refval, double tolerance) { return (fabs(value - refval) < tolerance); }
 
+inline bool toggle(bool& b) { b = !b; return b; }
+
 /* checks for vector that value is close to refval by max distance of tolerance */
 template <typename Vector_t>
 inline bool close(Vector_t vec, Vector_t refvec, double tolerance) {
