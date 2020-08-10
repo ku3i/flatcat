@@ -11,6 +11,7 @@
 #include <learning/state_predictor.h>
 #include <learning/motor_predictor.h>
 #include <learning/state_action_predictor.h>
+#include <learning/homeokinetic_predictor.h>
 
 /* The Expert Vector merely work as a container
  * and should neither carry any information nor functionality
@@ -121,6 +122,28 @@ public:
                                                                                      , experience_size
                                                                                      , hidden_layer_size
                                                                                      ) )
+                                , max_number_of_experts );
+    }
+
+
+
+    /* homeokinetic expert constructor */
+    Expert_Vector( std::size_t                   max_number_of_experts
+                 , static_vector_interface&      payloads
+                 , sensor_input_interface const& input
+                 , std::size_t                   number_of_motor_outputs
+                 , double                        local_learning_rate
+                 , double                        random_weight_range
+                 )
+    : Expert_Vector(max_number_of_experts, payloads)
+    {
+        assert(local_learning_rate > 0.);
+        for (std::size_t i = 0; i < max_number_of_experts; ++i)
+            experts.emplace_back( Predictor_ptr( new learning::Homeokinetic_Core( input
+                                                                                , number_of_motor_outputs
+                                                                                , local_learning_rate
+                                                                                , random_weight_range
+                                                                                ) )
                                 , max_number_of_experts );
     }
 

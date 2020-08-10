@@ -1,9 +1,10 @@
 #ifndef TIME_STATE_SPACE_H
 #define TIME_STATE_SPACE_H
 
+#include <robots/robot.h>
 #include <control/sensorspace.h>
 
-//todo namespace learning
+namespace learning {
 
 template <std::size_t NumTaps>
 class Time_State_Space : public time_embedded_sensors<NumTaps> {
@@ -48,6 +49,7 @@ public:
     }
 };
 
+} /* namespace learning */
 
 #endif /* TIME_STATE_SPACE_H */
 

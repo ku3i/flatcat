@@ -69,7 +69,7 @@ TEST_CASE( "TES Construction with length N", "[time_embedded_signal]")
 TEST_CASE( "TSS Construction" , "[Time_State_Space]")
 {
     Test_Robot robot(3,0);
-    Time_State_Space<7> inputs{robot};
+    learning::Time_State_Space<7> inputs{robot};
 
     //robot.set_joint
 

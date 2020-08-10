@@ -156,4 +156,3 @@ TEST_CASE( "state predictor adapts" , "[predictor]")
     REQUIRE( close(w[1], 0.37, 0.001) );
     REQUIRE( close(w[2],-0.23, 0.001) );
 }
-

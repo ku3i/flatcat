@@ -3,7 +3,7 @@
 
 #include <common/modules.h>
 #include <learning/homeokinesis.h>
-#include <controller/csl_control.hpp>
+#include <controller/pid_control.hpp>
 
 namespace local_tests {
 
@@ -40,7 +40,7 @@ TEST_CASE( "homeokinetic controller construction + basic stuff" , "[homeokinesis
 
     double random_range = 0.1;
     VectorN ext = {0,0,0};
-    learning::Homeokinetic_Control homeoctrl(robot, sensors, pid, random_range, random_range, ext);
+    learning::Homeokinetic_Control homeoctrl(sensors, robot.get_joints().size(), random_range, random_range);
 
     REQUIRE( homeoctrl.get_curr_state().size() == sensors.size() );
     REQUIRE( homeoctrl.get_next_state().size() == sensors.size() );
@@ -72,7 +72,7 @@ TEST_CASE( "homeokinetic controller construction + basic stuff" , "[homeokinesis
 
     // check motor outputs are NON-ZERO
     sensors.execute_cycle();
-    homeoctrl.execute_cycle();
+    homeoctrl.execute_cycle(sensors);
     sts_add("[");
     for (auto const& e: homeoctrl.get_motor_data()) {
         sts_add("%+1.2f", e);

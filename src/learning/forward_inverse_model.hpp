@@ -45,10 +45,19 @@ public:
         assert(part1.size() > 0);
     }
 
+
     twopart_vector& operator=(Vector_t const& vec) {
-        assert(vec.size() == part0.size() + part1.size());
+        assert(vec.size() == size());
         for (std::size_t i = 0; i < size(); ++i)
             this->operator[](i) = vec[i];
+        return *this;
+    }
+
+    twopart_vector& operator=(twopart_vector const& other) {
+        assert(part0.size() == other.part0.size());
+        assert(part1.size() == other.part1.size());
+        part0 = other.part0;
+        part1 = other.part1;
         return *this;
     }
 
@@ -139,6 +148,8 @@ public:
     model::vector_t const& get_outputs() const { return y; }
     model::scalar_t        get_error  () const { return e/y.size(); }
 
+    void randomize_weights(double random_weight_range) { model::randomize_weights(W, random_weight_range); }
+
 
 }; /* LinearModel */
 
@@ -173,6 +184,11 @@ public:
     model::scalar_t get_forward_error() const { return m_forward.get_error(); }
     model::scalar_t get_inverse_error() const { return m_inverse.get_error(); }
 
+
+    void randomize_weights(double range) {
+        m_forward.randomize_weights(range);
+        m_forward.randomize_weights(range);
+    }
 }; /* BidirectionalModel */
 
 
