@@ -313,15 +313,15 @@ Event_Manager::handle_joystick_motion_hat(SDL_JoyHatEvent const& j)
 {
     switch(j.value)
     {
-         case SDL_HAT_LEFTUP    : dbg_msg("L-U"); break;
-         case SDL_HAT_UP        : dbg_msg("  U"); break;
-         case SDL_HAT_RIGHTUP   : dbg_msg("R-U"); break;
-         case SDL_HAT_LEFT      : dbg_msg("L  "); break;
-         case SDL_HAT_CENTERED  : dbg_msg(" C "); break;
-         case SDL_HAT_RIGHT     : dbg_msg("R  "); break;
-         case SDL_HAT_LEFTDOWN  : dbg_msg("L-D"); break;
-         case SDL_HAT_DOWN      : dbg_msg("  D"); break;
-         case SDL_HAT_RIGHTDOWN : dbg_msg("R-U"); break;
+         case SDL_HAT_LEFTUP    : /*dbg_msg("L-U");*/ break;
+         case SDL_HAT_UP        : /*dbg_msg("  U");*/ break;
+         case SDL_HAT_RIGHTUP   : /*dbg_msg("R-U");*/ break;
+         case SDL_HAT_LEFT      : /*dbg_msg("L  ");*/ break;
+         case SDL_HAT_CENTERED  : /*dbg_msg(" C ");*/ break;
+         case SDL_HAT_RIGHT     : /*dbg_msg("R  ");*/ break;
+         case SDL_HAT_LEFTDOWN  : /*dbg_msg("L-D");*/ break;
+         case SDL_HAT_DOWN      : /*dbg_msg("  D");*/ break;
+         case SDL_HAT_RIGHTDOWN : /*dbg_msg("R-U");*/ break;
          default: dbg_msg("unknown hat %u", j.hat); break;
     }
     if (nullptr != user_callback.joystick_motion_hat) user_callback.joystick_motion_hat(j);
