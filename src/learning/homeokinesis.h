@@ -31,6 +31,7 @@ public:
     struct Option_t {
         bool prediction_learning = true;
         bool controller_learning = true;
+        bool verbose             = true;
     } option = {};
 
 
@@ -138,8 +139,10 @@ public:
         /** 1.) Control */
         control();
 
-        sts_add("pe=%+.3f, tle=%.3f", pred.get_forward_error(), ctrl.get_inverse_error());
-        print_vector(y0,"y");
+        if (option.verbose) {
+            sts_add("pe=%+.3f, tle=%.3f", pred.get_forward_error(), ctrl.get_inverse_error());
+            print_vector(y0,"y");
+        }
     }
 
 

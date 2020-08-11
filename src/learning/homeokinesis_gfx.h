@@ -1,0 +1,54 @@
+/*---------------------------------+
+ | Matthias Kubisch                |
+ | kubisch@informatik.hu-berlin.de |
+ | August 2020                     |
+ +---------------------------------*/
+
+#ifndef HOMEOKINESIS_GRAPHICS_H
+#define HOMEOKINESIS_GRAPHICS_H
+
+#include <draw/draw.h>
+#include <draw/axes.h>
+#include <draw/axes3D.h>
+#include <draw/plot1D.h>
+#include <draw/plot2D.h>
+#include <draw/plot3D.h>
+#include <draw/network3D.h>
+#include <draw/graphics.h>
+
+#include <learning/homeokinesis.h>
+
+namespace learning {
+
+class Homeokinesis_Graphics : public Graphics_Interface
+{
+    Homeokinetic_Control const& ctrl;
+
+public:
+    Homeokinesis_Graphics(Homeokinetic_Control const& ctrl)
+    : ctrl(ctrl)
+    , axes_err(0., -0.5, 0., 2.0, 0.5, 1, "error",0.001)
+    , plot_pre(1000, axes_err, colors::cyan   , "pre")
+    , plot_tle(1000, axes_err, colors::magenta, "tle")
+    {}
+
+    void draw(const pref& /*p*/) const {
+        axes_err.draw();
+        plot_pre.draw();
+        plot_tle.draw();
+    }
+
+    void execute_cycle(uint64_t /*cycle*/) {
+        plot_pre.add_sample(ctrl.get_prediction_error());
+        plot_tle.add_sample(ctrl.get_timeloop_error()  );
+    }
+
+    axes   axes_err;
+    plot1D plot_pre;
+    plot1D plot_tle;
+};
+
+} /* namespace learning */
+
+#endif /* HOMEOKINESIS_GRAPHICS_H */
+
