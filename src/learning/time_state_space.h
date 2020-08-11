@@ -15,17 +15,13 @@ public:
         auto const& joints = robot.get_joints();
         auto const& accels = robot.get_accels();
 
-        for (robots::Joint_Model const& j : joints)
-            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang + rand_norm_zero_mean(0.01);; });
-
-        for (robots::Joint_Model const& j : joints)
+        for (robots::Joint_Model const& j : joints) {
+            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_ang", [&j](){ return j.s_ang; });
             time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_vel", [&j](){ return j.s_vel; });
-
-  /*      for (robots::Joint_Model const& j : joints)
             time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_vol", [&j](){ return j.motor.get_backed(); });
-*/
-      /*  for (robots::Joint_Model const& j : joints)
-            time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_cur", [&j](){ return 0.5*j.s_cur; });*/
+        }
+        //for (robots::Joint_Model const& j : joints)
+          //  time_embedded_sensors<NumTaps>::sensors.emplace_back(j.name + "_cur", [&j](){ return j.motor.get_backed();/*j.s_cur;*/ });
 
         for (robots::Accel_Sensor const& a : accels) {
             time_embedded_sensors<NumTaps>::sensors.emplace_back("acc_x", [&a](){ return a.a.x; });
@@ -36,8 +32,8 @@ public:
             time_embedded_sensors<NumTaps>::sensors.emplace_back("vel_z", [&a](){ return a.v.z; });
         }
 
-        // don't not if that helps much.
-        time_embedded_sensors<NumTaps>::sensors.emplace_back("noise", [](){ return rand_norm_zero_mean(0.1); });
+        // don't know if that helps much.
+        //time_embedded_sensors<NumTaps>::sensors.emplace_back("noise", [](){ return 0.1 + rand_norm_zero_mean(0.1); });
 
         //IDEA: consider avg rotational speed... as the gyroscope
 

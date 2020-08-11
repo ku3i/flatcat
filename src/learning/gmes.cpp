@@ -105,7 +105,6 @@
 
 
     /* estimate learning progress: L = -dE/dt
-     * TODO: this is a method of the expert, right?
      */
     void GMES::estimate_learning_progress(void)
     {

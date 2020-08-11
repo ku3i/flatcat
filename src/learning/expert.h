@@ -56,6 +56,8 @@ public:
     void reset_transition(std::size_t index) { transition.at(index) = gmes_constants::initial_transition_validation; }
 
     Predictor_Base const& get_predictor(void) const { return *predictor; }
+    Predictor_Base      & set_predictor(void)       { return *predictor; }
+
     bool does_exists(void) const { return exists; }
 
 

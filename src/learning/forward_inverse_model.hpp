@@ -94,8 +94,9 @@ public:
 template <typename T = model::scalar_t>
 class TanhTransfer {
 public:
-    static T transfer(T const& x) { return tanh(x); }
-    static T derive(T const& y) { return (1.0 + y) * (1.0 - y); } // this is y' with y=tanh(x)
+    static T transfer(T const& x) { return tanh(x);               } // normal tangens hyperbolicus
+    static T derive  (T const& y) { return (1.0 + y) * (1.0 - y); } // this is y' with y=tanh(x)
+    static T inverse (T const& x) { return atanh(clip(x,-0.9999,0.9999)); /*log((1+x)/(1-x))/2*/    } // area tangens hyperbolicus = tanh^-1
 };
 
 
@@ -154,10 +155,74 @@ public:
 }; /* LinearModel */
 
 
-template <typename Transfer_t>
+class InverseNeuralModel {
+
+    model::vector_t y,a; // output, temp
+    model::matrix_t M; // Weights
+    model::scalar_t e; // prediction error
+
+public:
+    static constexpr auto& G = TanhTransfer<>::inverse;
+
+    InverseNeuralModel(std::size_t size_in, std::size_t size_out, double random_weight_range)
+    : y(size_out)
+    , a(size_in)
+    , M(size_out, size_in)
+    , e()
+    {
+        model::randomize_weights(M, random_weight_range);
+    }
+
+    template <typename InputVector_t>
+    model::vector_t const& propagate(InputVector_t const& in)
+    {
+        model::check_vectors(in, a);
+        for (std::size_t j = 0; j < in.size(); ++j)
+            a[j] = G(in[j]);
+
+        for (std::size_t i = 0; i < y.size(); ++i) {
+            y[i] = .0;
+            for (std::size_t j = 0; j < a.size(); ++j)
+                y[i] += M[i][j] * a[j];
+        }
+
+        return y;
+    }
+
+    /* adapt should follow a propagation to fill y */
+    template <typename InputVector_From_t, typename InputVector_To_t>
+    void adapt(InputVector_From_t const& in, InputVector_To_t const& tar, double learning_rate) {
+        model::check_vectors(tar, y);
+        model::check_vectors(in, a);
+        assert_in_range(learning_rate, 0.0, 5.0);
+
+        e = .0;
+        for (std::size_t j = 0; j < in.size(); ++j)
+            a[j] = G(in[j]);
+
+        for (std::size_t i = 0; i < y.size(); ++i) {
+            model::scalar_t err_i = learning_rate * (tar[i] - y[i]);
+            e += square(tar[i] - y[i]);
+            for (std::size_t j = 0; j < in.size(); ++j)
+                M[i][j] += err_i * a[j];
+        }
+    }
+
+    model::matrix_t const& get_weights() const { return M; }
+    model::vector_t const& get_outputs() const { return y; }
+    model::scalar_t        get_error  () const { return e/y.size(); }
+
+    void randomize_weights(double random_weight_range) { model::randomize_weights(M, random_weight_range); }
+
+
+}; /* LinearModel */
+
+
+template <typename ForwardType, typename InverseType>
 class BidirectionalModel {
 
-    NeuralModel<Transfer_t> m_forward, m_inverse;
+    ForwardType m_forward;
+    InverseType m_inverse;
 
 public:
     BidirectionalModel(std::size_t size_x, std::size_t size_y, double random_weight_range)

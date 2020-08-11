@@ -9,25 +9,28 @@ namespace learning {
 
 class Homeokinetic_Control {
 public:
-    typedef BidirectionalModel<TanhTransfer<>> Model_t;
+    typedef NeuralModel<TanhTransfer<>> Forward_t;
+    typedef InverseNeuralModel          Inverse_t;
+
+    typedef BidirectionalModel<Forward_t,Forward_t> PredictionModel_t;
+    typedef BidirectionalModel<Forward_t,Forward_t> ControllerModel_t;
+
     typedef model::vector_t Vector_t;
 
     // Note: do not use const members
-    float learning_rate_ctrl = 0.01; //both 0.01 is very nice;
-    float learning_rate_pred = 0.01;
-    float joint_range = 0.45; // move to external controller
+    float learning_rate_ctrl = 0.005; //both 0.01 is very nice;
+    float learning_rate_pred = 0.005;
 
-    Vector_t x0,x1,y0;
-    Vector_t X0,Y0;
+    Vector_t x0,x1,y0,y1;
+    Vector_t X0,X1,Y0;
     twopart_vector<Vector_t> xy0, XY0;
 
-    Model_t ctrl, pred;
+    ControllerModel_t ctrl;
+    PredictionModel_t pred;
 
     struct Option_t {
-        bool external_control    = false;
         bool prediction_learning = true;
         bool controller_learning = true;
-        bool motor_outputs       = true;
     } option = {};
 
 
@@ -41,14 +44,16 @@ public:
     : x0(input.size())
     , x1(input.size())
     , y0(number_of_joints + context)
+    , y1(number_of_joints + context)
     , X0(input.size())
+    , X1(input.size())
     , Y0(number_of_joints + context)
     , xy0(x0,y0)
     , XY0(X0,Y0)
     , ctrl(/*in=*/ x0.size(), /*out=*/y0.size(), init_weight_range)
     , pred(/*in=*/xy0.size(), /*out=*/x1.size(), init_weight_range)
     {
-
+        sts_msg("creating homeokinetic controller with\n%u joints and \n%u context neurons.", number_of_joints, context);
         read_sensor_data(x0, input);
         control();
     }
@@ -62,27 +67,6 @@ public:
 
         local test with a damped so2 oscillator
         Test homeokinesis only with pendulum, crawler and tadpole, fourlegged (TADPOLE
-    */
-
-    /*
-    template <typename Vector_t>
-    void write_motor_data(robots::Robot_Interface& robot, Vector_t & vec, Vector_t const& ext_input) {
-        auto& j = robot.set_joints();
-        assert(j.size() <= vec.size());
-
-        if (option.external_control) { // inject external control inputs
-            const std::size_t N = std::min(ext_input.size(), vec.size());
-            assert(N == 4);
-            for (unsigned i = 0; i < N; ++i)
-                vec[i] += ext_input[i];
-        }
-
-        for (std::size_t i = 0; i < j.size(); ++i) {
-            j[i].motor.transfer();
-            pid[i].set_target_value(joint_range*vec[i]);  // 0.4 because of the 90 deg range of tadpole and we dont want to get stuck in the limits
-            j[i].motor = pid[i].step(j[i].s_ang); // find general solution, inc. the limits of the joints
-        }
-    }
     */
 
 
@@ -163,15 +147,17 @@ public:
      | time-step border:                |
      | copy sensory state x(t) = x(t+1) |
      +----------------------------------*/
-    void backup_state(void) { x0 = x1; }
+    void backup_state(void) {
+        x0 = x1;
+        //y0 = y1;
+    }
 
-
-    /*-----------------------------------+
-     | create control command y(t) from  |
-     | current sensory state x(t)        |
-     +-----------------------------------*/
+    /*------------------------------------+
+     | create control command y(t+1) from |
+     | current sensory state x(t)         |
+     +------------------------------------*/
     void control(void) {
-        y0 = ctrl.propagate_forward(x0);
+        y1 = ctrl.propagate_forward(x0); // consider adding the last motor actions to controller..
     }
 
     /*------------------------------------+
@@ -179,6 +165,7 @@ public:
      +------------------------------------*/
     template <typename Input_t>
     void read_next_state(Input_t const& input) {
+        y0 = y1;
         read_sensor_data(x1, input);
     }
 
@@ -186,7 +173,7 @@ public:
      | make prediction x^(t+1) from x(t) and y(t) |
      +--------------------------------------------*/
     void predict(void) {
-        /* X1 = */ pred.propagate_forward(xy0);  // make prediction
+        X1 = pred.propagate_forward(xy0);  // make prediction
     }
 
     /*-------------------------------------------------------+
@@ -222,14 +209,18 @@ public:
 
     Vector_t const& get_curr_state(void) const { return x0; }
     Vector_t const& get_next_state(void) const { return x1; }
+    Vector_t const& get_prediction(void) const { return X1; }
 
-    Vector_t const& get_motor_data(void) const { return y0; }
-    Vector_t      & set_motor_data(void)       { return y0; }
+    Vector_t const& get_motor_data(void) const { return y1; }
+    Vector_t      & set_motor_data(void)       { return y1; }
 
     void randomize_weights(double range) {
         pred.randomize_weights(range);
         ctrl.randomize_weights(range);
     }
+
+    double get_timeloop_error(void) const { return ctrl.get_inverse_error(); }
+    double get_prediction_error(void) const { return pred.get_forward_error(); }
 
 private:
 
@@ -240,6 +231,8 @@ private:
         for (std::size_t i = 0; i < input.size(); ++i)
             vec[i] = input[i];
     }
+
+    friend class Homeokinetic_Graphics;
 };
 
 } /* namespace learning */

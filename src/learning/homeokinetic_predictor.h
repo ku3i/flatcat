@@ -13,10 +13,10 @@ namespace learning {
 
 class Homeokinetic_Core : public Predictor_Base
 {
-    Homeokinetic_Control core;
-
     // settings
     unsigned context = 4;
+
+    Homeokinetic_Control core;
 
     Homeokinetic_Core(const Homeokinetic_Core& other) = delete;
     Homeokinetic_Core& operator=(const Homeokinetic_Core& other) = delete;
@@ -43,7 +43,7 @@ public:
         dbg_msg("Copying homeokinetic pred/ctrl weights.");
     };
 
-    Predictor_Base::vector_t const& get_prediction(void) const override { return core.get_next_state(); }
+    Predictor_Base::vector_t const& get_prediction(void) const override { return core.get_prediction(); }
 
     double predict(void) override {
         core.read_next_state(input); //TODO alt: consider to inject, actual motor commands
@@ -71,6 +71,11 @@ public:
     void save(std::string /*folder*/) { wrn_msg("FIXME: nothing saved yet."); /*TODO implement */ }
     void load(std::string /*folder*/) { wrn_msg("FIXME: nothing loaded yet.");/*TODO implement */ }
 
+
+    Homeokinetic_Control::Vector_t& set_motor_data(void) { return core.set_motor_data(); }
+
+    double get_timeloop_error(void) const { return core.get_timeloop_error(); }
+    double get_prediction_error(void) const { return core.get_prediction_error(); }
 
 private:
 
