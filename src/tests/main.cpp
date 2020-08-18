@@ -172,3 +172,79 @@ TEST_CASE( "backed value", "[common]") {
     REQUIRE( value_double.get_backed() == .0 );
 
 }
+
+TEST_CASE( "delayed values", "[common]") {
+
+    common::delayed_t<int> value_unsigned(0,1);
+    REQUIRE( value_unsigned.get() == 0 );
+    REQUIRE( value_unsigned.get_delayed() ==  0 );
+    value_unsigned = 44;
+    value_unsigned = 50;
+    value_unsigned += 5;
+    REQUIRE( value_unsigned.get() == 55 );
+    REQUIRE( value_unsigned.get_delayed() ==  0 );
+    value_unsigned.transfer();
+    REQUIRE( value_unsigned.get_delayed() ==  55 );
+    value_unsigned.reset();
+    REQUIRE( value_unsigned.get() == 0 );
+    REQUIRE( value_unsigned.get_delayed() ==  0 );
+
+
+    common::delayed_t<bool> value_bool(true, 1);
+    REQUIRE( value_bool.get() == true );
+    REQUIRE( value_bool.get_delayed() == true );
+    value_bool = false;
+    REQUIRE( value_bool.get() == false );
+    REQUIRE( value_bool.get_delayed() == true );
+    value_bool.transfer();
+    REQUIRE( value_bool.get_delayed() == false );
+    value_bool = true;
+    value_bool.transfer();
+    REQUIRE( value_bool.get_delayed() == true );
+    value_bool.reset();
+    REQUIRE( value_bool.get() == false );
+    REQUIRE( value_bool.get_delayed() == false );
+
+
+    common::delayed_t<double> value_double(.001, 3);
+    REQUIRE( value_double.get() == .001 );
+    value_double = .654;
+    REQUIRE( value_double.get() == .654 );
+    REQUIRE( value_double.get_delayed() == .001 );
+    value_double.transfer();
+
+    value_double = .321;
+    value_double += 1.0;
+    REQUIRE( value_double.get() == 1.321 );
+    REQUIRE( value_double.get_delayed() == .001 );
+    value_double.transfer();
+
+    //NO automatic reset.
+    REQUIRE( value_double.get() == 1.321 );
+
+
+    REQUIRE( value_double.get_delayed() == .001 );
+
+    value_double = .1337;
+    value_double.transfer();
+
+    REQUIRE( value_double.get_delayed() == .654 );
+
+    value_double = .2342;
+    value_double.transfer();
+    REQUIRE( value_double.get_delayed() == 1.321 );
+
+    value_double.transfer();
+    REQUIRE( value_double.get_delayed() == .1337 );
+
+    value_double.transfer();
+    REQUIRE( value_double.get_delayed() == .2342 );
+
+    value_double.transfer();
+
+    value_double = 3.1415;
+    REQUIRE( value_double.get_delayed() != .0 );
+    value_double.reset();
+    REQUIRE( value_double.get() == .0 );
+    REQUIRE( value_double.get_delayed() == .0 );
+}

@@ -44,13 +44,13 @@ class delayed_t
     buffer_t backup;
 
 public:
-    explicit delayed_t(T const& actual = T(), const unsigned steps = 1)
-    : actual(actual)
+    explicit delayed_t(T const& init = T(), const unsigned steps = 1)
+    : actual(init)
     , steps(steps)
     , backup()
     {
         assert(steps > 0);
-        backup.assign(steps, T{});
+        backup.assign(steps, init);
     }
 
     void reset(void) {
@@ -65,8 +65,8 @@ public:
         assert(backup.size() == steps);
     }
 
-    T const& get()        const { return actual; }
-    T const& get_backed() const { return backup.front(); }
+    T const& get()         const { return actual; }
+    T const& get_delayed() const { return backup.front(); }
 
     delayed_t& operator=(const T& value) {
         this->actual = value;
