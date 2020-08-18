@@ -40,7 +40,7 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-std=c++14" />
+			<Add option="-std=c++1y" />
 			<Add option="`sdl2-config --cflags`" />
 			<Add option="`pkg-config --cflags gtk+-2.0 gmodule-2.0`" />
 			<Add option="-D__LINUX_ALSA__" />
@@ -167,6 +167,7 @@
 		<Unit filename="src/learning/action_selection.cpp" />
 		<Unit filename="src/learning/action_selection.h" />
 		<Unit filename="src/learning/autoencoder.h" />
+		<Unit filename="src/learning/bimodel_predictor.h" />
 		<Unit filename="src/learning/boltzmann_softmax.h" />
 		<Unit filename="src/learning/competitive_motor_layer.h" />
 		<Unit filename="src/learning/competitive_motor_layer_graphics.h" />
@@ -183,6 +184,8 @@
 		<Unit filename="src/learning/gmes_constants.h" />
 		<Unit filename="src/learning/gmes_graphics.h" />
 		<Unit filename="src/learning/homeokinesis.h" />
+		<Unit filename="src/learning/homeokinesis_gfx.h" />
+		<Unit filename="src/learning/homeokinetic_predictor.h" />
 		<Unit filename="src/learning/learning_machine_interface.h" />
 		<Unit filename="src/learning/motor_layer.h" />
 		<Unit filename="src/learning/motor_predictor.h" />
@@ -230,6 +233,9 @@
 		<Unit filename="src/tests/homeokinesis_tests.cpp">
 			<Option target="tests" />
 		</Unit>
+		<Unit filename="src/tests/homeokinetic_core_tests.cpp">
+			<Option target="tests" />
+		</Unit>
 		<Unit filename="src/tests/jointcontroller_tests.cpp">
 			<Option target="tests" />
 		</Unit>
@@ -243,6 +249,9 @@
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/motor_predictor_tests.cpp">
+			<Option target="tests" />
+		</Unit>
+		<Unit filename="src/tests/neural_model_tests.cpp">
 			<Option target="tests" />
 		</Unit>
 		<Unit filename="src/tests/predictor_tests.cpp">
