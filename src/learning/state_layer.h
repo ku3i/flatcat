@@ -119,10 +119,10 @@ struct sensor_subspace_graphics : public Graphics_Interface
     , axis_xy(pos.x + size/2        , pos.y + size/2, pos.z,     size, size, 0, std::string("xy"))
     , axis_dt(pos.x + (2.0 + size)/2, pos.y + size/2, pos.z, 2.0-size, size, 1, std::string(j0.name + "/" + j1.name))
     , plot_xy(state_layer_constants::subspace_num_datapoints, axis_xy, colors::magenta )
-    , plot_j0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light0  )
-    , plot_j1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light1  )
-    , plot_p0(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
-    , plot_p1(state_layer_constants::subspace_num_datapoints, axis_dt, colortable      )
+    , plot_j0(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light0, "j0")
+    , plot_j1(state_layer_constants::subspace_num_datapoints, axis_dt, colors::light1, "j1")
+    , plot_p0(state_layer_constants::subspace_num_datapoints, axis_dt, colortable    , "p0")
+    , plot_p1(state_layer_constants::subspace_num_datapoints, axis_dt, colortable    , "p1")
     {
         dbg_msg("Initialize subspace for joints:\n\t%2u: %s\n\t%2u: %s", j0.joint_id, j0.name.c_str()
                                                                        , j1.joint_id, j1.name.c_str() );
