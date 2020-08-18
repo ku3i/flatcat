@@ -12,6 +12,7 @@
 #include <learning/motor_predictor.h>
 #include <learning/state_action_predictor.h>
 #include <learning/homeokinetic_predictor.h>
+#include <learning/bimodel_predictor.h>
 
 /* The Expert Vector merely work as a container
  * and should neither carry any information nor functionality
@@ -132,6 +133,7 @@ public:
                  , static_vector_interface&      payloads
                  , sensor_input_interface const& input
                  , std::size_t                   number_of_motor_outputs
+                 , std::size_t                   number_of_context_units
                  , double                        local_learning_rate
                  , double                        random_weight_range
                  )
@@ -143,7 +145,30 @@ public:
                                                                                 , number_of_motor_outputs
                                                                                 , local_learning_rate
                                                                                 , random_weight_range
+                                                                                , number_of_context_units
                                                                                 ) )
+                                , max_number_of_experts );
+    }
+
+
+    /* bimodel expert constructor */
+    Expert_Vector( std::size_t                   max_number_of_experts
+                 , static_vector_interface&      payloads
+                 , sensor_input_interface const& input
+                 , sensor_input_interface const& gateway
+                 , double                        local_learning_rate
+                 , double                        random_weight_range
+                 )
+    : Expert_Vector(max_number_of_experts, payloads)
+    {
+        assert(local_learning_rate > 0.);
+        for (std::size_t i = 0; i < max_number_of_experts; ++i)
+            experts.emplace_back(
+                                 Predictor_ptr( new learning::BiModel_Predictor( input
+                                                                               , gateway
+                                                                               , local_learning_rate
+                                                                               , random_weight_range
+                                                                               ) )
                                 , max_number_of_experts );
     }
 
