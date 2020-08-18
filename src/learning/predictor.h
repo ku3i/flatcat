@@ -100,7 +100,9 @@ public:
 
 private:
     virtual void learn_from_input_sample(void) = 0;
-    virtual void learn_from_experience(std::size_t skip_idx) = 0;
+    virtual void learn_from_experience(std::size_t /*skip_idx*/) {
+        assert(false && "Learning from experience is not implemented yet.");
+    };
 };
 
 
