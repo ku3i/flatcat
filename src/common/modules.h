@@ -52,8 +52,8 @@ bool is_vector_zero(Vector_t const& vec) {
 template <typename Vector_t>
 void print_vector(Vector_t const& vec, const char* name = "", const char* format = "%+4.2f ") {
     printf("%s = [", name);
-    for (auto const& el: vec)
-        printf(format, el);
+    for (std::size_t i = 0; i < vec.size(); ++i)
+        printf(format, vec[i]);
     printf("]\n");
 }
 

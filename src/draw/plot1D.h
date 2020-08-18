@@ -53,8 +53,9 @@ class colored_plot1D : public plot1D {
 public:
     colored_plot1D( unsigned int number_of_samples
                   , axes& a
-                  , ColorTable const& colortable )
-    : plot1D(number_of_samples, a)
+                  , ColorTable const& colortable
+                  , const char* name = "")
+    : plot1D(number_of_samples, a, colors::white0, name)
     , colors(number_of_samples)
     , colortable(colortable)
     {}
