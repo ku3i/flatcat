@@ -27,6 +27,8 @@ namespace constants {
     const double vel_amp = 1.0;///3.0;
 }
 
+// consider using Motorplot from Hannah
+
 class Spinalcord_Watch : public Graphics_Interface
 {
 public:
@@ -34,11 +36,12 @@ public:
     : joints(robot.get_joints())
     , num_joints(robot.get_number_of_joints())
     , accels(robot.get_accels())
-    , plot_axes()
-    , plot_position()
-    , plot_velocity()
-    , plot_voltage()
-    , plot_current()
+    , plot_axs()
+    , plot_pos()
+    , plot_vel()
+    , plot_vol()
+    , plot_cur()
+    , plot_tmp()
     , subspace_axes()
     , subspace_portrait()
     , axes_accel(0.,-1.25, 0., 2.0, 0.25, 1, "Accel")
@@ -46,11 +49,12 @@ public:
     , plot_accel_y(1000, axes_accel, colors::magenta, "ay")
     , plot_accel_z(1000, axes_accel, colors::yellow , "az")
     {
-        plot_axes    .reserve(num_joints);
-        plot_position.reserve(num_joints);
-        plot_velocity.reserve(num_joints);
-        plot_voltage .reserve(num_joints);
-        plot_current .reserve(num_joints);
+        plot_axs.reserve(num_joints);
+        plot_pos.reserve(num_joints);
+        plot_vel.reserve(num_joints);
+        plot_vol.reserve(num_joints);
+        plot_cur.reserve(num_joints);
+        plot_tmp.reserve(num_joints);
 
         subspace_axes.reserve(num_joints);
         subspace_portrait.reserve(num_joints);
@@ -62,11 +66,12 @@ public:
             const double posx   =  (i%2==0)? -1.5 : 1.5;
             const double posy   =  1.0 - height * (i/2 + 0.5);
 
-            plot_axes    .emplace_back(posx, posy, 0., width, height, 1, std::to_string(i) + ' ' + joints[i].name);
-            plot_current .emplace_back(num_datapoints, plot_axes[i], colors::yellow, "cur");
-            plot_voltage .emplace_back(num_datapoints, plot_axes[i], colors::cyan  , "vol");
-            plot_velocity.emplace_back(num_datapoints, plot_axes[i], colors::orange, "vel");
-            plot_position.emplace_back(num_datapoints, plot_axes[i], colors::white , "pos");
+            plot_axs.emplace_back(posx, posy, 0., width, height, 1, std::to_string(i) + ' ' + joints[i].name);
+            plot_cur.emplace_back(num_datapoints, plot_axs[i], colors::yellow, "cur");
+            plot_tmp.emplace_back(num_datapoints, plot_axs[i], colors::orange, "tmp");
+            plot_vol.emplace_back(num_datapoints, plot_axs[i], colors::cyan  , "vol");
+            plot_vel.emplace_back(num_datapoints, plot_axs[i], colors::pidgin, "vel");
+            plot_pos.emplace_back(num_datapoints, plot_axs[i], colors::white , "pos");
 
             subspace_axes    .emplace_back(posx + ((i%2==0) ? -1:1) * (width*0.5+0.5*height), posy, 0., height, height, 0, 'j' + std::to_string(i));
             subspace_portrait.emplace_back(num_datapoints, subspace_axes[i], colors::white);
@@ -77,11 +82,12 @@ public:
 
     void draw(const pref& /*p*/) const {
         for (std::size_t i = 0; i < num_joints; ++i) {
-            plot_axes    [i].draw();
-            plot_current [i].draw();
-            plot_position[i].draw();
-            plot_velocity[i].draw();
-            plot_voltage [i].draw();
+            plot_axs[i].draw();
+            plot_cur[i].draw();
+            plot_tmp[i].draw();
+            plot_pos[i].draw();
+            plot_vel[i].draw();
+            plot_vol[i].draw();
 
             subspace_axes[i]    .draw();
             subspace_portrait[i].draw();
@@ -94,10 +100,11 @@ public:
 
     void execute_cycle(uint64_t /*cycle*/) {
         for (std::size_t i = 0; i < num_joints; ++i) {
-            plot_current [i].add_sample(joints[i].s_cur);
-            plot_position[i].add_sample(joints[i].s_ang);
-            plot_velocity[i].add_sample(joints[i].s_vel * constants::vel_amp);
-            plot_voltage [i].add_sample(joints[i].motor.get_backed());
+            plot_cur[i].add_sample(joints[i].s_cur);
+            plot_tmp[i].add_sample(joints[i].s_tmp);
+            plot_pos[i].add_sample(joints[i].s_ang);
+            plot_vel[i].add_sample(joints[i].s_vel * constants::vel_amp);
+            plot_vol[i].add_sample(joints[i].motor.get_backed());
 
             subspace_portrait[i].add_sample(joints[i].s_ang,
                                             joints[i].s_vel * constants::vel_amp);
@@ -114,11 +121,13 @@ public:
 
     const robots::Accelvector_t& accels;
 
-    std::vector<axes>   plot_axes;
-    std::vector<plot1D> plot_position;
-    std::vector<plot1D> plot_velocity;
-    std::vector<plot1D> plot_voltage;
-    std::vector<plot1D> plot_current;
+    std::vector<axes>   plot_axs;
+
+    std::vector<plot1D> plot_pos;
+    std::vector<plot1D> plot_vel;
+    std::vector<plot1D> plot_vol;
+    std::vector<plot1D> plot_cur;
+    std::vector<plot1D> plot_tmp;
 
     std::vector<axes>   subspace_axes;
     std::vector<plot2D> subspace_portrait;
