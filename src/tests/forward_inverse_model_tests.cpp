@@ -100,8 +100,8 @@ TEST_CASE( "forward_inverse_model construction" , "[forward_inverse_model]")
     REQUIRE( weights   .size() == 7   );
     REQUIRE( weights[0].size() == 13  );
 
-    auto const& inputs  = model.get_inputs ();
-    auto const& outputs = model.get_outputs();
+    auto const& inputs  = model.get_inverse_result();
+    auto const& outputs = model.get_forward_result();
 
     // check vector size
     REQUIRE( inputs.size() == 13 );
@@ -142,8 +142,8 @@ TEST_CASE( "forward_inverse_model learning (linear)", "[forward_inverse_model]")
     auto const& Y_ = model.propagate_forward(X);
     auto const& X_ = model.propagate_inverse(Y); // inverse direction
 
-    double ery0 = squared_distance(Y, model.get_outputs());
-    double erx0 = squared_distance(X, model.get_inputs ()); // inverse error
+    double ery0 = squared_distance(Y, model.get_forward_result());
+    double erx0 = squared_distance(X, model.get_inverse_result()); // inverse error
 
     double ery1, erx1;
 
@@ -155,8 +155,8 @@ TEST_CASE( "forward_inverse_model learning (linear)", "[forward_inverse_model]")
         model.propagate_forward(X);
         model.propagate_inverse(Y);
 
-        ery1 = squared_distance(Y, model.get_outputs());
-        erx1 = squared_distance(X, model.get_inputs ());
+        ery1 = squared_distance(Y, model.get_forward_result());
+        erx1 = squared_distance(X, model.get_inverse_result());
         //dbg_msg("E_fw: %+e | E_bw: %+e",ery1, erx1);
         REQUIRE( ery0 > ery1 );
         REQUIRE( erx0 > erx1 );
@@ -183,10 +183,10 @@ TEST_CASE( "forward_inverse_model learning (non-linear)", "[forward_inverse_mode
     dbg_msg("non-linear");
     srand(time(0)); // set random seed
 
-    const double learning_rate = 0.01;
+    const double learning_rate = 0.005;
 
     std::vector<double> X = {1,0.5,1,-1,0,1,1,0,-1,-1,1,0.75,1,0,1,0.5,-1,1};
-    std::vector<double> Y = {0.95,0,-0.95,0,-0.95,0.95,0,-0.95,-0.95,0.5};
+    std::vector<double> Y = {0.9,0,-0.9,0,-0.9,0.9,0,-0.9,-0.9,0.5};
 
     BidirectionalNonlinearModelType model(X.size(), Y.size(), 0.01);
 
@@ -194,8 +194,8 @@ TEST_CASE( "forward_inverse_model learning (non-linear)", "[forward_inverse_mode
     auto const& Y_ = model.propagate_forward(X);
     auto const& X_ = model.propagate_inverse(Y); // inverse direction
 
-    double ery0 = squared_distance(Y, model.get_outputs());
-    double erx0 = squared_distance(X, model.get_inputs ()); // inverse error
+    double ery0 = squared_distance(Y, model.get_forward_result());
+    double erx0 = squared_distance(X, model.get_inverse_result()); // inverse error
 
     double ery1, erx1;
 
@@ -207,8 +207,8 @@ TEST_CASE( "forward_inverse_model learning (non-linear)", "[forward_inverse_mode
         model.propagate_forward(X);
         model.propagate_inverse(Y);
 
-        ery1 = squared_distance(Y, model.get_outputs());
-        erx1 = squared_distance(X, model.get_inputs ());
+        ery1 = squared_distance(Y, model.get_forward_result());
+        erx1 = squared_distance(X, model.get_inverse_result());
         //dbg_msg("E_fw: %+e | E_bw: %+e",ery1, erx1);
         REQUIRE( ery0 > ery1 );
         REQUIRE( erx0 >= erx1 );

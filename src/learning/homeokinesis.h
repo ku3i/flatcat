@@ -7,26 +7,26 @@
 
 namespace learning {
 
+namespace homeokinetic_constants {
+    const float learning_rate_pred = 0.005; //both values 0.001..0.01 is very nice;
+    const float learning_rate_ctrl = 0.005;
+}
+
 class Homeokinetic_Control {
 public:
     typedef NeuralModel<TanhTransfer<>> Forward_t;
-    typedef InverseNeuralModel          Inverse_t;
-
     typedef BidirectionalModel<Forward_t,Forward_t> PredictionModel_t;
     typedef BidirectionalModel<Forward_t,Forward_t> ControllerModel_t;
-
     typedef model::vector_t Vector_t;
 
-    // Note: do not use const members
-    float learning_rate_ctrl = 0.005; //both 0.01 is very nice;
-    float learning_rate_pred = 0.005;
-
-    Vector_t x0,x1,y0,y1;
-    Vector_t X0,X1,Y0;
-    twopart_vector<Vector_t> xy0, XY0;
+    Vector_t x0, x1, y0, y1;
+    Vector_t X0, X1, Y0;
 
     ControllerModel_t ctrl;
     PredictionModel_t pred;
+
+    float learning_rate_pred;
+    float learning_rate_ctrl;
 
     struct Option_t {
         bool prediction_learning = true;
@@ -35,12 +35,12 @@ public:
     } option = {};
 
 
-
-
     Homeokinetic_Control( sensor_input_interface const& input
                         , std::size_t number_of_joints
                         , float init_weight_range
                         , unsigned context = 0
+                        , float learning_rate_pred = homeokinetic_constants::learning_rate_pred
+                        , float learning_rate_ctrl = homeokinetic_constants::learning_rate_ctrl
                         )
     : x0(input.size())
     , x1(input.size())
@@ -49,65 +49,15 @@ public:
     , X0(input.size())
     , X1(input.size())
     , Y0(number_of_joints + context)
-    , xy0(x0,y0)
-    , XY0(X0,Y0)
-    , ctrl(/*in=*/ x0.size(), /*out=*/y0.size(), init_weight_range)
-    , pred(/*in=*/xy0.size(), /*out=*/x1.size(), init_weight_range)
+    , ctrl(/*in=*/x0.size(), /*out=*/y0.size(), init_weight_range)
+    , pred(/*in=*/y0.size(), /*out=*/x1.size(), init_weight_range)
+    , learning_rate_pred(learning_rate_pred)
+    , learning_rate_ctrl(learning_rate_ctrl)
     {
         sts_msg("creating homeokinetic controller with\n%u joints and \n%u context neurons.", number_of_joints, context);
         read_sensor_data(x0, input);
         control();
     }
-
-    /** start with setting up a separate experiment, where only one homeokinetic controller is active.
-        Test things as:
-            - if it works at all (I mean your idea with the bimodels) CHECK
-            - best number of time-embedded steps                      works with 32
-            - linear vs. non-linear controller.                       non-linear
-            - x+y for prediction vs. y only                           x+x = XY
-
-        local test with a damped so2 oscillator
-        Test homeokinesis only with pendulum, crawler and tadpole, fourlegged (TADPOLE
-    */
-
-
-
-//    void execute_cycle( robots::Robot_Interface& robot
-//                      , sensor_input_interface const& input
-//                      , Vector_t const& ext_motor_input
-//                      )
-//    {
-//        /*--------------------------------------------+
-//         | Notation:                                  |
-//         | lower case real sensor/motor data x, y     |
-//         | upper case prediction/reconstruction X, Y  |
-//         | time indices: x0 = x(t+0) = x(t)           |
-//         |               x1 = x(t+1)                  |
-//         +--------------------------------------------*/
-//
-//        /** 1.) Control */
-//        control(input);
-//
-//        //remove these lines from execute_cycle... how to rearrange?
-//
-//        write_motor_data(robot, y0, ext_motor_input);  // write y(t) TODO make this a small external PID joint-controller
-//        robot.execute_cycle(); // apply motor commands y(t) to robot and get next sensory state x(t+1)
-//
-//
-//        /** 2.) Prediction */
-//        predict(input);
-//
-//        /** 3.) Reconstruction */
-//        reconstruct();
-//
-//        /** 4.) Adaption/Learning */
-//        adapt_prediction();
-//        adapt_controller();
-//
-//
-//        sts_add("pe=%+.3f, tle=%.3f", pred.get_forward_error(), ctrl.get_inverse_error());
-//        print_vector(y0,"y");
-//    }
 
 
     void execute_cycle(sensor_input_interface const& input)
@@ -120,7 +70,7 @@ public:
          |               x1 = x(t+1)                  |
          +--------------------------------------------*/
 
-        /* order changed, because robot.update must be executed between steps 1. + 2. */
+        /* original order changed, because robot.update must be executed between steps 1. + 2. */
 
         /** 2.) Prediction */
         read_next_state(input);
@@ -152,7 +102,6 @@ public:
      +----------------------------------*/
     void backup_state(void) {
         x0 = x1;
-        //y0 = y1;
     }
 
     /*------------------------------------+
@@ -160,7 +109,7 @@ public:
      | current sensory state x(t)         |
      +------------------------------------*/
     void control(void) {
-        y1 = ctrl.propagate_forward(x0); // consider adding the last motor actions to controller..
+        y1 = ctrl.propagate_forward(x0);
     }
 
     /*------------------------------------+
@@ -176,28 +125,28 @@ public:
      | make prediction x^(t+1) from x(t) and y(t) |
      +--------------------------------------------*/
     void predict(void) {
-        X1 = pred.propagate_forward(xy0);  // make prediction
+        X1 = pred.propagate_forward(y0);  // make prediction
     }
 
     /*-------------------------------------------------------+
      | make reconstruction from real next state x(t+1)       |
-     | to assumed motor commands y^(t), throw away x^(t)     |
+     | to assumed motor commands y^(t),                      |
      | make reconstruction from assumed motor commands y^(t) |
      | to reconstructed sensor state x^(t)                   |
      +-------------------------------------------------------*/
     void reconstruct(void) {
-        XY0 = pred.propagate_inverse(x1); // X0 part of XY0 not used!
+        Y0 = pred.propagate_inverse(x1);
         /* X0 = */ ctrl.propagate_inverse(Y0);
     }
 
-    /* 4.a) --------------------------------------+
-     | learn predictive model to map from         |
-     | current state x(t) and motor commands y(t) |
-     | to next sensor state x(t+1)                |
-     +--------------------------------------------*/
+    /* 4.a) ------------------------------+
+     | learn predictive model to map from |
+     | current motor commands y(t)        |
+     | to next sensor state x(t+1)        |
+     +------------------------------------*/
     void adapt_prediction(void) {
         if (option.prediction_learning)
-            pred.adapt(xy0, x1, learning_rate_pred);
+            pred.adapt(y0, x1, learning_rate_pred);
     }
 
     /* 4.b) ---------------------------------------------+
@@ -222,8 +171,11 @@ public:
         ctrl.randomize_weights(range);
     }
 
-    double get_timeloop_error(void) const { return ctrl.get_inverse_error(); }
-    double get_prediction_error(void) const { return pred.get_forward_error(); }
+    double get_timeloop_error      (void) const { return ctrl.get_inverse_error(); }
+    double get_prediction_error    (void) const { return pred.get_forward_error(); }
+
+    double get_control_error       (void) const { return ctrl.get_forward_error(); }
+    double get_reconstruction_error(void) const { return pred.get_inverse_error(); }
 
 private:
 

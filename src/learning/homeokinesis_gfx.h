@@ -27,25 +27,33 @@ class Homeokinesis_Graphics : public Graphics_Interface
 public:
     Homeokinesis_Graphics(Homeokinetic_Control const& ctrl)
     : ctrl(ctrl)
-    , axes_err(0., -0.5, 0., 2.0, 0.5, 1, "error",0.001)
-    , plot_pre(1000, axes_err, colors::cyan   , "pre")
-    , plot_tle(1000, axes_err, colors::magenta, "tle")
+    , axes_err(0., -0.5, 0., 2.0, 1.0, 1, "error"  , 0.001)
+    , plot_pre(1000, axes_err, colors::cyan    , "pre")
+    , plot_tle(1000, axes_err, colors::magenta , "tle")
+    , plot_rec(1000, axes_err, colors::yellow  , "rec")
+    , plot_ctr(1000, axes_err, colors::green   , "ctr")
     {}
 
     void draw(const pref& /*p*/) const {
         axes_err.draw();
         plot_pre.draw();
         plot_tle.draw();
+        plot_rec.draw();
+        plot_ctr.draw();
     }
 
     void execute_cycle(uint64_t /*cycle*/) {
-        plot_pre.add_sample(ctrl.get_prediction_error());
-        plot_tle.add_sample(ctrl.get_timeloop_error()  );
+        plot_pre.add_sample(ctrl.get_prediction_error    ());
+        plot_tle.add_sample(ctrl.get_timeloop_error      ());
+        plot_rec.add_sample(ctrl.get_reconstruction_error());
+        plot_ctr.add_sample(ctrl.get_control_error       ());
     }
 
     axes   axes_err;
     plot1D plot_pre;
     plot1D plot_tle;
+    plot1D plot_rec;
+    plot1D plot_ctr;
 };
 
 } /* namespace learning */

@@ -13,9 +13,6 @@ namespace learning {
 
 class Homeokinetic_Core : public Predictor_Base
 {
-    // settings
-    unsigned context = 4;
-
     Homeokinetic_Control core;
 
     Homeokinetic_Core(const Homeokinetic_Core& other) = delete;
@@ -27,6 +24,7 @@ public:
                      , std::size_t number_of_joints
                      , double learning_rate
                      , double random_weight_range
+                     , std::size_t context
                      )
     : Predictor_Base(input, learning_rate, random_weight_range, 1)
     , core( input, number_of_joints, random_weight_range, context)
@@ -73,6 +71,8 @@ public:
 
 
     Homeokinetic_Control::Vector_t& set_motor_data(void) { return core.set_motor_data(); }
+
+    void learn_motor(void) { core.reconstruct(); core.adapt_controller(); }
 
     double get_timeloop_error(void) const { return core.get_timeloop_error(); }
     double get_prediction_error(void) const { return core.get_prediction_error(); }

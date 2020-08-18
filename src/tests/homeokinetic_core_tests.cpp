@@ -19,5 +19,5 @@ TEST_CASE( "homeokinetic predictor construction", "[homeokinetic_core]" )
     ExtInputVector_t              ext_input;
 
     //test_space sensors(0.01);
-    learning::Homeokinetic_Core core(inputs, robot.get_joints().size(), /*learning_rate=*/0.01, /*random_weight_range=*/0.1);
+    learning::Homeokinetic_Core core(inputs, robot.get_joints().size(), /*learning_rate=*/0.01, /*random_weight_range=*/0.1, /*context=*/4);
 }
