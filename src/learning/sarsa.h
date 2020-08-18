@@ -328,6 +328,8 @@ public:
         return result;
     }
 
+    std::size_t get_current_policy(void) const { return current_policy; }
+
     friend class Policy_Selector_Graphics;
 };
 
