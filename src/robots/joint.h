@@ -24,6 +24,7 @@ public:
     , s_ang(.0)
     , s_vel(.0)
     , s_cur(.0)
+    , s_tmp(.0)
     , motor(.0)
     , type(type)
     , symmetric_joint(symmetric_joint)
@@ -42,6 +43,7 @@ public:
     double s_ang;
     double s_vel;
     double s_cur;
+    double s_tmp;
     common::backed_t<double> motor;
 
     Joint_Type type;
