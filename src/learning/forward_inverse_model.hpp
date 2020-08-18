@@ -96,7 +96,7 @@ class TanhTransfer {
 public:
     static T transfer(T const& x) { return tanh(x);               } // normal tangens hyperbolicus
     static T derive  (T const& y) { return (1.0 + y) * (1.0 - y); } // this is y' with y=tanh(x)
-    static T inverse (T const& x) { return atanh(clip(x,-0.9999,0.9999)); /*log((1+x)/(1-x))/2*/    } // area tangens hyperbolicus = tanh^-1
+    static T inverse (T const& x) { return atanh(x); /*log((1+x)/(1-x))/2*/    } // area tangens hyperbolicus = tanh^-1
 };
 
 
@@ -243,8 +243,8 @@ public:
     model::matrix_t const& get_weights        () const { return m_forward.get_weights(); }
     model::matrix_t const& get_weights_inverse() const { return m_inverse.get_weights(); }
 
-    model::vector_t const& get_outputs() const { return m_forward.get_outputs(); }
-    model::vector_t const& get_inputs () const { return m_inverse.get_outputs(); }
+    model::vector_t const& get_forward_result() const { return m_forward.get_outputs(); }
+    model::vector_t const& get_inverse_result() const { return m_inverse.get_outputs(); }
 
     model::scalar_t get_forward_error() const { return m_forward.get_error(); }
     model::scalar_t get_inverse_error() const { return m_inverse.get_error(); }
