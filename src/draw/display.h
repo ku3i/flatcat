@@ -52,9 +52,32 @@ draw_vector2( const double posx
 namespace draw {
 
 
+
 void hbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color = colors::white);
 void vbar(float px, float py, float dx, float dy, float value, float max_value, Color4 const& color = colors::white);
 void block(float px, float py, float sx, float sy, float value, float max_value);
+
+template <typename Element_t = double, typename Vector_t = std::vector<Element_t> > inline void
+vector_dual( const double posx
+                , const double posy
+                , const double height
+                , const double width
+                , const Vector_t& vec1
+                , const Vector_t& vec2
+                , const Element_t& max_val = 1.0 )
+{
+    assert(vec1.size() == vec2.size());
+    const double wbar = width/vec1.size();
+
+    for (std::size_t i = 0; i < vec1.size(); ++i)
+    {
+        if (vec1[i] > 0.f) draw::vbar(posx+wbar*i, posy, wbar*.4f, height, +vec1[i], max_val, colors::cyan);
+        else draw::vbar(posx+wbar*i, posy, wbar*.4f, height, -vec1[i], max_val, colors::magenta);
+
+        if (vec2[i] > 0.f) draw::vbar(posx+wbar*i+wbar*.4f, posy, wbar*.4f, height, +vec2[i], max_val, colors::cyan_l);
+        else draw::vbar(posx+wbar*i+wbar*.4f, posy, wbar*.4f, height, -vec2[i], max_val, colors::magenta_l);
+    }
+}
 
 template <typename Vector_t = std::vector<double> > inline void
 vec3( const float posx
