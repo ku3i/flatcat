@@ -28,6 +28,8 @@ public:
     float learning_rate_pred;
     float learning_rate_ctrl;
 
+    Vector_t gradient;  // error gradient signal, used to transport error information between Models
+
     struct Option_t {
         bool prediction_learning = true;
         bool controller_learning = true;
@@ -53,6 +55,7 @@ public:
     , pred(/*in=*/y0.size(), /*out=*/x1.size(), init_weight_range)
     , learning_rate_pred(learning_rate_pred)
     , learning_rate_ctrl(learning_rate_ctrl)
+    , gradient(number_of_joints + context)
     {
         sts_msg("creating homeokinetic controller with\n%u joints and \n%u context neurons.", number_of_joints, context);
         read_sensor_data(x0, input);
@@ -145,8 +148,10 @@ public:
      | to next sensor state x(t+1)        |
      +------------------------------------*/
     void adapt_prediction(void) {
-        if (option.prediction_learning)
+        if (option.prediction_learning) {
             pred.adapt(y0, x1, learning_rate_pred);
+            gradient = pred.get_backprop_gradient(); // get the back-propagated error information
+        }
     }
 
     /* 4.b) ---------------------------------------------+
@@ -154,8 +159,12 @@ public:
      | the INVERSE learns to reconstruct x(t) from y^(t) |
      +---------------------------------------------------*/
     void adapt_controller(void) {
-        if (option.controller_learning)
-            ctrl.adapt(x0, Y0, learning_rate_ctrl);
+        if (option.controller_learning) {
+            assert( gradient.size() == Y0.size() );
+            for (unsigned i = 0; i < gradient.size(); ++i)
+                gradient[i] += Y0[i]; // add the predictor's back-propagated error information to the target
+            ctrl.adapt(x0, gradient, learning_rate_ctrl);
+        }
     }
 
 
