@@ -156,6 +156,7 @@ public:
                  , static_vector_interface&      payloads
                  , sensor_input_interface const& input
                  , sensor_input_interface const& gateway
+                 , learning::model::vector_t&    gradient
                  , double                        local_learning_rate
                  , double                        random_weight_range
                  )
@@ -166,6 +167,7 @@ public:
             experts.emplace_back(
                                  Predictor_ptr( new learning::BiModel_Predictor( input
                                                                                , gateway
+                                                                               , gradient
                                                                                , local_learning_rate
                                                                                , random_weight_range
                                                                                ) )
