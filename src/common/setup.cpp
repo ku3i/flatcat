@@ -181,14 +181,12 @@ init_OpenGL(const std::size_t window_width, const std::size_t window_height)
     sts_msg("Initialize OpenGL.");
     double ratio = (double) window_width / (double) window_height;
 
-    dbg_msg("GLBlendFunc");
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //glEnable(GL_LINE_SMOOTH);
     //glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
 
-    dbg_msg("GLShadeModel");
     glShadeModel(GL_SMOOTH);  // shading model Gouraud (smooth)
 
     /* Culling. */
@@ -203,7 +201,6 @@ init_OpenGL(const std::size_t window_width, const std::size_t window_height)
     glViewport(0, 0, window_width, window_height);
 
     /* Change to the projection matrix and set our viewing volume. */
-    dbg_msg("GLProjection");
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(visuals_defaults::gl_fovy,

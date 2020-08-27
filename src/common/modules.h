@@ -49,6 +49,10 @@ bool is_vector_zero(Vector_t const& vec) {
     return true;
 }
 
+/* make vector zero */
+template <typename Vector_t>
+void zero(Vector_t v) { std::fill(v.begin(), v.end(), .0); }
+
 template <typename Vector_t>
 void print_vector(Vector_t const& vec, const char* name = "", const char* format = "%+4.2f ") {
     printf("%s = [", name);
