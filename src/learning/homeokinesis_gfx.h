@@ -40,6 +40,12 @@ public:
         plot_tle.draw();
         plot_rec.draw();
         plot_ctr.draw();
+        draw_motor_context();
+    }
+
+    void draw_motor_context(void) const
+    {
+        draw::vector_dual(-1,-0.8,0.06,1.0, ctrl.y0, ctrl.Y0);
     }
 
     void execute_cycle(uint64_t /*cycle*/) {
