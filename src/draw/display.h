@@ -5,7 +5,7 @@
 #include <limits>
 #include <draw/draw.h>
 #include <common/modules.h>
-#include "../../simloidTCP/src/basic/color.h"
+#include <basic/color.h>
 
 template <typename Element_t = double, typename Vector_t = std::vector<Element_t> > inline void
 draw_vector( const double posx
@@ -64,7 +64,8 @@ vector_dual( const double posx
                 , const double width
                 , const Vector_t& vec1
                 , const Vector_t& vec2
-                , const Element_t& max_val = 1.0 )
+                , const Element_t& max_val = 1.0
+                , bool with_numbers = true )
 {
     assert(vec1.size() == vec2.size());
     const double wbar = width/vec1.size();
@@ -73,9 +74,14 @@ vector_dual( const double posx
     {
         if (vec1[i] > 0.f) draw::vbar(posx+wbar*i, posy, wbar*.4f, height, +vec1[i], max_val, colors::cyan);
         else draw::vbar(posx+wbar*i, posy, wbar*.4f, height, -vec1[i], max_val, colors::magenta);
+        if (with_numbers)
+            glprintf(posx+wbar*i, posy-height*0.5, .0f, 0.1*wbar, "%+3.1f", vec1[i]);
 
         if (vec2[i] > 0.f) draw::vbar(posx+wbar*i+wbar*.4f, posy, wbar*.4f, height, +vec2[i], max_val, colors::cyan_l);
         else draw::vbar(posx+wbar*i+wbar*.4f, posy, wbar*.4f, height, -vec2[i], max_val, colors::magenta_l);
+        if (with_numbers)
+            glprintf(posx+wbar*i+wbar*.4f, posy-height*0.5, .0f, 0.1*wbar, "%+3.1f", vec2[i]);
+
     }
 }
 

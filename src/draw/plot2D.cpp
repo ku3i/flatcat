@@ -2,16 +2,21 @@
 
 #include "plot2D.h"
 
-void plot2D::draw(void) const
+void plot2D::autoscale(void) const
 {
     float scale  = 2.0 / (axis.max_amplitude - axis.min_amplitude);
     float offset = 0.0;//TODO      (axis.max_amplitude + axis.min_amplitude) / 2;
 
-    glPushMatrix();
     glTranslatef(axis.px - offset, axis.py - offset, axis.pz);
     glScalef( 0.5 * axis.width  * scale
             , 0.5 * axis.height * scale
             , 1.0);
+}
+
+void plot2D::draw(void) const
+{
+    glPushMatrix();
+    autoscale();
 
     glLineWidth(1.0f);
 
@@ -40,12 +45,8 @@ void plot2D::draw(void) const
 //    glPopMatrix();
 //}
 
-void plot2D::add_sample(float s0, float s1)
+void plot2D::adjust_amplitude(float s0, float s1) const
 {
-    increment_pointer();
-    signal[pointer].x = s0;
-    signal[pointer].y = s1;
-
     if (pointer == 0) {
         axis.max_amplitude -= decrement;
         axis.min_amplitude += decrement;
@@ -55,13 +56,40 @@ void plot2D::add_sample(float s0, float s1)
     axis.min_amplitude = std::min(axis.min_amplitude, std::min(s0, s1));
 }
 
+void plot2D::add_sample(float s0, float s1)
+{
+    increment_pointer();
+    signal[pointer].x = s0;
+    signal[pointer].y = s1;
+
+    adjust_amplitude(s0,s1);
+}
+
 void plot2D::add_sample(const std::vector<double>& sample)
 {
     assert(sample.size() >= 2);
     increment_pointer();
     signal[pointer].x = sample[0];
     signal[pointer].y = sample[1];
+
+    adjust_amplitude(sample[0],sample[1]);
 }
 
+void colored_plot2D::draw_colored(void) const
+{
+    glPushMatrix();
+    autoscale();
+
+    glLineWidth(1.0f);
+
+    glBegin(GL_LINE_STRIP);
+    for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
+        const unsigned pos = (i + pointer) % number_of_samples;
+        set_color(colortable.get_color(colors[pos]), (float) i/number_of_samples);
+        glVertex2f( signal[pos].x, signal[pos].y );
+    }
+    glEnd();
+    glPopMatrix();
+}
 
 /* plot2D.cpp */
