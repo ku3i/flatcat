@@ -9,6 +9,7 @@ public:
     virtual std::size_t get_current_state (void) const = 0;
     virtual std::size_t get_current_action(void) const = 0;
     virtual std::size_t get_current_policy(void) const = 0;
+    virtual bool        is_exploring      (void) const = 0;
     virtual bool positive_current_delta(std::size_t policy) const = 0;
 };
 
@@ -18,6 +19,7 @@ public:
     std::size_t get_current_state (void) const { return 0; }
     std::size_t get_current_action(void) const { return 0; }
     std::size_t get_current_policy(void) const { return 0; }
+    bool        is_exploring      (void) const { return false; }
     bool positive_current_delta(std::size_t /*policy*/) const { return false; }
 };
 
