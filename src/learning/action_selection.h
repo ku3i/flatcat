@@ -19,6 +19,8 @@ protected:
     const Action_Module_Interface&      actions;
     const double                        exploration_rate;
 
+    bool                                explorative_selection = false;
+
 public:
     Action_Selection_Base( const static_vector<State_Payload>& states
                          , const Action_Module_Interface&     actions
@@ -33,6 +35,8 @@ public:
     virtual ~Action_Selection_Base() = default;
     virtual std::size_t select_action( std::size_t current_state, std::size_t current_policy) = 0;
 
+    bool is_exploring(void) { return explorative_selection; }
+
     std::size_t select_randomized(void) {
         selection_probabilities.zero(); // set all zeros
         const double portion = 1.0 / actions.get_number_of_actions_available();
@@ -40,6 +44,8 @@ public:
         for (std::size_t i = 0; i < selection_probabilities.size(); ++i)
             if (actions.exists(i))
                 selection_probabilities[i] = portion;
+
+        explorative_selection = true;
 
         return select_from_distribution(selection_probabilities); // uniform, only available actions
     }
