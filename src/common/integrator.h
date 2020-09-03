@@ -5,9 +5,8 @@ class Integrator {
 
     double      sum;
     std::size_t number;
-
     double      last;
-    /* TODO incremental average */
+
 public:
     Integrator() : sum(0.0), number(0), last(0.0) {}
 

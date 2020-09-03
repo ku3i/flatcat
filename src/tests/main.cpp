@@ -248,3 +248,63 @@ TEST_CASE( "delayed values", "[common]") {
     REQUIRE( value_double.get() == .0 );
     REQUIRE( value_double.get_delayed() == .0 );
 }
+
+TEST_CASE( "zeroing vectors", "[modules]") {
+    std::vector<double> vect_d = {1.1,2.2,3.3,4.4};
+    std::vector<double> zero_d = { .0, .0, .0, .0};
+    REQUIRE( vect_d.size() == 4);
+    zero(vect_d);
+    REQUIRE( vect_d.size() == 4);
+    REQUIRE( (vect_d == zero_d) );
+
+    std::vector<int> vect_i = {-1,+2,-3};
+    std::vector<int> zero_i = { 0, 0, 0};
+    REQUIRE( vect_i.size() == 3);
+    zero(vect_i);
+    REQUIRE( vect_i.size() == 3);
+    REQUIRE( (vect_i == zero_i) );
+
+    std::vector<bool> vect_b = { true, false};
+    std::vector<bool> zero_b = {false, false};
+    REQUIRE( vect_b.size() == 2);
+    zero(vect_b);
+    REQUIRE( vect_b.size() == 2);
+    REQUIRE( (vect_b == zero_b) );
+}
+
+#include <common/integrator.h>
+TEST_CASE( "integrator tests", "[integrator]") {
+    Integrator inc;
+
+    REQUIRE( inc.get_number_of_samples() == 0 );
+
+    inc.add(-0.01337);
+
+    REQUIRE( inc.get_avg_value() == -0.01337 );
+    REQUIRE( inc.get_number_of_samples() == 1 );
+
+    inc.add(-0.01337);
+
+    REQUIRE( inc.get_avg_value() == -0.01337 );
+    REQUIRE( inc.get_number_of_samples() == 2 );
+
+    inc.reset();
+    for (unsigned i = 0; i < 10; ++i)
+        inc.add(1.0*i);
+
+    REQUIRE( inc.get_number_of_samples() == 10 );
+    REQUIRE( inc.get_avg_value() == 4.5 );
+
+    inc.reset();
+    REQUIRE( inc.get_number_of_samples() == 0 );
+    REQUIRE( inc.get_avg_value() == .0 );
+
+    double sum = .0;
+    for (unsigned int i = 0; i < 10000; ++i) {
+        double r = random_value(0.0, 23.42);
+        sum += r;
+        inc.add(r);
+    }
+    sum /= 10000;
+    REQUIRE( close(inc.get_avg_value(), sum, tolerance) );
+}

@@ -37,10 +37,11 @@ class GMES : public control::Statemachine_Interface, public learning::Learning_M
 public:
     GMES(GMES&& other) = default;
 
-    GMES( Expert_Vector& expert
+    explicit GMES( Expert_Vector& expert
         , double learning_rate = gmes_constants::global_learning_rate
         , bool one_shot_learning = true
-        , std::size_t number_of_initial_experts = gmes_constants::number_of_initial_experts );
+        , std::size_t number_of_initial_experts = gmes_constants::number_of_initial_experts
+        , std::string const& name = "...");
 
     ~GMES();
 
@@ -61,8 +62,7 @@ public:
     VectorN const& get_activations        (void) const { return activations;           }
 
 
-    void enable_learning(bool enable) { sts_msg("GMES Learning: %s", enable? "ENABLED":"DISABLED"); learning_enabled = enable; }
-
+    void enable_learning(bool enable);
     void execute_cycle(void);
     void update_activations(void);
 
@@ -98,6 +98,8 @@ private:
 
     VectorN     activations;
     bool        new_node;
+
+    std::string name;
 
     friend class GMES_Graphics;
     friend class Payload_Graphics;

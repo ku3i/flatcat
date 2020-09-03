@@ -193,4 +193,10 @@ test_range(VALUE, LOWER, UPPER, #VALUE); \
 
 std::string random_string(size_t length);
 
+
+template <typename A_t, typename B_t>
+void check_vectors(A_t const& a, B_t const& b) {
+    assertion(a.size() == b.size(), "Incompatible vector lengths %u =/= %u", a.size(), b.size());
+}
+
 #endif /*MODULES_H*/

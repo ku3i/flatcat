@@ -3,7 +3,8 @@
     GMES::GMES( Expert_Vector& expert
               , double learning_rate
               , bool one_shot_learning
-              , std::size_t number_of_initial_experts )
+              , std::size_t number_of_initial_experts
+              , std::string const& name )
     : expert(expert)
     , Nmax(expert.size()) /** TODO: check usage of Nmax */
     , min_prediction_error(.0)
@@ -18,15 +19,16 @@
     , to_insert(0)
     , activations(Nmax)
     , new_node(false)
+    , name(name)
     {
         assert(in_range(number_of_initial_experts, std::size_t{1}, Nmax));
         for (std::size_t n = 0; n < number_of_initial_experts; ++n)
             expert[n].create_randomized();
-        sts_msg("Created GMES with %u experts and learning rate %.4f", Nmax, learning_rate);
+        sts_msg("Created GMES (%s) with %u experts and learning rate %.4f", name.c_str(), Nmax, learning_rate);
         number_of_experts = count_existing_experts();
     }
 
-    GMES::~GMES() { dbg_msg("Destroying GMES."); }
+    GMES::~GMES() { dbg_msg("Destroying GMES (%s).", name.c_str()); }
 
     /* gmes main loop
      */
@@ -111,7 +113,7 @@
         const double prediction_error_before_adaption = expert[winner].get_prediction_error();
         learning_progress = prediction_error_before_adaption - expert[winner].redo_prediction();
         //TODO assert_in_range(learning_progress, 0.0, 1.0);
-        assert_in_range(learning_progress, -0.1, 1.0);
+        assert_in_range(learning_progress, -0.2, 1.0); //TODO FIXME:
         clip(learning_progress, 0., 1.);
     }
 
@@ -238,4 +240,12 @@
     {
         for (std::size_t n = 0; n < Nmax; ++n)
             expert[n].transition[to_clear] = .0;
+    }
+
+
+    void GMES::enable_learning(bool enable) {
+        if (learning_enabled != enable) {
+            sts_msg("GMES (%s) learning is now %s", name.c_str(), enable? "ENABLED":"DISABLED");
+            learning_enabled = enable;
+        }
     }

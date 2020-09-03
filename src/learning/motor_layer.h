@@ -66,7 +66,7 @@ public:
     , payloads(max_num_motor_experts)
     , motorspace(robot.get_joints())
     , experts(max_num_motor_experts, payloads, motorspace, learning_rate, experience_size, noise_level, params, robot )
-    , gmes(experts, growth_rate, /* one shot learning = */false, num_initial_experts)
+    , gmes(experts, growth_rate, /* one shot learning = */false, num_initial_experts, "motor-layer")
     {
         sts_msg("Creating motor layer with max. %u experts and growth rate: %1.4f", max_num_motor_experts, growth_rate);
         if (initial_parameter_folder != "")

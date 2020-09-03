@@ -17,6 +17,7 @@ pole::execute_cycle(void)
     assert(std::abs(joints[0].s_ang) <= 1.0);
 
     joints[0].motor.transfer();
+    joints[0].motor = .0;
     return true;
 }
 

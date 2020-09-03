@@ -59,6 +59,7 @@ public:
     , current_policy(0)
     , deltaQ(number_of_policies)
     , learning_rates(learning_rates)
+    , learning_enabled(true)
     {
         sts_msg("Creating discrete Reinforcement Learner: SARSA.\
                 \n  states = %u\n  actions = %u\n  policies = %u"
@@ -105,7 +106,8 @@ public:
         save_prev_state_and_action();
         current_state = new_state;
         current_action = new_action;
-        learning_step();
+        if (learning_enabled)
+            learning_step();
     }
 
     void execute_cycle(RL::State new_state)
@@ -122,7 +124,8 @@ public:
         else
             current_action = action_selection.select_randomized();
 
-        learning_step();
+        if (learning_enabled)
+            learning_step();
     }
 
     void toggle_random_actions(void) {
@@ -130,7 +133,16 @@ public:
         sts_msg("Random actions: %s", random_actions? "ON":"OFF");
     }
 
-    void enable_learning(bool /*enable*/) { assert(false); /**TODO*/ }
+    void enable_learning(bool enable) {
+        if (learning_enabled != enable) {
+            sts_msg("SARSA learning=%s", enable?"ENABLED":"DISABLED");
+            learning_enabled = enable;
+        }
+    }
+
+    bool is_exploring(void) const {
+        return action_selection.is_exploring();
+    }
 
 private:
 
@@ -181,6 +193,7 @@ private:
     const std::vector<double> learning_rates;
 
     bool random_actions = false;
+    bool learning_enabled;
 
     friend class SARSA_Graphics;
     friend class Policy_Selector_Graphics;
