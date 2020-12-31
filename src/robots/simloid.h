@@ -65,6 +65,8 @@ private:
     const unsigned left_id;
     const unsigned rift_id;
 
+    bool initially_fixed;
+
     bool open_connection(void);
     void close_connection(void);
     void simulation_idle(double sec);
@@ -81,7 +83,7 @@ private:
     void update_robot_velocity(void);
 
 public:
-    Simloid(bool interlaced_mode, unsigned short port, unsigned int robot_ID, unsigned int scene_ID, bool visuals, bool realtime = true, std::vector<double> modelparams = {});
+    Simloid(bool interlaced_mode, unsigned short port, unsigned int robot_ID, unsigned int scene_ID, bool visuals, bool realtime = true, std::vector<double> modelparams = {}, bool initially_fixed = false);
     ~Simloid(void);
 
     bool update(void); //locking
@@ -134,6 +136,7 @@ public:
 
     double get_normalized_mechanical_power(void) const;
 
+    double get_motion_level(void)     const;
     bool motion_stopped(double thrsh) const;
     bool dropped(double level = 0.5)  const;
     double dx_from_origin(void)       const;

@@ -48,6 +48,7 @@ Setting::Setting( int argc, char **argv )
                 , drop_level(.5)
                 , stop_level(0.0005)
                 , corridor(.5)
+                , initially_fixed(false)
 {
     if (read_option_bool(argc, argv, "--help", "-h"))
     {
@@ -160,6 +161,8 @@ Setting::read_configuration(std::string const& filename)
     interlaced_mode      = settings_file.readBOOL("INTERLACED"          , interlaced_mode     );
     low_sensor_quality   = settings_file.readBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality  );
 
+    initially_fixed      = settings_file.readBOOL("INITIALLY_FIXED"     , initially_fixed     );
+
     L1_normalization     = settings_file.readBOOL("L1_NORMALIZATION"    , L1_normalization    );
     assert(false == L1_normalization);
 }
@@ -217,6 +220,8 @@ Setting::save_to_projectfile(const std::string& filename) const
     project_file.writeBOOL("LOW_SENSOR_QUALITY"  , low_sensor_quality);
     project_file.writeBOOL("L1_NORMALIZATION"    , L1_normalization);
     project_file.writeDBL ("TARGET"              , target);
+
+    project_file.writeBOOL("INITIALLY_FIXED"     , initially_fixed);
 
     /** NOTE: Strategy-specific settings are saved separately!
         e.g. selection bias, moving rate, max generations, current_trial */

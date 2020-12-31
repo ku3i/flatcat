@@ -91,6 +91,8 @@ class Setting
         double       stop_level;
         double       corridor;
 
+        bool         initially_fixed;
+
         Setting(int argc, char **argv);
         void read_setting_file(const std::string& setting_name);
         void read_project_file(const std::string& project_name);

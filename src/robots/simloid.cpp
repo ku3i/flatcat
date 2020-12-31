@@ -9,7 +9,8 @@ Simloid::Simloid( bool interlaced_mode,
                   unsigned int scene_ID,
                   bool visuals,
                   bool realtime,
-                  std::vector<double> modelparams
+                  std::vector<double> modelparams,
+                  bool initially_fixed
                 )
                 : port(port)
                 , robot_ID(robot_ID)
@@ -34,6 +35,7 @@ Simloid::Simloid( bool interlaced_mode,
                 , avg_velocity_left()
                 , left_id(get_body_id_by_name(configuration.bodies, "left"))
                 , rift_id(get_body_id_by_name(configuration.bodies, "rift"))
+                , initially_fixed(initially_fixed)
 {
     if (interlaced_mode) client.send("INTERLACED MODE\n");
     else                 client.send("SEQUENTIAL MODE\n");
@@ -126,7 +128,8 @@ Simloid::simulation_idle(double sec)
 void
 Simloid::set_robot_to_default_position(void)
 {
-    client.send("GRAVITY OFF\nFIXED 0\n");
+    if (initially_fixed) dbg_msg("Robot is fixed during initialization.");
+    client.send("GRAVITY OFF\n%s", initially_fixed ? "FIXED 0\n":"");
 
     double sec = 2; // should be enough
     sts_msg("Setting robot to default joint position.");
@@ -145,7 +148,8 @@ Simloid::set_robot_to_default_position(void)
         client.send(msg);
     }
     read_sensor_data();
-    client.send("FIXED 0\nGRAVITY ON\nDONE\n");
+
+    client.send("%sGRAVITY ON\nDONE\n", initially_fixed ? "FIXED 0\n":"");
     read_sensor_data();
 }
 
@@ -311,7 +315,9 @@ Simloid::read_sensor_data(void)
 
     srv_msg = client.recv(60*network::constants::seconds_us);
 
-    if (0 == srv_msg.length())
+    unsigned len = srv_msg.length();
+
+    if (0 == len)
     {
         wrn_msg("Received no more bytes. Cancel reading sensory data.");
         close_connection();
@@ -345,6 +351,8 @@ Simloid::read_sensor_data(void)
         b.position = read_vector3(server_message, &charcount);
         b.velocity = read_vector3(server_message, &charcount);
     }
+
+    assertion(len-1 == charcount, "Server message has more bytes than expected, %u != %u", len-1, charcount);
 }
 
 
@@ -433,13 +441,19 @@ Simloid::get_max_position(void) const
     return max_position;
 }
 
-bool
-Simloid::motion_stopped(double thrsh) const
+double
+Simloid::get_motion_level(void) const
 {
     double sum_v = .0;
     for (auto& j: configuration.joints)
         sum_v += fabs(j.s_vel);
-    return ((sum_v/configuration.number_of_joints) < thrsh);
+    return sum_v/configuration.number_of_joints;
+}
+
+bool
+Simloid::motion_stopped(double thrsh) const
+{
+    return (get_motion_level() < thrsh);
 }
 
 bool
@@ -546,9 +560,10 @@ Simloid::randomize_model(double rnd_amp, double growth, double friction, uint64_
     }
 
     sts_msg("Req. new model for robot %u and inst. %lu, amp. %lf, grow %lf, fric %lf", robot_ID, inst, rnd_amp, growth, friction);
-    client.send("MODEL %u 4 %lu %lf %lf %lf\nDONE\n", robot_ID, inst, rnd_amp, growth, friction);
+    client.send("MODEL %u 4 %lu %lf %lf %lf\nRESET\nDONE\n", robot_ID, inst, rnd_amp, growth, friction);
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
+    read_sensor_data();
     assert(configuration.number_of_bodies > 0);
     init_robot();
     return inst;
@@ -562,6 +577,7 @@ Simloid::reinit_robot_model(std::vector<double> const& params)
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
+    read_sensor_data();
     init_robot();
 }
 
