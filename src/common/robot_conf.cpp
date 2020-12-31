@@ -58,7 +58,7 @@ Robot_Configuration::read_joints(const char* msg, int* offset)
     {
         msg += (*offset);
         if (sscanf(msg, "%u %u %u %e %e %e %256s\n%n", &tmp_id, &tmp_type, &tmp_sym, &tmp_jslo, &tmp_jshi, &tmp_jdef, tmp_name, offset) == 7) {
-            dbg_msg("Joint %02u (%s), Type %u, a.w. %u, limits(%+1.2f, %+1.2f, %+1.2f)", tmp_id, tmp_name, tmp_type, tmp_sym, tmp_jslo, tmp_jdef, tmp_jshi);
+            sts_msg("Joint %02u (%s), Type %u, a.w. %u, limits(%+1.2f, %+1.2f, %+1.2f)", tmp_id, tmp_name, tmp_type, tmp_sym, tmp_jslo, tmp_jdef, tmp_jshi);
         } else
             err_msg(__FILE__, __LINE__, "could not parse joint %u", i);
 
