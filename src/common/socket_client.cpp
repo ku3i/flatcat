@@ -132,6 +132,12 @@ Socket_Client::flush(void)
     msgbuf.clear();
 }
 
+void
+Socket_Client::eat(void)
+{
+    char buffer[constants::msglen];
+    read(sockfd, buffer, constants::msglen);
+}
 
 std::string
 Socket_Client::recv(unsigned int timeout_us = 0)

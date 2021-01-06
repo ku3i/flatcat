@@ -55,6 +55,7 @@ public:
 
     void append(const char* format, ...);
     void flush();
+    void eat(void);
 
 private:
     struct sockaddr_in srv_addr;

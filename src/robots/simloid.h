@@ -77,6 +77,7 @@ private:
     void write_motor_data(void);
     void send_pause_command(void);
     void reset(void);
+    void eat_server_msg(void);
     void update_avg_position(void);
     void update_avg_velocity(void);
     void update_rotation_z(void);
@@ -146,14 +147,14 @@ public:
 
     void record_next_frame() { record_frame = true; }
 
-    uint64_t randomize_model(double rnd_amp, double growth, double friction, uint64_t inst);
+    uint64_t randomize_model(double rnd_amp, double growth, double friction, uint64_t inst); //locking
 
-    void reinit_robot_model(std::vector<double> const& params);
-    void reinit_motor_model(std::vector<double> const& params);
+    void reinit_robot_model(std::vector<double> const& params); //locking
+    void reinit_motor_model(std::vector<double> const& params); //locking
 
-    void set_low_sensor_quality(bool low_quality);
+    void set_low_sensor_quality(bool low_quality); //locking
 
-    void toggle_body_fixed(unsigned index = 0) { client.send("FIXED %u\n", index); }
+    void toggle_body_fixed(unsigned index = 0) { common::lock_t lock(mtx); client.send("FIXED %u\n", index); } //locking
 };
 
 } // namespace robots

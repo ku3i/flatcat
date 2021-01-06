@@ -23,7 +23,7 @@ Robot_Configuration::read_robot_info(std::string const& server_message)
     if (sscanf(msg, "%u %u %u\n%n", &number_of_bodies, &number_of_joints, &number_of_accels, &offset) == 3) {
         sts_msg("Robot's configuration: \n  %3u Bodies\n  %3u Joints\n  %3u Acceleration Sensors\n\n", number_of_bodies, number_of_joints, number_of_accels);
     } else
-        err_msg(__FILE__, __LINE__, "Unable to read the robot's configuration. Exit.");
+        err_msg(__FILE__, __LINE__, "Unable to read the robot's configuration. Exit.\n Message was: \n%s\n", msg);
 
 
     /* checking for consistency */

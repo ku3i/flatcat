@@ -250,10 +250,8 @@ Simloid::update(void)
 }
 
 
-void Simloid::init_robot(void)
+void Simloid::init_robot(void) // non-public
 {
-    common::lock_t lock(mtx);
-
     sts_msg("Initializing robot.");
 
     /* initialize motor voltages */
@@ -308,6 +306,13 @@ read_vector3(const char *msg_buffer, unsigned int *offset)
 }
 
 void
+Simloid::eat_server_msg(void) {
+    dbg_msg("eating msg");
+    client.eat();
+    dbg_msg("eating msg done");
+}
+
+void
 Simloid::read_sensor_data(void)
 {
     static std::string srv_msg;
@@ -325,34 +330,45 @@ Simloid::read_sensor_data(void)
     }
 
     /* read time stamp */
-    const char *server_message = srv_msg.c_str(); // transitional, remove TODO:
+    const char *server_message = srv_msg.c_str();
 
-    timestamp = read_double(server_message, &charcount);
+    unsigned frames_read = 0;
 
-    /* read angles */
-    for (auto& j: configuration.joints)
-        j.s_ang = clip(read_double(server_message, &charcount));
+    do {
 
-    /* read angle rate */
-    for (auto& j: configuration.joints)
-        j.s_vel = clip(read_double(server_message, &charcount));
+        timestamp = read_double(server_message, &charcount);
 
-    /* read motor current */
-    for (auto& j: configuration.joints)
-        j.s_cur = read_double(server_message, &charcount);
+        /* read angles */
+        for (auto& j: configuration.joints)
+            j.s_ang = clip(read_double(server_message, &charcount));
 
-    /* read acceleration sensors */
-    for(auto& s: configuration.accels)
-        s.a = read_vector3(server_message, &charcount);
+        /* read angle rate */
+        for (auto& j: configuration.joints)
+            j.s_vel = clip(read_double(server_message, &charcount));
 
-    /* read body positions + velocities */
-    for (auto& b: configuration.bodies)
-    {
-        b.position = read_vector3(server_message, &charcount);
-        b.velocity = read_vector3(server_message, &charcount);
-    }
+        /* read motor current */
+        for (auto& j: configuration.joints)
+            j.s_cur = read_double(server_message, &charcount);
 
-    assertion(len-1 == charcount, "Server message has more bytes than expected, %u != %u", len-1, charcount);
+        /* read acceleration sensors */
+        for(auto& s: configuration.accels)
+            s.a = read_vector3(server_message, &charcount);
+
+        /* read body positions + velocities */
+        for (auto& b: configuration.bodies)
+        {
+            b.position = read_vector3(server_message, &charcount);
+            b.velocity = read_vector3(server_message, &charcount);
+        }
+
+        ++frames_read;
+
+    } while (charcount < len-1);
+
+    if (len-1 != charcount)
+        wrn_msg("Server message has different number of bytes than expected, %u != %u", len-1, charcount);
+    if (frames_read > 1)
+        wrn_msg("%u frame%s skipped.", frames_read-1, frames_read > 2 ? "s":"");
 }
 
 
@@ -388,7 +404,9 @@ void
 Simloid::send_pause_command(void) { client.send("PAUSE\nDONE\n"); }
 
 void
-Simloid::set_low_sensor_quality(bool low_quality) {
+Simloid::set_low_sensor_quality(bool low_quality)
+{
+    common::lock_t lock(mtx);
     if (low_quality)
         client.send("SENSORS POOR\n");
     else
@@ -554,16 +572,18 @@ Simloid::get_max_feet_pos(void) const {
 uint64_t
 Simloid::randomize_model(double rnd_amp, double growth, double friction, uint64_t inst)
 {
+    common::lock_t lock(mtx);
     if (0 == inst) {/* not initialized yet? */
         inst = time(NULL);
         sts_msg("Initializing random seed, instance is: %lu", inst);
     }
 
     sts_msg("Req. new model for robot %u and inst. %lu, amp. %lf, grow %lf, fric %lf", robot_ID, inst, rnd_amp, growth, friction);
+    eat_server_msg();
     client.send("MODEL %u 4 %lu %lf %lf %lf\nRESET\nDONE\n", robot_ID, inst, rnd_amp, growth, friction);
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
-    read_sensor_data();
+    //read_sensor_data();
     assert(configuration.number_of_bodies > 0);
     init_robot();
     return inst;
@@ -572,18 +592,20 @@ Simloid::randomize_model(double rnd_amp, double growth, double friction, uint64_
 void
 Simloid::reinit_robot_model(std::vector<double> const& params)
 {
+    common::lock_t lock(mtx);
     sts_msg("Requesting new model for robot_id %u with %u params", robot_ID, params.size());
     client.send("MODEL %u %u %s\nDONE\n", robot_ID, params.size(), common::to_string(params).c_str());
     configuration.read_robot_info( client.recv(5*network::constants::seconds_us) );
     client.send("ACK\n");
     assert(configuration.number_of_bodies > 0);
-    read_sensor_data();
+    //read_sensor_data();
     init_robot();
 }
 
 void
 Simloid::reinit_motor_model(std::vector<double> const& params)
 {
+    common::lock_t lock(mtx);
     sts_msg("Requesting new motor model with %u params", params.size());
     client.send("MOTOR %u %s\nDONE\n", params.size(), common::to_string(params).c_str());
 }
