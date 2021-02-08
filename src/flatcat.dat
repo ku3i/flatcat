@@ -1,0 +1,9 @@
+group = "192.168.1.105"
+port = 7331
+
+max_number_of_gaits = 4
+lib_folder = "./data/lib_flatcat/"
+
+joint_offsets = { 0.0000  0.0000 # R/L shoulder roll
+                }
+

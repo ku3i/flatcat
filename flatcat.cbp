@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="flatcat" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="flatcat_udp">
+				<Option output="flatcat_udp_control" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add directory="src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="flatcat_udp_control">
+				<Option output="flatcat_udp" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add directory="src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wswitch-default" />
+			<Add option="-Weffc++" />
+			<Add option="-pedantic" />
+			<Add option="-Wall" />
+			<Add option="-std=c++14" />
+			<Add option="`pkg-config gtk+-2.0 --cflags`" />
+			<Add option="`sdl2-config --cflags`" />
+			<Add directory="../framework/src" />
+			<Add directory="../simloidTCP/src" />
+			<Add directory="../libux0/src" />
+		</Compiler>
+		<Linker>
+			<Add option="`sdl2-config --libs`" />
+			<Add option="`pkg-config --libs gtk+-2.0 gmodule-2.0`" />
+			<Add library="framework" />
+			<Add library="SDL2" />
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="glut" />
+			<Add library="asound" />
+			<Add directory="../framework/src" />
+			<Add directory="../framework/bin/Release" />
+		</Linker>
+		<Unit filename="src/flatcat_control.hpp" />
+		<Unit filename="src/flatcat_graphics.hpp" />
+		<Unit filename="src/flatcat_robot.hpp" />
+		<Unit filename="src/flatcat_settings.hpp" />
+		<Unit filename="src/flatcat_udp.cpp">
+			<Option target="flatcat_udp" />
+		</Unit>
+		<Unit filename="src/flatcat_udp.hpp">
+			<Option target="flatcat_udp" />
+		</Unit>
+		<Unit filename="src/flatcat_udp_control.cpp">
+			<Option target="flatcat_udp_control" />
+		</Unit>
+		<Unit filename="src/flatcat_udp_control.hpp">
+			<Option target="flatcat_udp_control" />
+		</Unit>
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
