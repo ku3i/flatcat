@@ -268,12 +268,12 @@ public:
             .add(d.velocity         )
             .add(d.current          )
             .add(d.voltage_supply   )
+            .add(d.output_voltage   )
 //TODO            .add(d.voltage_backemf  )
 //TODO            .add(d.last_output      )
             .add(d.temperature      )
 //TODO            .add(d.is_connected     )
             //.add(m.connection_losses)
-//TODO            .add(m.target_voltage   )
             //.add(m.dir              )
             //.add(m.scale            )
             //.add(m.offset           );
@@ -299,7 +299,7 @@ public:
         .add(c.amplitude)
         .add(c.modulate )
         .add(c.inputgain)
-        .add(c.mode     );
+        .add(c.cur_mode );
 
         sendbuffer.add_checksum();
     }
@@ -319,8 +319,8 @@ private:
 
     network::Socket_Server     command_server;
 
-    network::UDPSender <101>   udp_sender;
-    network::Sendbuffer<101>   sendbuffer;
+    network::UDPSender <113>   udp_sender;
+    network::Sendbuffer<113>   sendbuffer;
 
 
 

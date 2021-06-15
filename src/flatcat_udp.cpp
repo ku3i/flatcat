@@ -42,6 +42,7 @@ void MainApplication::handle_tcp_commands(std::string const& msg)
 {
     if (starts_with(msg, "ENA")) { parse_command(control.enabled  , msg, "ENA=%u"); return; }
 
+    /*
     if (starts_with(msg, "PAR")) {
         parse_command(control.parameter_id, msg, "PAR=%u");
         if (control.parameter_id < control.parameter_set.size()) {
@@ -51,13 +52,13 @@ void MainApplication::handle_tcp_commands(std::string const& msg)
             control.modulate = (control.parameter_id == 0) ? 0.f : 1.f;
         } else wrn_msg("No control parameters for ID = %u", control.parameter_id);
         return;
-    }
+    }*/
 
     if (starts_with(msg, "AMP")) { parse_command(control.amplitude, msg, "AMP=%f"); return; }
     if (starts_with(msg, "MOD")) { parse_command(control.modulate , msg, "MOD=%f"); return; }
     if (starts_with(msg, "ING")) { parse_command(control.inputgain, msg, "ING=%f"); return; }
 
-    if (starts_with(msg, "CTL")) { parse_command(control.mode     , msg, "CTL=%u"); return; }
+    if (starts_with(msg, "CTL")) { parse_command(control.tar_mode , msg, "CTL=%u"); return; }
     if (starts_with(msg, "POS")) { parse_command(control.usr_pos  , msg, "POS=%u"); return; }
 
     if (starts_with(msg, "MDI")) { parse_midi_channel(control.usr_params, msg); return; }

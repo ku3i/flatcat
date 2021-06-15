@@ -1,0 +1,9 @@
+obj/*
+bin/*
+build/*
+*.layout
+*.depend
+.sconsign.dblite
+*.a
+flatcat_udp
+
