@@ -10,7 +10,7 @@
 
 #include <controller/csl_control.hpp>
 #include <controller/pid_control.hpp>
-//TODO #include <so2_controller.hpp>
+#include <so2_controller.hpp>
 
 namespace supreme {
 
@@ -66,22 +66,23 @@ public:
     //control::Control_Vector   parameter_set;  // for joint controller
     TargetPosition_t          usr_params;     // for testing and demo
 
-    ControlMode_t             mode;
+    ControlMode_t             cur_mode, tar_mode;
 
-    std::vector<csl_control>  csl_ctrl; // TODO: use the controlers inside sensorimotor class
+    std::vector<csl_control>  csl_ctrl;
     std::vector<pid_control>  pid_ctrl;
 
-    /**TODO jcl::SO2_Controller       so2_controller; */
+    jcl::SO2_Controller       so2_ctrl;
 
     FlatcatControl(FlatcatRobot& robot, FlatcatSettings const& settings)
     : robot(robot)
     //, jointcontrol(robot)
     //, parameter_set(settings.max_number_of_gaits, settings.lib_folder)
     , usr_params()
-    , mode(ControlMode_t::none)
+    , cur_mode(ControlMode_t::none)
+    , tar_mode(ControlMode_t::none)
     , csl_ctrl()
     , pid_ctrl()
-   // , so2_controller(robot, csl_ctrl, usr_params)
+    , so2_ctrl(robot, csl_ctrl, usr_params)
     {
         //parameter_set.add(control::get_initial_parameter(robot, {0.1,-0.4, 1.0}, true));
         //parameter_set.add(control::get_initial_parameter(robot, {0.0, -.5, 0.0}, true));
@@ -109,8 +110,6 @@ public:
             c.target_csl_fb   = 1.0;
             c.limit_lo = j.limit_lo + 0.05;
             c.limit_hi = j.limit_hi - 0.05;
-            //c.gi_pos = 10.0; //TODO try up to 10.
-            //c.gi_neg = 5.0;
             c.update_mode();
 
             /* setup and configure PID controller */
@@ -157,16 +156,31 @@ public:
 
     void resetting_pid(void) { for (auto& p : pid_ctrl) p.reset(); }
 
-    void csl_hold_mode()
+    void csl_hold_mode(void)
     {
         for (auto& j : robot.set_joints())
         {
-            float out = csl_ctrl.at(j.joint_id).step(j.s_ang); //TODO: (reenable when CSL lib done) , usr_params.at(j.joint_id));
+            auto &csl = csl_ctrl.at(j.joint_id);
+            csl.target_csl_fb = 1.0;
+            csl.gi_pos = 2.5;
+            float out = csl.step(j.s_ang, usr_params.at(j.joint_id));
             j.motor = enabled ? out : .0; // apply only if enabled
         }
     }
 
-    void resetting_csl() {
+    void csl_behavioral_mode(void) {
+        for (auto& j : robot.set_joints())
+        {
+            auto &csl = csl_ctrl.at(j.joint_id);
+            csl.target_csl_mode = clip(usr_params.at(j.joint_id),-1.f,+1.f);
+            csl.target_csl_fb = 1.006;
+            csl.gi_pos = 2.0;
+            float out = csl.step(j.s_ang);
+            j.motor = enabled ? out : .0; // apply only if enabled
+        }
+    }
+
+    void resetting_csl(void) {
         for (auto const& j : robot.get_joints())
         {
             csl_ctrl.at(j.joint_id).reset(j.s_ang);
@@ -179,25 +193,23 @@ public:
 
         if (enabled)
         {
-            /**TODO refactor this, reset only just after/before entering respective mode
-               consider using a 'target mode' then reset and switch to actual mode */
-            //if (ControlMode_t::csl_hold == mode) csl_hold_mode(); else resetting_csl();
-            if (ControlMode_t::position == mode) position_control(); else resetting_pid();
-            /**TODO
-            if (ControlMode_t::so2_osc  == mode)
-                so2_controller.execute_cycle();
-            else {
-                so2_controller.reset();
+            /* update and reset if mode changes */
+            if (cur_mode != tar_mode) {
                 resetting_csl();
-            }*/
-            /**TODO
-            if (ControlMode_t::walking  == mode) {
-                //mixed_jointcontrol.fade(0, 1, cl                  ip(modulate, 0.f, 1.f), inputgain);
-                //mixed_jointcontrol.execute_cycle(); // what about a reset
-                jointcontrol.execute_cycle();
-            }*/
+                resetting_pid();
+                so2_ctrl.reset();
+                cur_mode = tar_mode;
+            }
 
-            if (ControlMode_t::none     == mode) robot.disable_motors();
+            switch(cur_mode) {
+                case ControlMode_t::csl_hold: csl_hold_mode();          break;
+                case ControlMode_t::position: position_control();       break;
+                case ControlMode_t::so2_osc : so2_ctrl.execute_cycle(); break;
+                case ControlMode_t::behavior: csl_behavioral_mode();    break;
+                case ControlMode_t::none    :
+                default:                      robot.disable_motors();   break;
+            }
+
         }
         else
             robot.disable_motors();

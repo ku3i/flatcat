@@ -299,7 +299,7 @@ public:
         .add(c.amplitude)
         .add(c.modulate )
         .add(c.inputgain)
-        .add(c.mode     );
+        .add(c.cur_mode );
 
         sendbuffer.add_checksum();
     }
@@ -319,10 +319,8 @@ private:
 
     network::Socket_Server     command_server;
 
-    network::UDPSender <125>   udp_sender;
-    network::Sendbuffer<125>   sendbuffer;
-
-
+    network::UDPSender <113>   udp_sender;
+    network::Sendbuffer<113>   sendbuffer;
 
     uint64_t cycles = 0;
 };
