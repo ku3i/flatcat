@@ -1,25 +1,60 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
-	<ActiveTarget name="flatcat_udp" />
-	<File name="src/flatcat_control.hpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<ActiveTarget name="flatcat_udp_learning" />
+	<File name="src/flatcat_udp_learning.hpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2748" topLine="0" />
+			<Cursor1 position="10171" topLine="280" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_udp.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1809" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="src/gmes_joint_group.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9001" topLine="124" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_graphics.hpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5707" topLine="120" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_udp_control.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1286" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_udp.hpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1089" topLine="36" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_udp_control.hpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6427" topLine="154" />
 		</Cursor>
 	</File>
 	<File name="src/flatcat_robot.hpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="370" topLine="9" />
+			<Cursor1 position="4086" topLine="123" />
 		</Cursor>
 	</File>
-	<File name="src/flatcat_graphics.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/flatcat_control.hpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5468" topLine="193" />
+			<Cursor1 position="2606" topLine="172" />
 		</Cursor>
 	</File>
-	<File name="src/flatcat_settings.hpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/flatcat_udp_learning.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="339" topLine="12" />
+			<Cursor1 position="3859" topLine="60" />
+		</Cursor>
+	</File>
+	<File name="src/flatcat_settings.hpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1105" topLine="33" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

@@ -268,12 +268,12 @@ public:
             .add(d.velocity         )
             .add(d.current          )
             .add(d.voltage_supply   )
+            .add(d.output_voltage   )
 //TODO            .add(d.voltage_backemf  )
 //TODO            .add(d.last_output      )
             .add(d.temperature      )
 //TODO            .add(d.is_connected     )
             //.add(m.connection_losses)
-//TODO            .add(m.target_voltage   )
             //.add(m.dir              )
             //.add(m.scale            )
             //.add(m.offset           );
@@ -319,8 +319,8 @@ private:
 
     network::Socket_Server     command_server;
 
-    network::UDPSender <101>   udp_sender;
-    network::Sendbuffer<101>   sendbuffer;
+    network::UDPSender <125>   udp_sender;
+    network::Sendbuffer<125>   sendbuffer;
 
 
 

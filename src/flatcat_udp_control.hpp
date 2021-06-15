@@ -34,7 +34,7 @@ namespace supreme {
 namespace constants {
 
     /* maps the motor ids to channel numbers of korg kontrol */
-    const std::array<uint8_t, num_joints> FlatcatMidiMap = { 17, 16 };
+    const std::array<uint8_t, num_joints> FlatcatMidiMap = { 14, 15, 16 };
 }
 
 
@@ -43,7 +43,7 @@ class FlatcatUDPRobot {
 public:
     typedef std::array<float, constants::num_joints> TargetPosition_t;
 
-    network::UDPReceiver<888> receiver;
+    network::UDPReceiver<101> receiver;
 
     uint16_t sync   = 0;
     uint64_t cycles = 0;
@@ -70,12 +70,12 @@ public:
 
     FlatcatUDPRobot()
     : receiver("239.255.255.252", 7331)
-    , motors(2 /**TODO*/)
+    , motors(3 /**TODO determine automatically*/)
     //, accels(1)/**TODO*/
     //, timing()
     , control()
     {
-
+        sts_msg("Creating Flatcat UDP Robot.");
 
     }
 
@@ -98,19 +98,19 @@ public:
             /* sensorimotor data */
             for (unsigned i = 0; i < motors.size(); ++i) {
                 auto& m = motors[i];
-//TODO                n = network::getfrom(m.id               , msg, n);
+                n = network::getfrom(m.id               , msg, n);
                 n = network::getfrom(m.position         , msg, n);
                 n = network::getfrom(m.last_p           , msg, n);
                 n = network::getfrom(m.velocity         , msg, n);
                 n = network::getfrom(m.current          , msg, n);
                 n = network::getfrom(m.voltage_supply   , msg, n);
-                n = network::getfrom(m.voltage_backemf  , msg, n);
+//                n = network::getfrom(m.voltage_backemf  , msg, n);
 //TODO                n = network::getfrom(m.last_output      , msg, n);
                 n = network::getfrom(m.temperature      , msg, n);
 //TODO                n = network::getfrom(m.is_connected     , msg, n);
-                n = network::getfrom(m.acceleration.x   , msg, n);
-                n = network::getfrom(m.acceleration.y   , msg, n);
-                n = network::getfrom(m.acceleration.z   , msg, n);
+//                n = network::getfrom(m.acceleration.x   , msg, n);
+//                n = network::getfrom(m.acceleration.y   , msg, n);
+//                n = network::getfrom(m.acceleration.z   , msg, n);
 //TODO                n = network::getfrom(m.connection_losses, msg, n);
 //TODO                n = network::getfrom(m.target_voltage   , msg, n);
  //TODO               n = network::getfrom(m.dir              , msg, n);
@@ -160,7 +160,7 @@ class Application : public Application_Base
 public:
     Application(int argc, char** argv, Event_Manager& em)
     : Application_Base(argc, argv, em, "Flatcat UDP Terminal", 1024, 1024)
-    , midi(1, /*verbose=*/false)
+    , midi(1, /*verbose=*/true)
     //, settings(argc, argv)
     , remote()
     , flatcat_UDP()
@@ -171,8 +171,9 @@ public:
         fast_forward.enable();
 
        assert(flatcat_UDP.control.user_target_position.size() == supreme::constants::FlatcatMidiMap.size());
-       remote.open_connection(network::hostname_to_ip("flatcat.local").c_str()/*"192.168.1.106"*/, 7332);
+       remote.open_connection(network::hostname_to_ip("flatcat2.local").c_str()/*"192.168.1.106"*/, 7332);
        remote.send("HELLO\n");
+
     }
 
     bool loop();
@@ -185,7 +186,7 @@ public:
 
     void user_callback_joystick_button_pressed (SDL_JoyButtonEvent const& e);
     void user_callback_joystick_button_released(SDL_JoyButtonEvent const& e);
-    //void user_callback_joystick_motion_axis    (SDL_JoyAxisEvent   const& e);
+    void user_callback_joystick_motion_axis    (SDL_JoyAxisEvent   const& e);
     //void user_callback_joystick_motion_hat     (SDL_JoyHatEvent    const& e);
 
 
@@ -199,10 +200,14 @@ private:
 
     network::Socket_Client     remote;
 
-    supreme::FlatcatUDPRobot    flatcat_UDP;
-    supreme::FlatcatGraphics    flatcat_gfx;
+    supreme::FlatcatUDPRobot   flatcat_UDP;
+    supreme::FlatcatGraphics   flatcat_gfx;
 
     Stopwatch                  watch;
+
+    double                     j_val[32]; // joystick
+    bool                       j_enable = false;
+    bool                       j_axis_changed = false;
 };
 
 

@@ -22,7 +22,7 @@ enum class ControlMode_t : uint8_t
     position,
     csl_hold,
     so2_osc,
-    walking,
+    behavior,
     END_ControlMode_t
 };
 
@@ -45,7 +45,7 @@ namespace constants {
     const float Ki = 0.01;
     const float Kd = 0.0;
 
-    const std::array<const char*, (unsigned) ControlMode_t::END_ControlMode_t> mode_str = { "NONE", "POS", "HOLD", "SO2", "WALK" };
+    const std::array<const char*, (unsigned) ControlMode_t::END_ControlMode_t> mode_str = { "NONE", "POS", "HOLD", "SO2", "BEHV" };
 
 } /* constants */
 
@@ -62,8 +62,8 @@ public:
     unsigned parameter_id = 0;
 
     FlatcatRobot&             robot;
-    control::Jointcontrol     jointcontrol;
-    control::Control_Vector   parameter_set;  // for joint controller
+    //control::Jointcontrol     jointcontrol;
+    //control::Control_Vector   parameter_set;  // for joint controller
     TargetPosition_t          usr_params;     // for testing and demo
 
     ControlMode_t             mode;
@@ -75,26 +75,26 @@ public:
 
     FlatcatControl(FlatcatRobot& robot, FlatcatSettings const& settings)
     : robot(robot)
-    , jointcontrol(robot)
-    , parameter_set(settings.max_number_of_gaits, settings.lib_folder)
+    //, jointcontrol(robot)
+    //, parameter_set(settings.max_number_of_gaits, settings.lib_folder)
     , usr_params()
     , mode(ControlMode_t::none)
     , csl_ctrl()
     , pid_ctrl()
    // , so2_controller(robot, csl_ctrl, usr_params)
     {
-        parameter_set.add(control::get_initial_parameter(robot, {0.1,-0.4, 1.0}, true));
-        parameter_set.add(control::get_initial_parameter(robot, {0.0, -.5, 0.0}, true));
-        assert(parameter_set.size() == 2);
+        //parameter_set.add(control::get_initial_parameter(robot, {0.1,-0.4, 1.0}, true));
+        //parameter_set.add(control::get_initial_parameter(robot, {0.0, -.5, 0.0}, true));
+        //assert(parameter_set.size() == 2);
 
-        auto const& c0 = parameter_set.get(0);
-        auto const& c1 = parameter_set.get(1);
+        //auto const& c0 = parameter_set.get(0);
+        //auto const& c1 = parameter_set.get(1);
 
-        parameter_set.add(0.75*c0 + 0.25*c1); // no. 3
-        parameter_set.add(0.50*c0 + 0.50*c1); // no. 4
-        parameter_set.add(0.25*c0 + 0.75*c1); // no. 5
+        //parameter_set.add(0.75*c0 + 0.25*c1); // no. 3
+        //parameter_set.add(0.50*c0 + 0.50*c1); // no. 4
+        //parameter_set.add(0.25*c0 + 0.75*c1); // no. 5
 
-        jointcontrol.set_control_parameter(parameter_set.get(0));
+        //jointcontrol.set_control_parameter(parameter_set.get(0));
 
         //mixed_jointcontrol.set_control_parameter(0, parameter_set.get(1));
         //mixed_jointcontrol.set_control_parameter(1, parameter_set.get(0));
@@ -109,8 +109,8 @@ public:
             c.target_csl_fb   = 1.0;
             c.limit_lo = j.limit_lo + 0.05;
             c.limit_hi = j.limit_hi - 0.05;
-            c.gi_pos = 10.0; //TODO try up to 10.
-            c.gi_neg = 5.0;
+            //c.gi_pos = 10.0; //TODO try up to 10.
+            //c.gi_neg = 5.0;
             c.update_mode();
 
             /* setup and configure PID controller */
@@ -161,7 +161,7 @@ public:
     {
         for (auto& j : robot.set_joints())
         {
-            float out = csl_ctrl.at(j.joint_id).step(j.s_ang, usr_params.at(j.joint_id));
+            float out = csl_ctrl.at(j.joint_id).step(j.s_ang); //TODO: (reenable when CSL lib done) , usr_params.at(j.joint_id));
             j.motor = enabled ? out : .0; // apply only if enabled
         }
     }

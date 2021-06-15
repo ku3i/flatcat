@@ -49,7 +49,12 @@ Application::loop(void)
             ctrl.user_target_position[i] = midi.get(idx);
             remote.append("MDI%02u=%f\n", i, clip(ctrl.user_target_position[i], -1.f, 1.f));
         }
+        if (j_axis_changed) {
+            ctrl.user_target_position[i] = j_val[i];
+            remote.append("MDI%02u=%f\n", i, clip(ctrl.user_target_position[i], -1.f, 1.f));
+        }
     }
+    j_axis_changed = false;
 
     flatcat_UDP.execute_cycle();   /* recv UDP raw sensor signals */
 
@@ -98,6 +103,7 @@ void Application::user_callback_joystick_button_pressed(SDL_JoyButtonEvent const
     case 1: send_parameter_id(2); break;
     case 2: send_parameter_id(3); break;
     case 3: send_parameter_id(4); break;
+    case 4: /* toggle enable */ j_enable = 1 - j_enable; break;
     default: break;
     }
 
@@ -113,13 +119,16 @@ void Application::user_callback_joystick_button_released(SDL_JoyButtonEvent cons
 
 }
 
-/*void Application::user_callback_joystick_motion_axis(SDL_JoyAxisEvent const& joystick)
+void Application::user_callback_joystick_motion_axis(SDL_JoyAxisEvent const& joystick)
 {
     switch (joystick.axis) {
-    case 3: break;
+    case 3: { j_val[3] = -clip(em.get_joystick().y1, -1.,1.); } j_axis_changed = true; break;
+    case 2: { j_val[2] = -clip(em.get_joystick().x1, -1.,1.); } j_axis_changed = true; break;
+    case 1: { j_val[1] = +clip(em.get_joystick().y0, -1.,1.); } j_axis_changed = true; break;
+    case 0: { j_val[0] = +clip(em.get_joystick().x0, -1.,1.); } j_axis_changed = true; break;
     default: break;
     }
-}*/
+}
 
 
 void

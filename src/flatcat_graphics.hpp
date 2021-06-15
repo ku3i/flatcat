@@ -175,12 +175,12 @@ public:
 
     std::vector<MotorPlot> plots;
 
-    std::vector<MotorPlot::PlotConf> confs = {{0x0, "0 R shld/ro", +0.5, +0.25, 0.6, 0.24}
-                                             ,{0x1, "1 L shld/ro", -0.5, +0.25, 0.6, 0.24}
+    std::vector<MotorPlot::PlotConf> confs = {{0x0, "0 Head", 0.0, +0.50, 1.2, 0.5}
+                                             ,{0x1, "1 Body", 0.0, +0.00, 1.2, 0.5}
+                                             ,{0x2, "2 Tail", 0.0, -0.50, 1.2, 0.5}
                                              };
 
-    MotorPlot::PlotConf  accel_conf = {0, "acceleration", +0.0, +1.10, 1.8, 0.20};
-
+    //MotorPlot::PlotConf  accel_conf = {0, "acceleration", +0.0, +1.10, 1.8, 0.20};
     //TODO AccelPlot accel_plot;
 
     template <typename RobotType, typename TargetPositionType>
@@ -188,10 +188,12 @@ public:
     : plots()
     //TODO, accel_plot(robot.get_accels(), accel_conf)
     {
+        sts_msg("Creating Flatcat Graphics");
         auto const& motors = robot.get_motors();
         assert(motors.size() > 0);
         plots.reserve(motors.size());
         assert(targets.size() >= motors.size());
+        assert(confs  .size() >= motors.size());
 
         for (std::size_t i = 0; i < motors.size(); ++i) {
             plots.emplace_back(motors[i], confs[i], targets[i]);
@@ -210,10 +212,11 @@ public:
         //TODO:: accel_plot.draw(p);
 
         set_color(colors::white);
-        glprintf(-.05f, +.90f, 0.0, 0.04, "Fore");
+        /*glprintf(-.05f, +.90f, 0.0, 0.04, "Fore");
         glprintf(-.04f, -.94f, 0.0, 0.04, "Aft");
         glprintf(-.90f, -.02f, 0.0, 0.04, "Port");
         glprintf(+.60f, -.02f, 0.0, 0.04, "Starboard");
+        */
     }
 };
 

@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="flatcat" />
+		<Option title="flatcat_UDP" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="flatcat_udp">
-				<Option output="flatcat_udp_control" prefix_auto="1" extension_auto="1" />
+				<Option output="flatcat_udp" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -21,7 +21,21 @@
 				</Linker>
 			</Target>
 			<Target title="flatcat_udp_control">
-				<Option output="flatcat_udp" prefix_auto="1" extension_auto="1" />
+				<Option output="flatcat_udp_control" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add directory="src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="flatcat_udp_learning">
+				<Option output="flatcat_udp_learning" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -56,6 +70,7 @@
 			<Add library="GLU" />
 			<Add library="glut" />
 			<Add library="asound" />
+			<Add library="stdc++fs" />
 			<Add directory="../framework/src" />
 			<Add directory="../framework/bin/Release" />
 		</Linker>
@@ -74,6 +89,15 @@
 		</Unit>
 		<Unit filename="src/flatcat_udp_control.hpp">
 			<Option target="flatcat_udp_control" />
+		</Unit>
+		<Unit filename="src/flatcat_udp_learning.cpp">
+			<Option target="flatcat_udp_learning" />
+		</Unit>
+		<Unit filename="src/flatcat_udp_learning.hpp">
+			<Option target="flatcat_udp_learning" />
+		</Unit>
+		<Unit filename="src/gmes_joint_group.hpp">
+			<Option target="flatcat_udp_learning" />
 		</Unit>
 		<Extensions>
 			<envvars />

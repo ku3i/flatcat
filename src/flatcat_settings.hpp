@@ -33,6 +33,18 @@ public:
     VectorN joint_offsets;
     float voltage_limit;
 
+    VectorN sarsa_learning_rates = {0.05, 0.05, 0.005, 0.005};
+    uint64_t trial_time_s = 60;
+    uint64_t eigenzeit_steps = 1000; // 10 seconds max.
+
+    float epsilon_exploration = 0.1;
+
+    unsigned save_cycles_s = 120;
+
+    std::string save_state_name;
+    std::string save_folder = "./data/";
+    bool clear_state;
+
     FlatcatSettings(int argc, char **argv)
     : Settings_Base       (argc, argv                          , defaults::settings_filename.c_str())
     , max_number_of_gaits (read_uint ("max_number_of_gaits"    , defaults::max_number_of_gaits     ))
@@ -41,7 +53,12 @@ public:
     , port                (read_uint ("port"                   , defaults::port                    ))
     , joint_offsets       (read_vec  ("joint_offsets"          , defaults::joint_offsets           ))
     , voltage_limit       (read_float("voltage_limit"          , defaults::voltage_limit           ))
-    {}
+    , save_state_name     (read_string_option(argc, argv, "-n", "--name", "default"                ))
+    , clear_state         (read_option_flag  (argc, argv, "-c", "--clear"                          ))
+    {
+
+        save_folder += save_state_name + "/";
+    }
 };
 
 } /* namespace supreme */
