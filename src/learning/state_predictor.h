@@ -60,8 +60,8 @@ public:
 
     void draw(void) const { assert(false); /*not implemented*/ }
 
-    void save(std::string /*folder*/) { wrn_msg("FIXME: nothing saved yet."); /*TODO implement */ }
-    void load(std::string /*folder*/) { wrn_msg("FIXME: nothing loaded yet.");/*TODO implement */ }
+    vector_t const& get_weights(void) const override { assert(false); return dummy; /*not implemented*/ }
+    vector_t      & set_weights(void)       override { assert(false); return dummy; /*not implemented*/ }
 
 private:
 
@@ -69,6 +69,8 @@ private:
     void learn_from_experience(std::size_t /*skip_idx*/) override { assert(false && "Learning from experience is not implemented yet."); };
 
     Timedelay_Network enc;
+
+    VectorN dummy = {}; // remove when implementing get_weights
 
     friend class Predictor_Graphics;
 };
