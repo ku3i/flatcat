@@ -1,11 +1,14 @@
 #ifndef PREDICTOR_H
 #define PREDICTOR_H
 
+#include <stdio.h>
+#include <stdarg.h>
 #include <memory>
 #include <common/modules.h>
 #include <common/vector_n.h>
 #include <common/log_messages.h>
 #include <common/static_vector.h>
+#include <common/save_load.h>
 #include <control/sensorspace.h>
 
 /** Notes regarding normalizing the prediction error
@@ -28,12 +31,11 @@ class Predictor_Base;
 typedef std::unique_ptr<Predictor_Base> Predictor_ptr;
 
 
-class Predictor_Base {
+class Predictor_Base : public common::Save_Load {
 
     Predictor_Base(const Predictor_Base& other) = delete;
 
 protected:
-    typedef VectorN vector_t;
 
     double calculate_prediction_error();
 
@@ -56,6 +58,7 @@ protected:
     }
 
 public:
+    typedef VectorN vector_t;
 
     Predictor_Base( const sensor_input_interface& input
                   , const double         learning_rate
@@ -98,6 +101,9 @@ public:
 
     virtual void draw(void) const = 0;
 
+    virtual vector_t const& get_weights(void) const = 0;
+    virtual vector_t      & set_weights(void)       = 0;
+
 private:
     virtual void learn_from_input_sample(void) = 0;
     virtual void learn_from_experience(std::size_t /*skip_idx*/) {
@@ -133,6 +139,9 @@ public:
     void initialize_from_input(void) override;
 
     void draw(void) const { assert(false);/* not implemented*/ }
+
+    vector_t const& get_weights(void) const override { return weights; }
+    vector_t      & set_weights(void)       override { return weights; }
 
 private:
 

@@ -31,7 +31,7 @@
     : Predictor_Base(input, learning_rate, random_weight_range, experience_size)
     , weights(input.size())
     {
-        dbg_msg("Initialize simple predictor.");
+        //dbg_msg("Initialize simple predictor.");
         initialize_from_input();
         predict(); // initialize prediction error
     }

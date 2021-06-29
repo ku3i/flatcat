@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <common/static_vector.h>
+#include <common/save_load.h>
 #include <control/sensorspace.h>
 #include <control/control_vector.h>
 #include <robots/robot.h>
@@ -19,7 +20,7 @@
  * regarding the expert modules in it. However this is theory. :)
  */
 
-class Expert_Vector {
+class Expert_Vector : public common::Save_Load {
 
     std::vector<Expert> experts;
     static_vector_interface& payloads;
@@ -42,6 +43,29 @@ public:
     const Expert& operator[] (const std::size_t index) const { return experts.at(index); }
 
     std::size_t size(void) const { return experts.size(); }
+
+    void save(std::string f)
+    {
+        auto const cols = experts.at(0).get_predictor().get_weights().size();
+        csv_file_t csv(f+"experts.dat", experts.size(), cols);
+        for (std::size_t i = 0, line = 0; i < experts.size(); ++i) {
+            if (experts[i].does_exists())
+                csv.set_line(line++, experts[i].get_predictor().get_weights());
+        }
+        csv.write();
+    }
+
+    void load(std::string f)
+    {
+        auto const cols = experts.at(0).get_predictor().get_weights().size();
+        csv_file_t csv(f+"experts.dat", experts.size(), cols);
+        csv.read();
+        for (std::size_t i = 0; i < experts.size(); ++i) {
+            csv.get_line(i, experts[i].set_predictor().set_weights());
+            experts[i].exists = !(i > 0 && is_vector_zero(experts[i].get_predictor().get_weights()));
+        }
+    }
+
 
     void copy(std::size_t to, std::size_t from, bool one_shot_learning) {
 
@@ -159,6 +183,7 @@ public:
                  , learning::model::vector_t&    gradient
                  , double                        local_learning_rate
                  , double                        random_weight_range
+                 , double                        regularization_rate
                  )
     : Expert_Vector(max_number_of_experts, payloads)
     {
@@ -170,6 +195,7 @@ public:
                                                                                , gradient
                                                                                , local_learning_rate
                                                                                , random_weight_range
+                                                                               , regularization_rate
                                                                                ) )
                                 , max_number_of_experts );
     }

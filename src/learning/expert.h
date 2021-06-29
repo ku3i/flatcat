@@ -2,6 +2,7 @@
 #define EXPERT_H_INCLUDED
 
 #include <memory>
+#include <common/save_load.h>
 #include <learning/gmes_constants.h>
 #include <learning/predictor.h>
 #include <control/sensorspace.h>
@@ -12,7 +13,7 @@
  *  + optional: restrict transitions to have max. k connections
  */
 
-class Expert {
+class Expert : public common::Save_Load {
     Expert(const Expert& other) = delete; // non construction-copyable
 
 public:
@@ -59,6 +60,9 @@ public:
     Predictor_Base      & set_predictor(void)       { return *predictor; }
 
     bool does_exists(void) const { return exists; }
+
+    //Predictor_Base::vector_t const& get_weights(void) const { return predictor->get_weights(); }
+    //Predictor_Base::vector_t      & set_weights(void)       { return predictor->set_weights(); }
 
 
 private:
