@@ -10,7 +10,14 @@ namespace learning {
 namespace homeokinetic_constants {
     const float learning_rate_pred = 0.005; //both values 0.001..0.01 is very nice;
     const float learning_rate_ctrl = 0.005;
+
+    const float regularization_rate = 0.0;
 }
+
+/**TODO description
+
+    + using L1 regularization_rate to prevent overfitting and encourage sparsity
+*/
 
 class Homeokinetic_Control {
 public:
@@ -27,6 +34,7 @@ public:
 
     float learning_rate_pred;
     float learning_rate_ctrl;
+    float regularization_rate;
 
     Vector_t gradient;  // error gradient signal, used to transport error information between Models
 
@@ -43,6 +51,7 @@ public:
                         , unsigned context = 0
                         , float learning_rate_pred = homeokinetic_constants::learning_rate_pred
                         , float learning_rate_ctrl = homeokinetic_constants::learning_rate_ctrl
+                        , float regularization_rate = homeokinetic_constants::regularization_rate
                         )
     : x0(input.size())
     , x1(input.size())
@@ -55,9 +64,13 @@ public:
     , pred(/*in=*/y0.size(), /*out=*/x1.size(), init_weight_range)
     , learning_rate_pred(learning_rate_pred)
     , learning_rate_ctrl(learning_rate_ctrl)
+    , regularization_rate(regularization_rate)
     , gradient(number_of_joints + context)
     {
-        sts_msg("creating homeokinetic controller with\n%u joints and \n%u context neurons.", number_of_joints, context);
+        sts_add("creating homeokinetic controller with\n%u joints and \n%u context neurons.", number_of_joints, context);
+        sts_msg("+ PRED learning rate = %e", learning_rate_pred);
+        sts_msg("+ CTRL Learning rate = %e", learning_rate_ctrl);
+        sts_msg("+ Normalization rate = %e", regularization_rate);
         read_sensor_data(x0, input);
         control();
     }
@@ -149,7 +162,7 @@ public:
      +------------------------------------*/
     void adapt_prediction(void) {
         if (option.prediction_learning) {
-            pred.adapt(y0, x1, learning_rate_pred);
+            pred.adapt(y0, x1, learning_rate_pred, regularization_rate);
             gradient = pred.get_backprop_gradient(); // get the back-propagated error information
         }
     }
@@ -163,7 +176,9 @@ public:
             assert( gradient.size() == Y0.size() );
             for (unsigned i = 0; i < gradient.size(); ++i)
                 gradient[i] += Y0[i]; // add the predictor's back-propagated error information to the target
-            ctrl.adapt(x0, gradient, learning_rate_ctrl);
+            ctrl.adapt(x0, gradient, learning_rate_ctrl, regularization_rate);
+
+            zero(gradient);
         }
     }
 
