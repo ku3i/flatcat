@@ -3,7 +3,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <learning/sarsa_constants.h>
 
 /** TODO: visualize traces by displaying the max trace per state.
  */
@@ -16,7 +15,7 @@ public:
     : value(0.0)
     {}
 
-    void decay(void)       { value *= sarsa_constants::LAMBDA * sarsa_constants::GAMMA; }
+    void decay(float factor)       { value *= factor; }
     void reset(void)       { value = 1.0;  }
     double get(void) const { assert(in_range(value, 0.0, 1.0)); return value; }
 
