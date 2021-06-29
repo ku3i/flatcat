@@ -20,9 +20,7 @@ public:
     State_Payload(const Action_Module_Interface& actions, std::size_t number_of_policies, double q_initial)
     : policies(number_of_policies, actions, q_initial)
     , eligibility_trace(actions.get_number_of_actions())
-    {
-//        dbg_msg("Creating State Payloads");
-    }
+    {}
 
     State_Payload& operator=(const State_Payload& other) {
         assert(this != &other); // no self-assignment
@@ -40,7 +38,6 @@ public:
 private:
     void copy_with_flaws(const State_Payload& other)
     {
-        //dbg_msg("Copy with flaws");
         /* inherit flawed Q-values, i.e. mutate, hidden in the copy assignment [!] */
         policies = other.policies;
 
@@ -86,41 +83,5 @@ public:
     }
 };
 
-#include <draw/graphics.h>
-#include <draw/display.h>
-#include <common/vector2.h>
 
-class State_Payload_Graphics : public Graphics_Interface {
-
-    typedef static_vector<State_Payload> Payload_Vector_t;
-
-    const Payload_Vector_t& payloads;
-    const Action_Module_Interface& actions;
-    const std::size_t num_policies, num_states;
-
-public:
-    State_Payload_Graphics(const Payload_Vector_t& payloads, const Action_Module_Interface& actions)
-    : payloads(payloads)
-    , actions(actions)
-    , num_policies(payloads[0].policies.size())
-    , num_states(payloads.size())
-    {}
-    void draw(const pref& /*p*/) const {
-
-        /**TODO draw user selected policy a little bigger */
-
-        const float space = 1.8/num_policies;
-        const float height = 0.9*space/num_states;
-        const float offy = space * num_policies/2;
-        for (std::size_t i = 0; i < num_policies; ++i)
-            for (std::size_t s = 0; s < num_states; ++s)
-                draw::vec3( 0.0
-                          , -i*space - s*height + offy
-                          , height
-                          , 1.8
-                          , payloads[s].policies[i].qvalues
-                          , actions.get_number_of_actions_available()
-                          );
-    }
-};
 #endif // PAYLOAD_H_INCLUDED
