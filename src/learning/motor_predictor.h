@@ -8,7 +8,7 @@
 #include <control/control_core.h>
 #include <learning/predictor.h>
 
-#include <draw/display.h>
+//#include <draw/display.h>
 
 namespace learning {
 
@@ -85,12 +85,17 @@ public:
         return params;
     }
 
+    /*
     void draw(void) const {
         float s = 2.0/core.weights.size();
         unsigned i = 0;
         for (auto const& wi : core.weights)
             draw_vector2(0.0 + s*i++, 0.0, 0.045, s, wi, 3.0);
     }
+    */
+
+    vector_t const& get_weights(void) const override { assert(false); return dummy; /*not implemented*/ }
+    vector_t      & set_weights(void)       override { assert(false); return dummy; /*not implemented*/ }
 
 private:
     robots::Robot_Interface const&          robot;
@@ -101,6 +106,7 @@ private:
     mutable bool                            params_changed;
     const double                            noise_level;
 
+    VectorN dummy = {}; // remove when implementing get_weights
 
     void learn_from_input_sample(void) override {
         /** Regarding the gradient descent on the motor controller weights:
@@ -134,6 +140,8 @@ private:
             in.y += rndval;
         }
     }
+
+    friend class Motor_Predictor_Graphics;
 };
 
 } // namespace learning
