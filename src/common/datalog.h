@@ -45,12 +45,14 @@ public:
     bool is_enabled(void) const { return enabled; }
     bool is_video_included(void) const { return enabled and incl_video; }
 
+    void flush(void) { logfile.flush(); }
+    void next (void) { logfile.next();  }
+
 private:
     const std::string filename;
     file_io::Logfile logfile;
     bool enabled;
     bool incl_video;
-
 
     std::string get_timestamped_file_name(const std::string& folder) {
         return basic::make_directory(folder.c_str()) // folder

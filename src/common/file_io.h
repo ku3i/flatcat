@@ -146,9 +146,17 @@ public:
 
     void flush(void) { fflush(fd); }
 
+    void next(void) {
+        fflush(fd);
+        fclose(fd);
+        auto name = filename + "_" + std::to_string(++index);
+        fd = open_file("w", name.c_str());
+    }
+
 
     const std::string filename;
     FILE* fd;
+    std::size_t index = 0;
 };
 
 
