@@ -15,10 +15,34 @@ namespace model {
     typedef std::vector<scalar_t> vector_t;
     typedef copyable_static_vector<copyable_static_vector<scalar_t>> matrix_t;
 
-    template <typename A_t, typename B_t>
-    void check_vectors(A_t const& a, B_t const& b) {
-        assertion(a.size() == b.size(), "Incompatible vector lengths %u =/= %u", a.size(), b.size());
-    }
+    template <typename Float_t>
+    struct AdamData {
+        static constexpr Float_t b1 = 0.9;
+        static constexpr Float_t b2 = 0.999;
+        static constexpr Float_t e0 = 10e-8;
+
+        Float_t m, v, bt1, bt2;
+
+        AdamData(void) : m(.0), v(.0), bt1(1.), bt2(1.) { }
+
+        Float_t get(Float_t grad) {
+            bt1 *= b1;
+            bt2 *= b2;
+
+            m = b1 * m + (1. - b1) * grad;        // 1st momentum
+            v = b2 * v + (1. - b2) * grad * grad; // 2nd momentum
+
+            const Float_t M = m / (1. - bt1);
+            const Float_t V = v / (1. - bt2);
+
+            return (M / (sqrt(V) + e0));
+
+        }
+    };
+
+    typedef copyable_static_vector<copyable_static_vector<AdamData<scalar_t>>> gradient_t;
+
+
 
     template <typename MatrixType>
     void randomize_weights(MatrixType& mat, double random_weight_range) {
@@ -99,6 +123,14 @@ public:
     static T inverse (T const& x) { return atanh(x); /*log((1+x)/(1-x))/2*/    } // area tangens hyperbolicus = tanh^-1
 };
 
+struct Weight_Statistics_t {
+
+    static constexpr float zero_thrsh = 0.001;
+
+    unsigned num = 0, total = 0;
+    float avg = 0.f, ext = 0.f, vol = 0.f;
+
+};
 
 template <typename Transfer_t>
 class NeuralModel {
@@ -108,12 +140,15 @@ class NeuralModel {
     model::scalar_t E; // prediction error
     model::vector_t d; // delta error (used for back-propagation)
 
+    model::gradient_t G; // Adam's Gradient Statistics
+
 public:
     NeuralModel(std::size_t size_in, std::size_t size_out, double random_weight_range)
     : y(size_out)
     , W(size_out, size_in)
     , E()
     , d(size_out)
+    , G(size_out, size_in)
     {
         model::randomize_weights(W, random_weight_range);
     }
@@ -132,7 +167,7 @@ public:
     template <typename InputVector_t>
     model::vector_t const& propagate(InputVector_t const& in)
     {
-        model::check_vectors(in, W[0]);
+        check_vectors(in, W[0]);
 
         for (std::size_t i = 0; i < y.size(); ++i) {
             model::scalar_t a = .0;
@@ -145,18 +180,20 @@ public:
 
     /* adapt should follow a propagation to fill y */
     template <typename InputVector_From_t, typename InputVector_To_t>
-    void adapt(InputVector_From_t const& in, InputVector_To_t const& tar, double learning_rate)
+    void adapt(InputVector_From_t const& in, InputVector_To_t const& tar, double learning_rate, double regularization_rate)
     {
-        model::check_vectors(tar, y);
-        model::check_vectors(in, W[0]);
-        assert_in_range(learning_rate, 0.0, 5.0);
+        check_vectors(tar, y);
+        check_vectors(in, W[0]);
+        assert_in_range(learning_rate, 0.0, 1.0);
         E = .0; // reset total sum of prediction errors
         for (std::size_t i = 0; i < y.size(); ++i) {
             const model::scalar_t e_i = tar[i] - y[i];
             E += square(e_i);
             d[i] = Transfer_t::derive(y[i]) * e_i; // remember delta error for back-propagation signal
             for (std::size_t j = 0; j < in.size(); ++j)
-                W[i][j] += learning_rate * d[i] * in[j];
+                //W[i][j] += learning_rate * d[i] * in[j] - regularization_rate * W[i][j];//* sign(W[i][j]);
+                /*              target learning                  L1 regularization     */
+                W[i][j] += learning_rate * G[i][j].get(d[i] * in[j]) - regularization_rate * W[i][j];
         }
     }
 
@@ -165,6 +202,31 @@ public:
     model::scalar_t        get_error  () const { return E/y.size(); }
 
     void randomize_weights(double random_weight_range) { model::randomize_weights(W, random_weight_range); }
+
+
+    void constrain_weights(void) {
+        for (std::size_t i = 0; i < W.size(); ++i)
+            for (std::size_t j = 0; j < W[i].size(); ++j)
+                W[i][j] = clip(W[i][j], 5);
+    }
+
+    //move to w_statistics class
+    Weight_Statistics_t get_weight_statistics(void) const {
+        Weight_Statistics_t stat = {};
+        stat.num = 0;
+        stat.total = W.size() * W[0].size();
+        for (std::size_t i = 0; i < W.size(); ++i)
+            for (std::size_t j = 0; j < W[i].size(); ++j) {
+                const float w = W[i][j];
+                stat.avg += w;
+                stat.vol += std::abs(w);
+                if (fabs(w) > Weight_Statistics_t::zero_thrsh) ++stat.num;
+                if (fabs(w) > fabs(stat.ext)) stat.ext = w;
+            }
+
+        stat.avg /= stat.total; // normalize by number of weights
+        return stat;
+    }
 
 }; /* LinearModel */
 
@@ -190,7 +252,7 @@ public:
     template <typename InputVector_t>
     model::vector_t const& propagate(InputVector_t const& in)
     {
-        model::check_vectors(in, a);
+        check_vectors(in, a);
         for (std::size_t j = 0; j < in.size(); ++j)
             a[j] = G(in[j]);
 
@@ -205,9 +267,9 @@ public:
 
     /* adapt should follow a propagation to fill y */
     template <typename InputVector_From_t, typename InputVector_To_t>
-    void adapt(InputVector_From_t const& in, InputVector_To_t const& tar, double learning_rate) {
-        model::check_vectors(tar, y);
-        model::check_vectors(in, a);
+    void adapt(InputVector_From_t const& in, InputVector_To_t const& tar, double learning_rate, double normalize_rate) {
+        check_vectors(tar, y);
+        check_vectors(in, a);
         assert_in_range(learning_rate, 0.0, 5.0);
 
         e = .0;
@@ -218,7 +280,7 @@ public:
             model::scalar_t err_i = learning_rate * (tar[i] - y[i]);
             e += square(tar[i] - y[i]);
             for (std::size_t j = 0; j < in.size(); ++j)
-                M[i][j] += err_i * a[j];
+                M[i][j] += err_i * a[j] - normalize_rate * sign(M[i][j]);
         }
     }
 
@@ -248,10 +310,10 @@ public:
     template <typename InputVector_t> model::vector_t const& propagate_inverse(InputVector_t const& Y) { return m_inverse.propagate(Y); }
 
     template <typename InputVector_X_t, typename InputVector_Y_t>
-    void adapt(InputVector_X_t const& X, InputVector_Y_t const& Y, double learning_rate)
+    void adapt(InputVector_X_t const& X, InputVector_Y_t const& Y, double learning_rate, double regularization_rate)
     {
-        m_forward.adapt(/*from*/X, /*to*/Y, learning_rate);
-        m_inverse.adapt(/*from*/Y, /*to*/X, learning_rate);
+        m_forward.adapt(/*from*/X, /*to*/Y, learning_rate, regularization_rate);
+        m_inverse.adapt(/*from*/Y, /*to*/X, learning_rate, regularization_rate);
     }
 
     model::matrix_t const& get_weights        () const { return m_forward.get_weights(); }
@@ -270,6 +332,16 @@ public:
     }
 
     model::vector_t get_backprop_gradient(void) const { return m_forward.get_backprop_err(); }
+
+    ForwardType const& get_forward_model(void) const { return m_forward; }
+    InverseType const& get_inverse_model(void) const { return m_inverse; }
+
+
+    void constrain_weights(void) {
+        m_forward.constrain_weights();
+        m_inverse.constrain_weights();
+    }
+
 }; /* BidirectionalModel */
 
 
