@@ -7,6 +7,8 @@
 
 namespace learning {
 
+/** TODO  implement Adam! */
+
 class BiModel_Predictor : public Predictor_Base
 {
     typedef NeuralModel<learning::TanhTransfer<>> NeuralModel_t;
@@ -21,6 +23,8 @@ class BiModel_Predictor : public Predictor_Base
     BiModel_Predictor(const BiModel_Predictor& other) = delete;
     BiModel_Predictor& operator=(const BiModel_Predictor& other) = delete;
 
+    double regularization_rate;
+
 public:
 
     BiModel_Predictor( sensor_input_interface const& input
@@ -28,11 +32,13 @@ public:
                      , model::vector_t& gradient
                      , double learning_rate
                      , double random_weight_range
+                     , double regularization_rate
                      )
-    : Predictor_Base(input, learning_rate, random_weight_range, /*experience=*/1)
+    : Predictor_Base(input, learning_rate, random_weight_range, /*experience replay OFF */ 1)
     , mod(ctrl_context.size(), input.size(), random_weight_range)
     , ctrl_context(ctrl_context)
     , gradient(gradient)
+    , regularization_rate(regularization_rate)
     {
         assert(gradient.size() == ctrl_context.size());
     }
@@ -70,9 +76,6 @@ public:
 
     void draw(void) const { assert(false && "not implemented yet."); }
 
-    void save(std::string /*folder*/) { wrn_msg("FIXME: nothing saved yet."); /*TODO implement */ }
-    void load(std::string /*folder*/) { wrn_msg("FIXME: nothing loaded yet.");/*TODO implement */ }
-
     double get_prediction_error(void) const { return mod.get_forward_error(); } //OK
     double get_reconstruction_error(void) const { return mod.get_inverse_error(); } //OK
 
@@ -80,6 +83,8 @@ public:
 
     model::vector_t get_gradient(void) const { return mod.get_backprop_gradient(); }
 
+    vector_t const& get_weights(void) const override { assert(false); return dummy; /*not implemented*/ }
+    vector_t      & set_weights(void)       override { assert(false); return dummy; /*not implemented*/ }
 
 private:
 
@@ -89,9 +94,14 @@ private:
         for (unsigned i = 0; i < gradient.size(); ++i)
             gradient[i] += ctrl_context[i]; /* add the predictor's back-propagated
                                                error information to the training target */
-        mod.adapt(gradient, input, learning_rate);
-        std::fill(gradient.begin(), gradient.end(), 0); // clear, mark as used
+        mod.adapt(gradient, input, learning_rate, regularization_rate);
+        zero(gradient); // clear, mark as used
+
+        //TODO check if needed mod.constrain_weights();
     }
+
+
+    VectorN dummy = {}; // remove when implementing get_weights
 
 };
 

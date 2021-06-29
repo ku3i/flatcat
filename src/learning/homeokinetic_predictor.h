@@ -66,16 +66,15 @@ public:
 
     void draw(void) const { assert(false && "not implemented yet."); }
 
-    void save(std::string /*folder*/) { wrn_msg("FIXME: nothing saved yet."); /*TODO implement */ }
-    void load(std::string /*folder*/) { wrn_msg("FIXME: nothing loaded yet.");/*TODO implement */ }
-
-
     Homeokinetic_Control::Vector_t& set_motor_data(void) { return core.set_motor_data(); }
 
     void learn_motor(void) { core.reconstruct(); core.adapt_controller(); }
 
     double get_timeloop_error(void) const { return core.get_timeloop_error(); }
     double get_prediction_error(void) const { return core.get_prediction_error(); }
+
+    vector_t const& get_weights(void) const override { assert(false); return dummy; /*not implemented*/ }
+    vector_t      & set_weights(void)       override { assert(false); return dummy; /*not implemented*/ }
 
 private:
 
@@ -90,7 +89,7 @@ private:
     };
 
 
-
+    VectorN dummy = {}; // remove when implementing get_weights
     //friend class Predictor_Graphics;
 };
 
