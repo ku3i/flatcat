@@ -11,8 +11,6 @@
 #include <learning/payload.h>
 #include <learning/sarsa.h>
 #include <learning/gmes.h>
-#include <learning/competitive_motor_layer.h>
-#include <learning/competitive_motor_layer_graphics.h>
 #include <learning/learning_machine_interface.h>
 
 /** TODO:
