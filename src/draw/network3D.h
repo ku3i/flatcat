@@ -13,7 +13,7 @@
 class network3D
 {
 public:
-    network3D(unsigned int number_of_nodes, const axes3D& axis, const GLubyte c[4])
+    network3D(unsigned int number_of_nodes, const axes3D& axis)
     : number_of_nodes(number_of_nodes)
     , axis(axis)
     , pointer(0)
@@ -23,7 +23,6 @@ public:
     , n_size(number_of_nodes)
     , n_edges(number_of_nodes)
     {
-        for (unsigned int i = 0; i < 4; ++i) color[i] = c[i];
         for (unsigned int i = 0; i < number_of_nodes; ++i)
             n_edges.at(i).assign(number_of_nodes, 0);
     }
@@ -50,11 +49,9 @@ private:
     std::vector<Point> n_pos;
     std::vector<float> n_size;
 
-
     /* size == 0, kein Knoten */
     std::vector<std::vector<unsigned char> > n_edges;
 
-    GLubyte color[4];
 };
 
 #endif /*NETWORK3D_H*/

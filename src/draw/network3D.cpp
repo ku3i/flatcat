@@ -10,7 +10,7 @@ void network3D::draw(float x_angle, float y_angle) const
     glRotatef(x_angle, 0.0, 1.0, 0.0);
 
     /* draw nodes */
-    glColor4ub(255,255,255,255);
+    glColor4ub(255,255,255,160);
 
     for (unsigned int i = 0; i < number_of_nodes; ++i)
         draw_solid_cube(n_pos[i].x, n_pos[i].y, n_pos[i].z, 0.005);

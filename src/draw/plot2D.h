@@ -26,7 +26,7 @@ public:
     , axis(axis)
     , signal(number_of_samples)
     , color(color)
-    , decrement(0.001)
+    , decrement(0.999)
     { }
 
     void draw(void) const;
@@ -48,6 +48,9 @@ protected:
     const Color4 color;
 
     const float decrement;
+
+public:
+    Vector2 offset = {};
 };
 
 
@@ -68,7 +71,7 @@ public:
     }
 
     void draw_colored(void) const;
-
+    void draw_colored_scatter(void) const;
 private:
     //void draw_colored_line_strip(void) const;
 

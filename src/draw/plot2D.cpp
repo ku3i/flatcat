@@ -5,9 +5,9 @@
 void plot2D::autoscale(void) const
 {
     float scale  = 2.0 / (axis.max_amplitude - axis.min_amplitude);
-    float offset = 0.0;//TODO      (axis.max_amplitude + axis.min_amplitude) / 2;
+    float offset0 = 0;//(axis.max_amplitude + axis.min_amplitude) / 2;
 
-    glTranslatef(axis.px - offset, axis.py - offset, axis.pz);
+    glTranslatef(axis.px + offset0, axis.py + offset0, axis.pz);
     glScalef( 0.5 * axis.width  * scale
             , 0.5 * axis.height * scale
             , 1.0);
@@ -23,8 +23,8 @@ void plot2D::draw(void) const
     glBegin(GL_LINE_STRIP);
     for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
         set_color(color, (float) i/number_of_samples);
-        glVertex2f((signal[(i + pointer) % number_of_samples].x),
-                   (signal[(i + pointer) % number_of_samples].y));
+        const unsigned pos = (i + pointer) % number_of_samples;
+        glVertex2f( signal[pos].x - offset.x, signal[pos].y - offset.y );
     }
     glEnd();
     glPopMatrix();
@@ -48,8 +48,8 @@ void plot2D::draw(void) const
 void plot2D::adjust_amplitude(float s0, float s1) const
 {
     if (pointer == 0) {
-        axis.max_amplitude -= decrement;
-        axis.min_amplitude += decrement;
+        axis.max_amplitude *= decrement;
+        axis.min_amplitude *= decrement;
     }
 
     axis.max_amplitude = std::max(axis.max_amplitude, std::max(s0, s1));
@@ -86,10 +86,23 @@ void colored_plot2D::draw_colored(void) const
     for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
         const unsigned pos = (i + pointer) % number_of_samples;
         set_color(colortable.get_color(colors[pos]), (float) i/number_of_samples);
-        glVertex2f( signal[pos].x, signal[pos].y );
+        glVertex2f( signal[pos].x-offset.x, signal[pos].y-offset.y );
     }
     glEnd();
     glPopMatrix();
 }
+
+void colored_plot2D::draw_colored_scatter(void) const
+{
+    glPushMatrix();
+    autoscale();
+    for (unsigned i = number_of_samples; i-- > 1; ) { // zero omitted
+        const unsigned pos = (i + pointer) % number_of_samples;
+        set_color(colortable.get_color(colors[pos]), 0.2f*(float) i/number_of_samples+0.10f);
+        draw_fill_square(signal[pos].x-offset.x, signal[pos].y-offset.y, 0.02);
+    }
+    glPopMatrix();
+}
+
 
 /* plot2D.cpp */
