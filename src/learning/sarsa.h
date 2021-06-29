@@ -43,8 +43,10 @@ public:
     SARSA( static_vector<State_Payload>& states
          , const reward_base& rewards
          , /*const*/ Action_Selection_Base& action_selection
-         , const std::size_t number_of_actions
+         , std::size_t number_of_actions
          , const std::vector<double>& learning_rates
+         , float discounting = sarsa_constants::GAMMA
+         , float trace_decay = sarsa_constants::LAMBDA
          , RL::State initial_state = 0
          , RL::Action initial_action = 0 )
     : states(states)
@@ -59,6 +61,8 @@ public:
     , current_policy(0)
     , deltaQ(number_of_policies)
     , learning_rates(learning_rates)
+    , discounting(discounting)
+    , trace_decay(trace_decay)
     , learning_enabled(true)
     {
         sts_msg("Creating discrete Reinforcement Learner: SARSA.\
@@ -71,6 +75,8 @@ public:
                , "Number of learning rates %u must be equal to the number of policies %u"
                , learning_rates.size(), number_of_policies);
         assert(states[0].policies.size() == rewards.get_number_of_policies() );
+
+        sts_msg("GAMMA=%1.3f LAMBDA = %1.3f", discounting, trace_decay);
     }
 
     double      get_current_reward    (std::size_t index) const { return rewards.get_current_reward(index); }
@@ -95,7 +101,7 @@ public:
         /**TODO non existing states should be reset to zero */
         for (std::size_t s = 0; s < states.size(); ++s)
             for (std::size_t a = 0; a < number_of_actions; ++a)
-                states[s].eligibility_trace[a].decay();
+                states[s].eligibility_trace[a].decay(discounting*trace_decay);
     }
 
 
@@ -152,9 +158,16 @@ private:
         assert(deltaQ.size() == number_of_policies);
         assert(states[last_state].eligibility_trace.size() == number_of_actions);
 
+        /** TODO rethink: use q-learning for off-policies.. and sarsa for the on-policy learning step */
+
         for (std::size_t pi = 0; pi < number_of_policies; ++pi)
-            deltaQ[pi] = rewards.get_aggregated_last_reward(pi) + sarsa_constants::GAMMA * states[current_state].policies[pi].qvalues[current_action]
-                                                                                         - states[last_state   ].policies[pi].qvalues[last_action   ];
+            //TODO testing
+            //if (pi == current_policy)
+            deltaQ[pi] = rewards.get_aggregated_last_reward(pi) + discounting * states[current_state].policies[pi].qvalues[current_action]
+                                                                              - states[last_state   ].policies[pi].qvalues[last_action   ];
+
+            //else deltaQ[pi] = .0;
+            //TODO use get_max_q
 
         /* decay eligibility traces */
         if (current_state != last_state)
@@ -191,6 +204,8 @@ private:
     std::vector<double> deltaQ;
 
     const std::vector<double> learning_rates;
+    float discounting; // aka Gamma
+    float trace_decay; // aka Lambda
 
     bool random_actions = false;
     bool learning_enabled;
@@ -346,21 +361,5 @@ public:
     friend class Policy_Selector_Graphics;
 };
 
-class Policy_Selector_Graphics : public Graphics_Interface {
-    const Policy_Selector& policy_selector;
-public:
-    Policy_Selector_Graphics(const Policy_Selector& policy_selector) : policy_selector(policy_selector) {}
 
-    void draw(const pref& /*p*/) const {
-        unsigned int time_left = policy_selector.get_trial_time_left();
-        unsigned int minutes = (time_left / 6000);
-        unsigned int seconds = (time_left / 100) % 60;
-        unsigned int hsecs   = (time_left % 100);
-        glColor3f(1.0,1.0,1.0);
-        glprintf(0.0,-0.05, 0.0, 0.03, "[%u] %s", policy_selector.current_policy
-                                                , policy_selector.sarsa.rewards.get_reward_name(policy_selector.current_policy).c_str());
-        glprintf(0.0,-0.10, 0.0, 0.03, "left: %u:%02u:%02u [%c]", minutes, seconds, hsecs, policy_selector.profile.play ? '+' :
-                                                                                           policy_selector.random_policy_mode ? '~' : '=');
-    }
-};
 #endif // SARSA_H_INCLUDED
