@@ -34,7 +34,7 @@ make_directory(const char *format, ...)
     va_end(args);
 
     int md = mkdir(foldername, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (!md) sts_msg("create folder %s", foldername);
+    if (!md) sts_msg("created folder %s", foldername);
     else if (errno != EEXIST) err_msg(__FILE__, __LINE__, "could not create folder %s.\n %s\n", foldername, strerror(errno));
 
     return foldername;

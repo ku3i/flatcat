@@ -29,10 +29,17 @@ public:
 
     template<typename... Args>
     explicit static_vector(std::size_t number_of_elements, const Args&... args) : content() {
-//        dbg_msg("Creating static vector of size: %u", number_of_elements);
         content.reserve(number_of_elements);
         for (std::size_t index = 0; index < number_of_elements; ++index)
             content.emplace_back(/*index, */args...);
+    }
+
+    explicit static_vector(std::vector<element_t> const& vec) : content(vec) {}
+
+    static_vector& operator=(std::vector<element_t> const& vec) {
+        assert(content.size() == vec.size());
+        this->content = vec;
+        return *this;
     }
 
     virtual ~static_vector() = default;
@@ -50,6 +57,8 @@ public:
     void copy(std::size_t dst, std::size_t src) override final { content.at(dst) = content.at(src); }
 
     void zero(void) { std::fill(content.begin(), content.end(), .0); }
+
+    std::vector<element_t> const& get_content(void) const { return content; }
 
 protected:
     std::vector<element_t> content;

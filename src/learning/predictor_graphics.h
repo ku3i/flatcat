@@ -16,12 +16,12 @@ public:
     : predictor(predictor)
     , color(random_value(0.2, 1.0), random_value(0.2, 1.0), random_value(0.2, 1.0), 0.2)
     {
-        assert(predictor.get_experience()[0].size() == 3);
+        assert(predictor.get_experience()[0].size() >= 3);
     }
 
     void draw(const pref& /*p*/) const
     {
-        std::vector<VectorN> const& experience = predictor.get_experience();
+        auto const& experience = predictor.get_experience();
         if (experience.size() > 1) {
             set_color(color);
             for (std::size_t i = 0; i < experience.size(); ++i)

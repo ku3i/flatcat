@@ -31,7 +31,11 @@ class GMES_Graphics;
 class Payload_Graphics;
 class Force_Field;
 
-class GMES : public control::Statemachine_Interface, public learning::Learning_Machine_Interface { /* Growing_Multi_Expert_Structure */
+/* Growing_Multi_Expert_Structure
+ */
+class GMES : public control::Statemachine_Interface
+           , public learning::Learning_Machine_Interface
+{
     GMES(const GMES& other) = delete; // non construction-copyable
 
 public:

@@ -99,7 +99,7 @@ public:
 
     virtual vector_t const& get_prediction(void) const = 0;
 
-    virtual void draw(void) const = 0;
+    //virtual void draw(void) const = 0;
 
     virtual vector_t const& get_weights(void) const = 0;
     virtual vector_t      & set_weights(void)       = 0;
@@ -138,7 +138,7 @@ public:
     void initialize_randomized(void) override;
     void initialize_from_input(void) override;
 
-    void draw(void) const { assert(false);/* not implemented*/ }
+    //void draw(void) const { assert(false);/* not implemented*/ }
 
     vector_t const& get_weights(void) const override { return weights; }
     vector_t      & set_weights(void)       override { return weights; }
