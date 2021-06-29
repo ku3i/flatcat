@@ -12,13 +12,13 @@
 
 class GMES_Graphics : public Graphics_Interface {
 public:
-    GMES_Graphics(const GMES& gmes, const sensor_vector& input)
+    GMES_Graphics(const GMES& gmes, const sensor_vector& input, unsigned num_samples = 100)
     : gmes(gmes)
     , expert(gmes.expert)
     , input(input)
     , axis(.0, .0, .0, 1., 1., 1., 0)
-    , plot(100, axis, LineColorMix0[0])
-    , graph(expert.size(), axis, white)
+    , plot(num_samples, axis, LineColorMix0[0])
+    , graph(expert.size(), axis)
     , predictor_graphics()
     {
         predictor_graphics.reserve(expert.size());
@@ -37,9 +37,26 @@ public:
         sts_msg("Created GMES Graphics Extension");
     }
 
+    void update_on_load(void)
+    {
+        for (unsigned int i = 0; i < expert.size(); ++i) {
+            if (!expert[i].does_exists()) continue;
+            graph.update_node(i,
+                        expert[i].get_predictor().get_prediction()[0],
+                        expert[i].get_predictor().get_prediction()[1],
+                        expert[i].get_predictor().get_prediction()[2],
+                        fmin(2.0, expert[i].learning_capacity));
+            for (unsigned int j = 0; j < expert.size(); ++j) {
+                if (!expert[j].does_exists()) continue;
+                graph.update_edge(i, j, (unsigned char) 255 * expert[i].transition[j]);
+                graph.update_edge(j, i, (unsigned char) 255 * expert[j].transition[i]);
+            }
+        }
+    }
+
     void execute_cycle(uint64_t /*cycle*/)
     {
-        assert(input.size() == 3);
+        assert(input.size() >= 3);
         plot.add_sample((float) input[0], (float) input[1], (float) input[2]);
 
         for (unsigned int n = 0; n < expert.size(); ++n) {

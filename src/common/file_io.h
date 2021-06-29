@@ -75,7 +75,8 @@ public:
         fclose(csv_file);
     }
 
-    void get_line(std::size_t row_index, std::vector<T>& line) const {
+    template <typename Vector_t>
+    void get_line(std::size_t row_index, Vector_t& line) const {
         assert(row_index < data.size());
         //dbg_msg("reading line %2u, size: %u, line size: %u", row_index, max_cols, line.size());
         assert(line.size() == max_cols);
@@ -87,7 +88,8 @@ public:
         value = data[row_index][0];
     }
 
-    void set_line(std::size_t row_index, const std::vector<T>& line) {
+    template <typename Vector_t>
+    void set_line(std::size_t row_index, Vector_t const& line) {
         assert(row_index < data.size() && line.size() == max_cols);
         //dbg_msg("writing line %2u, size: %u", row_index, max_cols);
         data[row_index] = line;
