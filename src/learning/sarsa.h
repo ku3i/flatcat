@@ -20,6 +20,7 @@ and where the adaption is just taking the reward and adapts accordingly, no matt
 #include <learning/reward.h>
 #include <learning/payload.h>
 #include <learning/action_selection.h>
+#include <learning/eligibility.h>
 
 #include <robots/joint.h>
 
@@ -360,6 +361,5 @@ public:
 
     friend class Policy_Selector_Graphics;
 };
-
 
 #endif // SARSA_H_INCLUDED

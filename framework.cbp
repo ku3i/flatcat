@@ -86,6 +86,7 @@
 		<Unit filename="src/common/noncopyable.h" />
 		<Unit filename="src/common/robot_conf.cpp" />
 		<Unit filename="src/common/robot_conf.h" />
+		<Unit filename="src/common/save_load.h" />
 		<Unit filename="src/common/settings.cpp" />
 		<Unit filename="src/common/settings.h" />
 		<Unit filename="src/common/setup.cpp" />
@@ -189,6 +190,9 @@
 		<Unit filename="src/learning/learning_machine_interface.h" />
 		<Unit filename="src/learning/motor_layer.h" />
 		<Unit filename="src/learning/motor_predictor.h" />
+		<Unit filename="src/learning/motor_predictor_graphics.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/learning/payload.h" />
 		<Unit filename="src/learning/payload_graphics.h" />
 		<Unit filename="src/learning/predictor.cpp" />
@@ -200,7 +204,11 @@
 		<Unit filename="src/learning/sarsa.h" />
 		<Unit filename="src/learning/sarsa_constants.h" />
 		<Unit filename="src/learning/sarsa_graphics.h" />
+		<Unit filename="src/learning/self_adj_motor_space.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/learning/state_action_predictor.h" />
+		<Unit filename="src/learning/state_layer.h" />
 		<Unit filename="src/learning/state_predictor.h" />
 		<Unit filename="src/learning/time_delay_network.h" />
 		<Unit filename="src/learning/time_state_space.h" />

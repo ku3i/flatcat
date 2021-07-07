@@ -1,5 +1,5 @@
-#ifndef EIGENZEIT_H_INCLUDED
-#define EIGENZEIT_H_INCLUDED
+#ifndef LEARNING_EIGENZEIT_H
+#define LEARNING_EIGENZEIT_H
 
 #include <common/log_messages.h>
 #include <control/statemachine.h>
@@ -43,13 +43,6 @@ public:
     uint64_t get_cycle (void) const { return eigenzeit_cycle;   }
 };
 
-class Eigenzeit_Graphics : public Graphics_Interface {
-    const Eigenzeit& eigenzeit;
-public:
-    Eigenzeit_Graphics(const Eigenzeit& eigenzeit) : eigenzeit(eigenzeit) {}
-    void draw(const pref& /*p*/) const { /*TODO*/ }
-};
+} /* namespace learning */
 
-} // namespace learning
-
-#endif // EIGENZEIT_H_INCLUDED
+#endif /* LEARNING_EIGENZEIT_H */
