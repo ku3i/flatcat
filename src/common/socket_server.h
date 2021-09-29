@@ -1,6 +1,7 @@
 #ifndef SOCKET_SERVER_H
 #define SOCKET_SERVER_H
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -43,6 +44,11 @@ public:
         int flag = 1;                                      /* set TCP_NODELAY flag                             */
         setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
 
+        /* make the socket non-blockable */
+        int x = fcntl(sockfd ,F_GETFL, 0);
+        if (fcntl(sockfd, F_SETFL, x | O_NONBLOCK))
+            err_msg(__FILE__,__LINE__,"could not set socket blocking");
+
         /* set timeout */
         struct timeval read_timeout = timeval{};
         read_timeout.tv_usec = constants::timeout_ms * 1000;
@@ -79,6 +85,8 @@ public:
         if (connectfd < 0) {
             return false;
         }
+
+        set_socket_blocking(connectfd, false);
 
         char client_addr[INET6_ADDRSTRLEN];
         unsigned port;
@@ -126,7 +134,7 @@ public:
         memset(buffer, 0, constants::max_tcp_msg_len);
 
         /* read from socket (blocking) */
-        if (read(connectfd, buffer, constants::max_tcp_msg_len) < 0)
+        if (recv(connectfd, buffer, constants::max_tcp_msg_len, MSG_DONTWAIT) < 0)
         {
             if (errno != EAGAIN)
                 wrn_msg("Failed reading from socket.\n%s", strerror(errno));
@@ -147,8 +155,19 @@ public:
     {
         std::string::size_type pos;
 
-        while((pos = recv_stream.find("\n", 0)) == std::string::npos)
+        recv_stream = get_next_msg();
+        if (recv_stream.size() == 0) return "";
+
+        // continue reading if there was data but no complete command, timeout 10ms
+        unsigned t = 0;
+        while((pos = recv_stream.find("\n", 0)) == std::string::npos) {
+            usleep(1000);
             recv_stream += get_next_msg();
+            if (++t >= 10) {
+                wrn_msg("Timeout reading data line.");
+                break;
+            }
+        }
 
         std::string retstr = recv_stream.substr(0, pos);
         recv_stream.erase(0, pos+1);
@@ -156,7 +175,18 @@ public:
         return retstr;
     }
 
+
     std::string const& get_current_client_address(void) const { return current_client_addr; }
+
+
+    bool set_socket_blocking(int fd, bool blocking)
+    {
+        if (fd < 0) return false;
+        int flags = fcntl(fd, F_GETFL, 0);
+        if (flags == -1) return false;
+        flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
+        return (fcntl(fd, F_SETFL, flags) == 0) ? true : false;
+    }
 
 };
 

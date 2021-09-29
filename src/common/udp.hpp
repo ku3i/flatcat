@@ -102,10 +102,11 @@ public:
 
     bool data_ready(void) const { return tx_ready; }
 
-    void change_destination(std::string const& dest)
+    void change_destination(std::string const& dest, uint16_t port = default_port)
     {
         common::lock_t lock(l_adr);
         addr.sin_addr.s_addr = inet_addr(dest.c_str());
+        addr.sin_port = htons(port);
     }
 };
 

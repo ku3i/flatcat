@@ -19,8 +19,6 @@ for root, dirs, files in os.walk("."):
 cpppaths = ['.','../../simloidTCP/src']
 
 
-
-
 src_files = [ 'common/log_messages.cpp'
             , 'common/modules.cpp'
             , 'common/settings.cpp'
@@ -28,6 +26,9 @@ src_files = [ 'common/log_messages.cpp'
             , 'control/jointcontrol.cpp'
             , 'control/controlparameter.cpp'
             , 'control/control_vector.cpp'
+            , 'learning/gmes.cpp'
+            , 'learning/predictor.cpp'
+            , 'learning/action_selection.cpp'
             , 'serial/rs232.c'
             ]
 

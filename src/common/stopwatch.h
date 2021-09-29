@@ -30,6 +30,11 @@ public:
         return current_time_us - last_time_us;
     }
 
+    unsigned long long get_current_time_ms(void) {
+        get_time();
+        return current_time_us/1000;
+    }
+
 private:
     void get_time()
     {
